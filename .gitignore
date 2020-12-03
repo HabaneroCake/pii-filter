@@ -1,0 +1,15 @@
+# mac
+.DS_Store
+
+# byte-compiled etc.
+__pycache__/
+*.py[cod]
+
+# c extensions
+*.so
+
+# node
+node_modules/
+
+# other
+ignore/
