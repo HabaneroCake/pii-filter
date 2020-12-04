@@ -10,7 +10,7 @@ web-extension for browsers.
 The internet can be an unforgiving place, and the amount of personally identifiable data left behind on it has not 
 decreased much over the years. This could have to do in part with the massive increase in availability and usability. 
 Unfortunately, many users still don't understand the dangers that sporadic use of PII can bring along with it. There are
-countless sad stories of doxxing, scamming, harassment, and other unprogressive behavior linked to the unsafe guarding 
+countless sad stories of doxing, scamming, harassment, and other unprogressive behavior linked to the unsafe guarding 
 of one's personal details. We hope to provide people with a filter which can serve as a first line of defense against 
 the spreading of unnecessary personal information on the internet, while informing the user of the severity of the 
 information which was entered, hopefully raising their awareness on the topic.
