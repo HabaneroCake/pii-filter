@@ -1,3 +1,3 @@
-import { browser } from "webextension-polyfill-ts";
+import { browser } from 'webextension-polyfill-ts';
 
-console.log(browser)
+console.log(browser);
