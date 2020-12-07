@@ -3,7 +3,7 @@
 The PII Filter project aims to build a personally identifiable information (PII) filter for all Dutch users of the
 internet. Although we hope to support multiple languages in the future. Feel free to contribute to this project through
 pull requests and/or issues. The current shape of this project is: a library, an api-request sanitizer, and a
-web-extension for browsers.
+[web-extension](https://github.com/prolody/piif_web_ext) for browsers.
 
 ## <a name="current_state">The current state</a>
 

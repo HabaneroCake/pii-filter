@@ -28,7 +28,7 @@ A dictionary is also provided.
         - `__init__.py` - "feature module", containing feature dataset loading and preprocessing
         - `raw/` - raw datasets (such as a scraped database / scripts for scraping, or selected files from a repository)
 
-### <a name="structure_dataset">`dataset.json`</a>
+### <a name="structure_dataset">`build/dataset.json format`</a>
 ```
 {
     "name": "pii_dataset_nl",
