@@ -25,7 +25,10 @@ if not os.path.exists(build_path):
 # provide some form of progress indication
 def print_cb(msg):
     """Provides a callback to print progress"""
-    print('--- ' + msg, end="\r", flush=True)
+    if msg:
+        print('--- ' + msg, end="\r", flush=True)
+    else:
+        print()
 
 # load wordlists
 wordlists = {}

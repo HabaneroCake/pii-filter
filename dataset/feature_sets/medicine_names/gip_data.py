@@ -33,4 +33,4 @@ with open(raw_gmib_data_path) as csvfile:
         if len(full_name) > 2 and full_name not in filters.ignore_names:
             word_list.check_and_add(full_name)
 
-    all = word_list.all
+    all = word_list.keys

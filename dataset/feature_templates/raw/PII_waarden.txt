@@ -1,0 +1,9 @@
+{first_name} //1
+{family_name} //1
+{name_pet} //1
+{date_d_m} //1
+{date_d_m_y} //1
+{email_address} //2
+{mobile_number} //2
+{landline_phone_number} //1
+{password} //8

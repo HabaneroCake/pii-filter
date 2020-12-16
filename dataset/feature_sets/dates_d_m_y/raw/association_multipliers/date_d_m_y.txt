@@ -1,0 +1,21 @@
+{email_address} //2
+{mobile_number} //2
+geboortedatum //1.5
+geboorte //1.5
+geboren //1.5
+ter wereld gekomen //1.5
+nieuw leven //1.5
+baby //1.5
+dochter //1.5
+dochtertje //1.5
+zoontje //1.5
+zoon //1.5
+kind //1.5
+kindje //1.5
+trouwen //1.5
+getrouwd //1.5
+overleden //1.25
+heengegaan //1.25
+ingeslapen //1.25
+ontslapen //1.25
+in de hemel opgenomen //1.25

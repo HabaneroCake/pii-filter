@@ -7,8 +7,9 @@ import csv
 import json
 
 from .. import word_list_counter
+from .. import parse_assoc
 
-NAME = 'family_names'
+NAME = 'family_name'
  
 raw_family_names_1_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -31,6 +32,13 @@ raw_family_names_3_path = os.path.join(
     'last_names.all.txt'
 )
 
+raw_association_multipliers_1_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'raw',
+    'association_multipliers',
+    'family_name.txt'
+)
+
 def get_wordlists(line_printer_cb):
     word_list = word_list_counter.WordListCounter()
     for path in [raw_family_names_1_path, raw_family_names_2_path, raw_family_names_3_path]:
@@ -39,4 +47,12 @@ def get_wordlists(line_printer_cb):
             for row in data:
                 word_list.check_and_add(row)
                 line_printer_cb('main: {}'.format(word_list.count))
-    return {'main': word_list.all}
+
+    # new line
+    line_printer_cb(None)
+
+    return {
+        **{'main': word_list.keys},
+        **parse_assoc.read_assoc_data([raw_association_multipliers_1_path],
+        line_printer_cb)
+    }

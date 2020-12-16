@@ -1,0 +1,11 @@
+{email_address} //3
+{first_name} //1.5
+{family_name} //1.5
+{date_d_m} //1.25
+{date_d_m_y} //1.25
+{name_pet} //1.25
+bevestiging //1.5
+inloggen //2
+log //2
+account //1.5
+aanmelden //1.5

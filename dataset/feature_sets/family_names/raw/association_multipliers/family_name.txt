@@ -1,0 +1,15 @@
+{first_name} //2
+{email_address} //2
+{mobile_number} //1.5
+dochter //1.5
+zoon //1.5
+dochtertje //1.5
+zoontje //1.5
+kind //1.5
+baby //1.5
+man //1.5
+vrouw //1.5
+echtgenoot //1.5
+partner //1.5
+naam //1.5
+heet //1.5
