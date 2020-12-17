@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 describe('Trie_Branch', ()=>{
     it('test_get_or_create', ()=>{
-        let trie_branch = new Trie.Branch();
+        let trie_branch = new Trie.Branch<boolean>();
         let branch =    trie_branch.get_or_create('a');
         let branch2 =   trie_branch.get_or_create('a');
         expect(branch).not.equals(null);
@@ -13,13 +13,13 @@ describe('Trie_Branch', ()=>{
     });
 
     it('test_has', ()=>{
-        let trie_branch = new Trie.Branch();
+        let trie_branch = new Trie.Branch<boolean>();
         trie_branch.get_or_create('a');
         expect(trie_branch.has('a')).true;
     });
 
     it('test_get', ()=>{
-        let trie_branch = new Trie.Branch();
+        let trie_branch = new Trie.Branch<boolean>();
         trie_branch.get_or_create('a');
         expect(trie_branch.get('a')).not.equals(null);
         expect(trie_branch.get('a')).is.instanceOf(Trie.Branch);
@@ -27,7 +27,7 @@ describe('Trie_Branch', ()=>{
     });
 
     it('test_parts', ()=>{
-        let trie_branch = new Trie.Branch();
+        let trie_branch = new Trie.Branch<boolean>();
         trie_branch.get_or_create('a').get_or_create('b').get_or_create('c');
         trie_branch.get_or_create('a').get_or_create('b').get_or_create('e');
         trie_branch.get_or_create('b').get_or_create('d').get_or_create('f');
@@ -41,30 +41,30 @@ describe('Trie_Branch', ()=>{
 
 describe('Trie', ()=>{
     it('test_insert', ()=>{
-        let trie = new Trie();
+        let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
-            trie.insert(w);
+            trie.insert(w, true);
         expect(trie['nodes'].size).equals(2);
     });
 
     it('test_matched_node', ()=>{
-        let trie = new Trie();
+        let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
-            trie.insert(w);
+            trie.insert(w, true);
         expect(trie.matched_node('hoi')).not.equals(null);
     });
 
     it('test_matched_node_end', ()=>{
-        let trie = new Trie();
+        let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
-            trie.insert(w);
-        expect(trie.matched_node('hoi').end).equals(true);
+            trie.insert(w, true);
+        expect(trie.matched_node('hoi').end[0]).equals(true);
     });
 
     it('test_matches', ()=>{
-        let trie = new Trie();
+        let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
-            trie.insert(w);
+            trie.insert(w, true);
         expect(trie.matches('hallo')).true;
         expect(trie.matches('hall', true)).true;
         expect(trie.matches('hall')).false;
@@ -72,9 +72,9 @@ describe('Trie', ()=>{
     });
 
     it('test_partial_matches', ()=>{
-        let trie = new Trie();
+        let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
-            trie.insert(w);
+            trie.insert(w, true);
         let matches = trie.partial_matches('h')
         expect(matches[0]).equals('hoi');
         expect(matches[1]).equals('hallo');
@@ -91,7 +91,7 @@ describe('Trie', ()=>{
                 'thee',
                 'tas kaffee',
                 'kat'
-            ]);
+            ], true);
             expect(trie).not.equals(null);
             expect(trie).instanceOf(Trie);
             expect(trie['nodes'].size).equals(3);

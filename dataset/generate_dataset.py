@@ -7,6 +7,7 @@ Script to build the database of dutch PII
 import os
 import json
 
+import feature_templates
 from feature_sets import all
 
 
@@ -15,9 +16,13 @@ build_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'build'
 )
-output_path = os.path.join(
+dataset_output_path = os.path.join(
     build_path,
     'dataset.json'
+)
+benchmark_output_path = os.path.join(
+    build_path,
+    'benchmark.json'
 )
 if not os.path.exists(build_path):
     os.mkdir(build_path)
@@ -40,12 +45,20 @@ for feature_set in all:
 
 # store aggregated dataset
 all_data = {
-    'name':         'pii_dataset_nl',
-    'version':      0,
-    'wordlists':    wordlists
+    'name':                 'pii_dataset_nl',
+    'version':              0,
+    'wordlists':            wordlists,
+    'severity_mapping':     feature_templates.severity_mapping
 }
-with open(output_path, 'w') as f:
-    print('saving to {}'.format(output_path))
+print('Storing pii dataset.')
+with open(dataset_output_path, 'w') as f:
+    print('saving to {}'.format(dataset_output_path))
     json.dump(all_data, f)
+
+print('Storing benchmark dataset.')
+# store benchmark dataset
+with open(benchmark_output_path, 'w') as f:
+    print('saving to {}'.format(benchmark_output_path))
+    json.dump(feature_templates.benchmark_data, f)
 
 print('done.')

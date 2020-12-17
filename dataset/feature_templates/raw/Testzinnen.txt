@@ -64,7 +64,7 @@ als er op {landline_phone_number} niet wordt opgenomen, kun je het proberen op {
 je kunt inloggen met het wachtwoord {password} //8
 op {date_d_m) een superfijne verjaardag gehad met alle kinderen en mijn lieve vrouw, en natuurlijk {name_pet} en {name_pet}. Bedankt {first_name}, {first_name}, {first_name}, {first_name} en {first_name} //8
 ik had gemaild vanaf {email_address}, maar dat lijkt niet aan te komen dus probeer ik het even met {email_address}. Wil je me alsjeblieft bellen op {landline_phone_number} of {mobile_number} als je mijn bericht gezien hebt? //8
-{first_name}, wij zijn met {name_pet} naar de dierenarts, dus je moet zelf even een mailtje sturen naar {email_address}. Als het niet lukt mag je me bellen op {mobile_number}. Groetjes! {first_name} en {first_name} //8 (twijfelgeval omdat het mailadres niet hoort bij iemand van wie de namen hier staan. Kunnen we daar al iets mee?)
+{first_name}, wij zijn met {name_pet} naar de dierenarts, dus je moet zelf even een mailtje sturen naar {email_address}. Als het niet lukt mag je me bellen op {mobile_number}. Groetjes! {first_name} en {first_name} //8
 hoi {first_name}, het wachtwoord is {password}. Lukt het dan om in te loggen? //9
 we zijn bereikbaar via {landline_phone_number} of {mobile_number}, maar voor specifieke vragen aan {first_name} kun je het best mailen naar {email_addres} en voor {first_name} naar {email_addres} //10
 heb je {password} al geprobeerd? Die gebruik ik vaak in combinatie met {first_name} of {email_address} als gebruikersnaam. //11

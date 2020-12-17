@@ -8,7 +8,6 @@ raw_phrases_path = os.path.join(
 )
 
 pii_re = re.compile('\{(.*?)\}')
-
 def get_phrases():
     result = []
     with open(raw_phrases_path) as f:
@@ -21,8 +20,11 @@ def get_phrases():
             if ' //' in row:
                 pii_res = pii_re.findall(row)
                 phrase, severity = row.split(' //')
-                result.append([phrase, pii_res, severity])
-                # eventually .format(**{key:x})
+                result.append({
+                    'phrase': pii_re.split(phrase),
+                    'pii': pii_res,
+                    'severity': float(severity)
+                })
     return result
             
 phrases = get_phrases()

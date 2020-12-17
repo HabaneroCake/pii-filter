@@ -1,27 +1,34 @@
 /**
  * simple trie structure
  */
-export class Trie
+export class Trie<T>
 {
-    private nodes: Trie.Branch = new Trie.Branch();
+    private nodes: Trie.Branch<T> = new Trie.Branch<T>();
     
-    public static make(words: Array<string>): Trie
+    public static make<T>(words: Array<string>, value: T): Trie<T>
     {
-        let self = new Trie();
+        let self = new Trie<T>();
         for (let word of words)
-            self.insert(word);
+            self.insert(word, value);
         return self;
     }
 
-    public insert(word: string): void
+    public add_list(words: Array<string>, value: T)
+    {
+        for (let word of words)
+            this.insert(word, value);
+    }
+
+    public insert(word: string, value: T): void
     {
         let node = this.nodes;
         for (let i=0; i<word.length; ++i)
             node = node.get_or_create(word[i]);
-        node.end = true;
+        node.make_end();
+        node.end.push(value);
     }
 
-    public matched_node(word: string): Trie.Branch
+    public matched_node(word: string): Trie.Branch<T>
     {
         let node = this.nodes;
         for (let i=0; i<word.length; ++i)
@@ -38,7 +45,7 @@ export class Trie
     public matches(word: string, partial: boolean=false): boolean
     {
         let node = this.matched_node(word);
-        return node && (node.end || partial);
+        return (node != null) && ((node.end != null) || partial);
     }
 
     public partial_matches(word: string): Array<string>
@@ -56,12 +63,12 @@ export class Trie
 
 export namespace Trie
 {
-    export class Branch
+    export class Branch<T>
     {
-        private nodes:  Map<string, Branch> =   new Map<string, Branch>();
-        private _end:   boolean =               false;
+        private nodes:  Map<string, Branch<T>> =   new Map<string, Branch<T>>();
+        private _end:   Array<T>;
     
-        public get_or_create(key: string): Branch
+        public get_or_create(key: string): Branch<T>
         {
             if (this.has(key))
             {
@@ -69,17 +76,23 @@ export namespace Trie
             }
             else
             {
-                let new_branch = new Branch();
+                let new_branch = new Branch<T>();
                 this.nodes.set(key, new_branch);
                 return new_branch;
             }
         }
+
+        public make_end()
+        {
+            if (this._end == null)
+                this._end = new Array<T>();
+        }
     
-        public get end(): boolean               { return this._end; }
-        public set end(end: boolean)            { this._end = end; }
+        public get end(): Array<T>              { return this._end; }
+        public set end(end: Array<T>)           { this._end = end; }
     
         public has(key: string): boolean        { return this.nodes.has(key); }
-        public get(key: string): Branch         { return this.nodes.get(key); }
+        public get(key: string): Branch<T>      { return this.nodes.get(key); }
         
         public get size(): number               { return this.nodes.size; }
     

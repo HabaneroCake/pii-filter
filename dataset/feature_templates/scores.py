@@ -13,7 +13,10 @@ def get_scores():
         for row in data:
             row = row.strip()
             pii_var, value = row.split(' //')
-            result.append([pii_var[1:-1], value])
+            result.append({
+                'pii': pii_var[1:-1],
+                'severity': float(value)
+            })
     return result
             
 scores = get_scores()

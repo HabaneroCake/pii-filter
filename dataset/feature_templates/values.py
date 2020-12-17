@@ -33,4 +33,3 @@ def get_values():
     return result
             
 values = get_values()
-print(values)
