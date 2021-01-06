@@ -11,14 +11,14 @@ de vakantie was heerlijk, hier een foto van het uitzicht uit onze tent //0
 om de cupcakes te versieren kan je het beste botercrème gebruiken //0
 
 // Laag risico
-vandaag met de familie naar het bos geweest. {name_pet} was natuurlijk ook mee en heeft zich uitstekend vermaakt! //1
+vandaag met de familie naar het bos geweest. {pet_name} was natuurlijk ook mee en heeft zich uitstekend vermaakt! //1
 morgen mag mijn dochter {first_name} na hard werken haar diploma ophalen //1
 met de achternaam {family_name} krijg ik natuurlijk wel vaak opmerkingen over mijn lengte //1
 toen ik binnenkwam werd ik begroet door de leerlingen die in koor goedemorgen {first_name} riepen //1
 op {date_d_m_y} kwam ik ter wereld, en nu ben ik alweer dertig jaar geworden //1
 als mijn naam niet {first_name} was geweest, had mijn leven er heel anders uitgezien //1
 mijn geboortedatum is {date_d_m_y}, wat zegt dat volgens de chinese astrologie over mijn persoonlijkheid? //1
-tot ons grote verdriet is onze lieve {name_pet} gisteren ingeslapen //1
+tot ons grote verdriet is onze lieve {pet_name} gisteren ingeslapen //1
 op {date_d_m} viert onze oudste dochter haar vijfde verjaardag //1
 {first_name}, heb je de folders van gisteren al rondgebracht? //1
 
@@ -28,7 +28,7 @@ bel me morgen anders even via {mobile_number} //2
 op {date_d_m_y} is onze prachtige dochter {first_name} geboren //2
 morgen, op {date_d_m} vieren {first_name} en ik ons vijfentwintigjarig huwelijk //2
 mijn zoons {first_name} en {first_name} hebben vandaag allebei hun rijbewijs gehaald //2
-zo schattig, {first_name} en {name_pet} samen in de wieg //2
+zo schattig, {first_name} en {pet_name} samen in de wieg //2
 {first_name} viert op {date_d_m} zijn vijftigste verjaardag! //2
 mijn naam is {first_name} {family_name} en ik wil me graag aanmelden voor de cursus //2
 in welke groep komt mijn zoon {first_name} met geboortedatum {date_d_m_y}? //2
@@ -36,7 +36,7 @@ mail je vraag even naar {email_address}, dan kom ik er later deze week op terug 
 mijn mailadres is {email_address} //2
 
 // Hoog risico
-verzoekjes voor blogonderwerpen of vragen over {name_pet} mag je altijd mailen naar {email_address} //3
+verzoekjes voor blogonderwerpen of vragen over {pet_name} mag je altijd mailen naar {email_address} //3
 {first_name} is op weekdagen bereikbaar via {landline_phone_number} //3
 je kunt {first_name} telefonisch bereiken via {mobile_number} //3
 op {date_d_m_y} ben ik getrouwd met mijn allerliefste {first_name}, die op {date_d_m} vijfendertig jaar wordt. //3
@@ -45,16 +45,16 @@ als je {first_name} op {date_d_m} wilt bellen voor zijn verjaardag, dan kan dat 
 voor meer informatie kan je mailen naar {email_address}. Die mail kan je richten aan {first_name} {family_name}. //4
 je kan bellen naar {phone_number}. Je moet dan vragen naar {first_name} {family_name} //4
 {first_name} en {first_name} zijn bereikbaar op {landline_phone_number} //4
-ik moet nu {first_name} naar school brengen en {name_pet} uitlaten, maar voor dringende zaken kan je me bellen op {mobile_number} //4
+ik moet nu {first_name} naar school brengen en {pet_name} uitlaten, maar voor dringende zaken kan je me bellen op {mobile_number} //4
 
 // Ernstig risico
 {first_name} is bereikbaar via {mobile_number} of {email_address} //5
-ik vier op {date_d_m} mijn verjaardag met de hele familie {family_name}. Ook mijn vrouw {first_name} en zoon {first_name} zijn erbij, en natuurlijk {name_pet} //5
+ik vier op {date_d_m} mijn verjaardag met de hele familie {family_name}. Ook mijn vrouw {first_name} en zoon {first_name} zijn erbij, en natuurlijk {pet_name} //5
 heb je {first_name} al kunnen bereiken via {email_address}? Anders kan je het nog via whatsapp proberen op {mobile_number} //5
 {first_name} heeft voor haar tiende verjaardag een eigen telefoon gekregen dus je kan haar nu zelf appen via {mobile_number}. Voor haar verlanglijstje kan je mij beter even bellen, dat kan op {mobile_phone_number} //5
 je kan {first_name} bereiken op {email_address} en {first_name} op {email_address} //6
 {first_name} en {first_name} {family_name} zijn op {day_month} tien jaar getrouwd en vinden het heel leuk om via {email_address} al jullie gelukswensen te ontvangen //6
-{first_name} {family_name} ({year}) geeft samen met haar hond {name_pet} een workshop hondentraining en is voor vragen te bereiken via {email_address} //6
+{first_name} {family_name} ({year}) geeft samen met haar hond {pet_name} een workshop hondentraining en is voor vragen te bereiken via {email_address} //6
 als je {first_name} {family_name} zelf wilt spreken, kun je contact opnemen via {mobile_number} of {email_address} //6
 jullie zijn {date_d_m_y} allemaal welkom op de verjaardag van {first_name} en {first_name}. Als je wilt weten wat ze voor hun verjaardag willen hebben, kan je bellen naar {mobile_number} of mailen naar {email_address}. Tot dan! //7
 als het via {email_address} en {mobile_number} niet lukt om {first_name} te pakken te krijgen, kan je het nog proberen via {email_address} //7
@@ -62,11 +62,11 @@ als het via {email_address} en {mobile_number} niet lukt om {first_name} te pakk
 // Onaanvaardbaar risico
 als er op {landline_phone_number} niet wordt opgenomen, kun je het proberen op {mobile_number}. Voor minder dringende verzoeken kan je ook mailen naar {first_name} {family_name} via {email_address} //8
 je kunt inloggen met het wachtwoord {password} //8
-op {date_d_m) een superfijne verjaardag gehad met alle kinderen en mijn lieve vrouw, en natuurlijk {name_pet} en {name_pet}. Bedankt {first_name}, {first_name}, {first_name}, {first_name} en {first_name} //8
+op {date_d_m) een superfijne verjaardag gehad met alle kinderen en mijn lieve vrouw, en natuurlijk {pet_name} en {pet_name}. Bedankt {first_name}, {first_name}, {first_name}, {first_name} en {first_name} //8
 ik had gemaild vanaf {email_address}, maar dat lijkt niet aan te komen dus probeer ik het even met {email_address}. Wil je me alsjeblieft bellen op {landline_phone_number} of {mobile_number} als je mijn bericht gezien hebt? //8
-{first_name}, wij zijn met {name_pet} naar de dierenarts, dus je moet zelf even een mailtje sturen naar {email_address}. Als het niet lukt mag je me bellen op {mobile_number}. Groetjes! {first_name} en {first_name} //8
+{first_name}, wij zijn met {pet_name} naar de dierenarts, dus je moet zelf even een mailtje sturen naar {email_address}. Als het niet lukt mag je me bellen op {mobile_number}. Groetjes! {first_name} en {first_name} //8
 hoi {first_name}, het wachtwoord is {password}. Lukt het dan om in te loggen? //9
 we zijn bereikbaar via {landline_phone_number} of {mobile_number}, maar voor specifieke vragen aan {first_name} kun je het best mailen naar {email_addres} en voor {first_name} naar {email_addres} //10
 heb je {password} al geprobeerd? Die gebruik ik vaak in combinatie met {first_name} of {email_address} als gebruikersnaam. //11
-je kunt mijn voor- en achternaam ({first name} {last name}) gebruiken om in te loggen met het wachtwoord {password}. Ik krijg dan een controlemail, dus dan moet je me even bellen op {mobile_number} zodat ik je de code kan geven //12
+je kunt mijn voor- en achternaam ({first_name} {last_name}) gebruiken om in te loggen met het wachtwoord {password}. Ik krijg dan een controlemail, dus dan moet je me even bellen op {mobile_number} zodat ik je de code kan geven //12
 het wachtwoord is {password} en als het niet lukt om in te loggen kan je me bereiken via {email_address} of {landline_phone_number}. Groetjes, {first_name} //13

@@ -17,7 +17,8 @@ export namespace Parsing
     export class ClassificationScore
     {
         // in case of multi word matching
-        public group_root:  Token =     null;
+        public group_root_start:    Token =     null;
+        public group_root_end:      Token =     null;
         /**
          * 
          * @param score the confidence
@@ -46,8 +47,9 @@ export namespace Parsing
             }
             if (confidence_with_same_classifier != null)
             {
-                confidence_with_same_classifier.score =         classification_score.score;
-                confidence_with_same_classifier.group_root =    classification_score.group_root;
+                confidence_with_same_classifier.score =             classification_score.score;
+                confidence_with_same_classifier.group_root_start =  classification_score.group_root_start;
+                confidence_with_same_classifier.group_root_end =    classification_score.group_root_end;
             }
             else
                 this.confidences.push(classification_score);
@@ -193,7 +195,7 @@ export namespace Parsing
                     if (assoc.classifier == classifier)
                     {
                         assoc_multiplier += assoc.score * left_it_scalar;
-                        left_it = assoc.group_root;
+                        left_it = assoc.group_root_start;
                         break;
                     }
                 }
@@ -203,22 +205,16 @@ export namespace Parsing
             {
                 if (language_model.punctuation_map.has(right_it.symbol))
                     right_it_scalar *= language_model.punctuation_map.get(right_it.symbol);
-                let found_assoc: boolean = false;
                 for (let assoc of right_it.confidences_associative)
                 {
                     if (assoc.classifier == classifier)
                     {
-                        found_assoc = true;
                         assoc_multiplier += assoc.score * right_it_scalar;
-                        while (right_it != null &&
-                                right_it.confidences_associative.length > 0 &&
-                                right_it.confidences_associative.indexOf(assoc) > -1)
-                        { right_it = right_it.next; }
+                        right_it = assoc.group_root_end;
                         break;
                     }
                 }
-                if (!found_assoc)
-                    right_it = right_it.next;
+                right_it = right_it.next;
             }
             if (!left_it && !right_it)
                 break;
@@ -284,6 +280,44 @@ export namespace Parsing
                 }
                 return [matches, new ClassificationScore(
                     1.0 * assoc_multiplier, this
+                )];
+            }
+            else
+                return [matches, new ClassificationScore(
+                    0.0, this
+                )];
+        }
+        public abstract name: string;
+    };
+
+    export abstract class SimpleDictionary extends Parsing.Classifier
+    {
+        protected main_trie:        Trie<number> =      new Trie();
+
+        constructor(protected dataset: object)
+        {
+            super();
+            // add main word list to trie
+            if ('main' in this.dataset && this.dataset['main'].length > 0)
+                this.main_trie.add_list(this.dataset['main'], 0.5)
+            // add popular word list to trie
+            if ('pop' in this.dataset && this.dataset['pop'].length > 0)
+                this.main_trie.add_list(this.dataset['pop'], 1.0)
+        }
+        public classify_associative(token: Parsing.Token): [Array<Token>, ClassificationScore]
+        {
+            return [new Array<Token>(), new ClassificationScore(
+                0.0, this
+            )];
+        }
+        public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
+        {
+            let [matches, value] = tokens_trie_lookup<number>(token, this.main_trie);
+
+            if (value)
+            {
+                return [matches, new ClassificationScore(
+                    value, this
                 )];
             }
             else

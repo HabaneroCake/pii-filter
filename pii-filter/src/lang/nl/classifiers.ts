@@ -9,7 +9,7 @@ import ds_email_address from './dataset/ds_email_address.json';
 
 export namespace Classifiers
 {
-    export class Dictionary extends Parsing.SimpleTextClassifier
+    export class Dictionary extends Parsing.SimpleDictionary
     {
         constructor() { super(ds_dictionary); }
         public name: string = 'dictionary';
@@ -51,6 +51,8 @@ export namespace Classifiers
             let at_index = token.symbol.indexOf('@');
             if (at_index > -1)
             {
+                let score = (at_index > 0 ? 0.5 : 0.25);
+
                 let left_it = token;
                 while (left_it.previous != null && left_it.previous.symbol != ' ')
                     left_it = left_it.previous;
@@ -63,17 +65,16 @@ export namespace Classifiers
                     right_it = right_it.next;
                 }
 
-                // TODO: should this maybe be done somewhere else? / outside of classifiers?
-            if (pass_index > 0)
-            {
-                assoc_multiplier = Parsing.calc_assoc_multiplier(
-                    left_it,
-                    right_it,
-                    this,
-                    this.language_model,
-                    20
-                );
-            }
+                if (pass_index > 0)
+                {
+                    assoc_multiplier = Parsing.calc_assoc_multiplier(
+                        left_it,
+                        right_it,
+                        this,
+                        this.language_model,
+                        20
+                    );
+                }
 
                 if (left_it.index == right_it.index)
                     final_matches.push(left_it);
@@ -85,8 +86,12 @@ export namespace Classifiers
                 }
                 final_matches.push(left_it);
 
+                // add to score if contains ".something"
+                if (final_matches.length > 1 && final_matches[final_matches.length - 2].symbol == '.')
+                    score += 0.5;
+
                 return [final_matches, new Parsing.ClassificationScore(
-                    1.0 * assoc_multiplier, this
+                    score * assoc_multiplier, this
                 )];
             }
             else

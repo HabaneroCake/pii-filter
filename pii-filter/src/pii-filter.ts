@@ -39,7 +39,8 @@ export class PIIFilter
                 let [tokens_dict, score_dict] = this.language_model.dictionary.classify_confidence(token, 0);
                 
                 // add score to results
-                score_dict.group_root = token;
+                score_dict.group_root_start =   tokens_dict[0];
+                score_dict.group_root_end =     tokens_dict[tokens_dict.length-1];
                 // add score to matched tokens
                 for (let r_token of tokens_dict)
                 {
@@ -63,7 +64,8 @@ export class PIIFilter
                 if (score_assoc.valid)
                 {
                     // add score to results
-                    score_assoc.group_root = tokens_assoc[0];
+                    score_assoc.group_root_start = tokens_assoc[0];
+                    score_assoc.group_root_end =   tokens_assoc[tokens_assoc.length-1];
                     // add score to matched tokens
                     for (let r_token of tokens_assoc)
                     {
@@ -92,7 +94,8 @@ export class PIIFilter
                     if (score_conf.valid)
                     {
                         // add score to results
-                        score_conf.group_root = tokens_conf[0];
+                        score_conf.group_root_start = tokens_conf[0];
+                        score_conf.group_root_end =   tokens_conf[tokens_conf.length-1];
                         // add score to matched tokens
                         for (let r_token of tokens_conf)
                         {
@@ -108,14 +111,14 @@ export class PIIFilter
         {
             console.log(`[${token.index}] Token: \"${token.symbol}\"`);
             if (token.confidence_dictionary)
-                console.log(`- dict score: ${token.confidence_dictionary.score}`);
+                console.log(`- dict score: ${token.confidence_dictionary.score}, root: [${token.confidence_dictionary.group_root_start.index}, ${token.confidence_dictionary.group_root_end.index}]`);
             for (let assoc of token.confidences_associative)
             {
-                console.log(`  assoc: ${assoc.classifier.name}, score: ${assoc.score}, root: ${assoc.group_root.index}`);
+                console.log(`  assoc: ${assoc.classifier.name}, score: ${assoc.score}, root: [${assoc.group_root_start.index}, ${assoc.group_root_end.index}]`);
             }
             for (let conf of token.confidences_classification[token.confidences_classification.length-1].all)
             {
-                console.log(`   ++conf: ${conf.classifier.name}, score: ${conf.score}, root: ${conf.group_root.index}`);
+                console.log(`   ++conf: ${conf.classifier.name}, score: ${conf.score}, root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`);
             }
         }
         // console.log(tokenizer.tokens);

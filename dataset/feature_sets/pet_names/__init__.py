@@ -23,7 +23,7 @@ raw_association_multipliers_1_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'raw',
     'association_multipliers',
-    'name_pet.txt'
+    'pet_name.txt'
 )
 
 def get_wordlists(line_printer_cb):

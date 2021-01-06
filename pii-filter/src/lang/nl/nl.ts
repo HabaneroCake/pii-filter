@@ -8,6 +8,7 @@ import ds_severity_mapping from './dataset/ds_severity.json';
 export class NL implements Language
 {
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
+    public max_assoc_distance:  number =                30;
     public punctuation:         RegExp =                new RegExp(/(\.|\,|\:|\!|\?|\;|\ )/g);
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
     public severity_mappings:   Array<{classifiers: Array<Parsing.Classifier>, severity: number}>;
@@ -26,9 +27,9 @@ export class NL implements Language
     )
     {
         // distance multipliers
-        this.punctuation_map.set('.', 0.5);
-        this.punctuation_map.set('!', 0.5);
-        this.punctuation_map.set('?', 0.5);
+        this.punctuation_map.set('.', 0.25);
+        this.punctuation_map.set('!', 0.25);
+        this.punctuation_map.set('?', 0.25);
         this.punctuation_map.set(',', 0.6);
         this.punctuation_map.set(';', 0.6);
         this.punctuation_map.set(':', 0.8);
