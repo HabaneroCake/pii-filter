@@ -1,6 +1,6 @@
 {email_address} //2
 {mobile_number} //2
-mijn //1.25
+mijn //1.1
 hond //1.5
 kat //1.5
 konijn //1.5

@@ -1,48 +1,78 @@
+import { Language } from './language-interface';
+import { Trie } from './trie';
+
 export namespace Parsing
 {
     export abstract class Classifier
     {
-        public abstract init(dataset: object);
-        public abstract classify(Token): ClassificationScore;
+        protected language_model: Language;
+        public init(language_model: Language)
+        {
+            this.language_model = language_model;
+        }
+        public abstract classify_associative(token: Token): [Array<Token>, ClassificationScore];
+        public abstract classify_confidence(token: Token, pass_index: number): [Array<Token>, ClassificationScore];
         public abstract name: string;
     };
     export class ClassificationScore
     {
         // in case of multi word matching
         public group_root:  Token =     null;
+        /**
+         * 
+         * @param score the confidence
+         * @param classifier the classifier which was used
+         */
         constructor(
             public score:       number,
             public classifier:  Parsing.Classifier
         ) {}
 
-        public valid(): boolean {return this.score > 0 && this.classifier != null;}
+        public get valid(): boolean {return this.score > 0 && this.classifier != null;}
     };
     export class Confidences
     {
         private confidences: Array<ClassificationScore> = new Array<ClassificationScore>();
-        public add(score: number, classifier: Parsing.Classifier)
+        public add(classification_score: ClassificationScore)
         {
-            this.confidences.push(new ClassificationScore(score, classifier));
+            let confidence_with_same_classifier: ClassificationScore = null;
+            for (let conf of this.confidences)
+            {
+                if (conf.classifier == classification_score.classifier)
+                {
+                    confidence_with_same_classifier = conf;
+                    break;
+                }
+            }
+            if (confidence_with_same_classifier != null)
+            {
+                confidence_with_same_classifier.score =         classification_score.score;
+                confidence_with_same_classifier.group_root =    classification_score.group_root;
+            }
+            else
+                this.confidences.push(classification_score);
             // sort descending
             this.confidences = this.confidences.sort((i1, i2) => i2.score - i1.score);
         }
-        public max(): ClassificationScore
+        public get max(): ClassificationScore
         {
             if (this.confidences.length)
                 return this.confidences[0];
             return new ClassificationScore(0, null);
         }
-        public all(): ReadonlyArray<ClassificationScore>
+        public get all(): ReadonlyArray<ClassificationScore>
         {
             return this.confidences;
         }
     };
     export class Token
     {
-        // stores passes
         public previous:    Token;
         public next:        Token;
-        public confidences: Array<Confidences> =    new Array<Confidences>();
+        // stores passes
+        public confidence_dictionary:       ClassificationScore;
+        public confidences_associative:     Array<ClassificationScore> =    new Array<ClassificationScore>();
+        public confidences_classification:  Array<Confidences> =            new Array<Confidences>();
         constructor(
             public symbol:      string,
             public index:       number
@@ -51,15 +81,19 @@ export namespace Parsing
     export class Tokenizer
     {
         public tokens:                      Array<Token> =  new Array<Token>();
-        private static punctuation_regexp:  RegExp =        new RegExp(/(\.|\,|\:|\!|\?|\;|\ )/g);
+        
 
         /**
-         * 
-         * @param text creates a linked list of tokens from input text
+         * creates a linked list of tokens from input text
+         * @param text input text
+         * @param lang the input language
          */
-        constructor(text: string)
+        constructor(
+            text: string,
+            lang: Language
+        )
         {
-            let string_tokens = text.split(Tokenizer.punctuation_regexp);
+            let string_tokens = text.split(lang.punctuation);
             let index: number = 0;
             let l_tok: Token =  null; 
             for (let token of string_tokens)
@@ -68,7 +102,10 @@ export namespace Parsing
                     continue;
 
                 let c_tok = new Token(token, index);
-                l_tok.next = c_tok;
+
+                if (l_tok != null)
+                    l_tok.next = c_tok;
+
                 c_tok.previous = l_tok;
                 this.tokens.push(c_tok);
 
@@ -76,5 +113,230 @@ export namespace Parsing
                 index++;
             }
         }
+    };
+    /**
+     * Attempts to (full-)match as many tokens to a trie as possible
+     * @param token a token (linked to its neighbors), with a string symbol
+     * @param trie a trie to look the token symbol up in
+     */
+    export function tokens_trie_lookup<T>(token: Token, trie: Trie<T>): [Array<Token>, T]
+    {
+        let token_iter:     Token =                 token;
+        let matched_node:   Trie.Branch<T> =        null;
+        let matches:        Array<Token> =          new Array<Token>();
+        let symbol:         string =                token.symbol.toLowerCase();
+        let end_token:      Token =                 null;
+        let end_value:      T =                     null;
+
+        // TODO: partial matches, currently only does full matches
+        do {
+            matched_node = trie.matched_node(symbol);
+            if (matched_node != null)
+            {
+                matches.push(token_iter);
+                if (matched_node.end)
+                {
+                    end_token = token_iter;
+                    end_value = matched_node.end;
+                }
+
+                if (token_iter.next != null)
+                {
+                    token_iter =    token_iter.next;
+                    symbol +=       token_iter.symbol.toLowerCase();
+                }
+                else
+                    break;
+            }
+        } while(matched_node != null)
+
+        let final_matches: Array<Token> = new Array<Token>();
+        if (end_token)
+        {
+            for (let match of matches)
+            {
+                final_matches.push(match);
+                if (end_token == match)
+                    break;
+            }
+        }
+        return [final_matches, end_value];
+    }
+
+    /**
+     * sums the associative scores for a classifier, taking into account punctuation distance
+     * @param left_it left iterator token for the midpoint
+     * @param right_it right iterator token for the midpoint
+     * @param classifier classifier to match
+     * @param language_model language_model to use
+     * @param max_steps number of steps to stop after
+     */
+    export function calc_assoc_multiplier(
+        left_it: Token,
+        right_it: Token,
+        classifier: Parsing.Classifier,
+        language_model: Language,
+        max_steps: number
+    )
+    {
+        let assoc_multiplier:   number =    1.0;
+        let left_it_scalar:     number =    1.0;
+        let right_it_scalar:    number =    1.0;
+        for (let step = 0; step < max_steps; ++step)
+        {
+            if (left_it)
+            {
+                if (language_model.punctuation_map.has(left_it.symbol))
+                    left_it_scalar *= language_model.punctuation_map.get(left_it.symbol);
+                for (let assoc of left_it.confidences_associative)
+                {
+                    if (assoc.classifier == classifier)
+                    {
+                        assoc_multiplier += assoc.score * left_it_scalar;
+                        left_it = assoc.group_root;
+                        break;
+                    }
+                }
+                left_it = left_it.previous;
+            }
+            if (right_it)
+            {
+                if (language_model.punctuation_map.has(right_it.symbol))
+                    right_it_scalar *= language_model.punctuation_map.get(right_it.symbol);
+                let found_assoc: boolean = false;
+                for (let assoc of right_it.confidences_associative)
+                {
+                    if (assoc.classifier == classifier)
+                    {
+                        found_assoc = true;
+                        assoc_multiplier += assoc.score * right_it_scalar;
+                        while (right_it != null &&
+                                right_it.confidences_associative.length > 0 &&
+                                right_it.confidences_associative.indexOf(assoc) > -1)
+                        { right_it = right_it.next; }
+                        break;
+                    }
+                }
+                if (!found_assoc)
+                    right_it = right_it.next;
+            }
+            if (!left_it && !right_it)
+                break;
+        }
+        return assoc_multiplier;
+    }
+
+    export abstract class SimpleTextClassifier extends Parsing.Classifier
+    {
+        protected association_trie: Trie<number> =      new Trie(); // 1
+        protected main_trie:        Trie<boolean> =     new Trie(); // 2
+        // assoc pii 3
+        // then classify again
+
+        constructor(protected dataset: object)
+        {
+            super();
+
+            // add association multipliers to trie
+            if ('association_multipliers' in this.dataset && this.dataset['association_multipliers'].length > 0)
+            {
+                for (const [word, multiplier] of this.dataset['association_multipliers'] as Array<[string, number]>)
+                    this.association_trie.insert(word, multiplier);
+            }
+            // add main word list to trie
+            if ('main' in this.dataset && this.dataset['main'].length > 0)
+                this.main_trie.add_list(this.dataset['main'], true)
+        }
+        public classify_associative(token: Parsing.Token): [Array<Token>, ClassificationScore]
+        {
+            let [matches, value] = tokens_trie_lookup<number>(token, this.association_trie);
+            if (value)
+            {
+                return [matches, new ClassificationScore(
+                    value, this
+                )];
+            }
+            else
+                return [matches, new ClassificationScore(
+                    0.0, this
+                )];
+        }
+        public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
+        {
+            let [matches, value] = tokens_trie_lookup<boolean>(token, this.main_trie);
+
+            if (value)
+            {
+                let assoc_multiplier = 1;
+                if (pass_index > 0)
+                {
+                    // check for associative multipliers
+                    let left_it:    Token = matches[0].previous;
+                    let right_it:   Token = matches[matches.length-1].next;
+
+                    assoc_multiplier = calc_assoc_multiplier(
+                        left_it,
+                        right_it,
+                        this,
+                        this.language_model,
+                        20
+                    );
+                }
+                return [matches, new ClassificationScore(
+                    1.0 * assoc_multiplier, this
+                )];
+            }
+            else
+                return [matches, new ClassificationScore(
+                    0.0, this
+                )];
+        }
+        public abstract name: string;
+    };
+
+    export abstract class SimpleNameClassifier extends Parsing.SimpleTextClassifier
+    {
+        constructor(dataset: object) { super(dataset); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            let [tokens, score] = super.classify_confidence(token, pass_index);
+            if (tokens.length > 0 && pass_index > 0)
+            {
+                // adjust score if in dictionary
+                if (tokens[0].confidence_dictionary)
+                    score.score *= 0.5;
+                // adjust score to capitalization
+                let any_uppercase: boolean = false;
+                for (let r_token of tokens)
+                {
+                    let first_letter = r_token.symbol[0];
+                    let first_uppercase = first_letter == first_letter.toUpperCase();
+                    // TODO: could check for rest/most lowercase
+                    any_uppercase ||= first_uppercase;
+                }
+                
+                if (any_uppercase)
+                {
+                    // adjust score to punctuation proximity
+                    let left_token = tokens[0];
+                    while (left_token.previous != null && left_token.previous.symbol == ' ')
+                        left_token = left_token.previous;
+
+                    if (left_token.previous == null ||
+                        (this.language_model.punctuation_map.has(left_token.previous.symbol) &&
+                        this.language_model.punctuation_map.get(left_token.previous.symbol) <= 0.5))
+                    {
+                        score.score *= 0.75;
+                    }
+                    else
+                        score.score *= 2;
+                }
+                else
+                    score.score *= 0.5;
+            }
+            return [tokens, score];
+        }
+        public abstract name: string;
     };
 };

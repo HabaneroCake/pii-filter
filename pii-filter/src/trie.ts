@@ -24,8 +24,8 @@ export class Trie<T>
         let node = this.nodes;
         for (let i=0; i<word.length; ++i)
             node = node.get_or_create(word[i]);
-        node.make_end();
-        node.end.push(value);
+
+        node.end = value;
     }
 
     public matched_node(word: string): Trie.Branch<T>
@@ -66,7 +66,7 @@ export namespace Trie
     export class Branch<T>
     {
         private nodes:  Map<string, Branch<T>> =   new Map<string, Branch<T>>();
-        private _end:   Array<T>;
+        private _end:   T;
     
         public get_or_create(key: string): Branch<T>
         {
@@ -81,15 +81,9 @@ export namespace Trie
                 return new_branch;
             }
         }
-
-        public make_end()
-        {
-            if (this._end == null)
-                this._end = new Array<T>();
-        }
     
-        public get end(): Array<T>              { return this._end; }
-        public set end(end: Array<T>)           { this._end = end; }
+        public get end(): T                     { return this._end; }
+        public set end(end: T)                  { this._end = end; }
     
         public has(key: string): boolean        { return this.nodes.has(key); }
         public get(key: string): Branch<T>      { return this.nodes.get(key); }

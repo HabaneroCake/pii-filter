@@ -6,6 +6,7 @@ def read_assoc_data(paths, line_printer_cb=None):
     pii_association_multipliers =   word_list_counter.WordListCounter()
     def add_and_print(row):
         word, score = row.strip().split(' //')
+        score = float(score)
         # check if this row is pii var
         if word[0] == '{':
             pii_association_multipliers.check_and_add(word[1:-1], score)

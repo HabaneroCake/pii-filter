@@ -4,6 +4,10 @@
 {date_d_m} //1.5
 {date_d_m_y} //1.5
 {name_pet} //1.5
+mail //1.5
+mailadres //1.5
+mail-adres //1.5
+adres //1.25
 gebruikersnaam //2
 inloggen //2
 wachtwoord //3

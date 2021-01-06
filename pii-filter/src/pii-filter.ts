@@ -1,6 +1,6 @@
-import dataset from './dataset.json';
-import { Trie } from './trie';
 import { Parsing } from './parsing';
+import { Language } from './language-interface';
+
 // redo trie (array etc)
 // how to integrate assoc
 // how to add severity mappings
@@ -8,228 +8,119 @@ import { Parsing } from './parsing';
 // write benchmark tests
 // more pii
 
-class Something extends Parsing.Classifier
-{
-    public init(dataset: object) {}
-    public classify(Token): Parsing.ClassificationScore
-    {
-        return null;
-    }
-    public name: string = 'Something';
-};
-
 export class PIIFilter
 {
-    private static readonly verbosity:      number =                    2;
-    private static classifiers:             Array<Parsing.Classifier> = [
-        new Something()
-    ];
-
-    private static association_trie:        Trie<[Parsing.Classifier, number]>;
-    private static main_trie:               Trie<Parsing.Classifier>;
-    private static severity_mapping:        Array<{pii: Parsing.Classifier[], severity: number}>;
-    private static readonly initialized:    boolean = PIIFilter.init();
-    // private static segment_classifiers:     Map<Parsing.Classifier, PIIFilter.SegmentClassifier>;
-
-    private static init(): boolean
-    {
-        if (PIIFilter.verbosity > 0) console.log(`Initializing PII Filter.`);
-        PIIFilter.association_trie =    new Trie();
-        PIIFilter.main_trie =           new Trie();
-
-        
-        if (PIIFilter.verbosity > 0) console.log(`Parsing dataset: ${dataset['name']}, version: ${dataset['version']}.`);
-        if (PIIFilter.verbosity > 0) console.log(`Passing dataset to classifiers.`);
-        for (let classifier of PIIFilter.classifiers)
-        {
-            classifier.init(dataset);
-            dataset['wordlists']
-            // if ( classifier.name)
-        }
-
-        if (PIIFilter.verbosity > 0) console.log(`Parsing wordlists.`);
-        for (const key in dataset['wordlists'])
-        {
-            if (PIIFilter.verbosity > 1) console.log(`Parsing ${key}.`);
-
-            // verb > 1
-
-            if ('association_multipliers' in dataset['wordlists'][key] &&
-                dataset['wordlists'][key]['association_multipliers'].length > 0)
-            {
-                for (const [word, multiplier] of dataset['wordlists'][key]['association_multipliers'])
-                    PIIFilter.association_trie.insert(word, [key, multiplier]);
-            }
-            if ('main' in dataset['wordlists'][key] && dataset['wordlists'][key]['main'].length > 0)
-                PIIFilter.main_trie.add_list(dataset['wordlists'][key]['main'], key)
-        }
-        
-
-        if (PIIFilter.verbosity > 0) console.log('Parsings severity mapping.');
-        // only assigning for now
-        PIIFilter.severity_mapping = dataset['severity_mapping'];
-
-        return true;
-    }
-
+    //------------------------------------------------------------------------------------------------------------------
     /**
      * 
-     * @param pii list of filter names to use (null = all)
+     * @param language_model the language model
+     * @param verbosity verbosity level
      */
     constructor(
-        pii: Array<string> =    null
+        private language_model: Language,
+        private verbosity: number = 2
     )
     {
-        
+
     }
 
     public classify(text: string)
     {
-        
-        let tokenizer = new Tokenizer(text);
-        // let all_text = new PIIFilter.Parsing.Context(text);
+        const num_passes: number = 2;
+        let tokenizer = new Parsing.Tokenizer(text, this.language_model);
+
+        // 0: dictionary pass
+        {
+            if (this.verbosity > 0) console.log('dictionary pass');
+            let index = 0;
+            while (index < tokenizer.tokens.length)
+            {
+                let token = tokenizer.tokens[index];
+                let [tokens_dict, score_dict] = this.language_model.dictionary.classify_confidence(token, 0);
+                
+                // add score to results
+                score_dict.group_root = token;
+                // add score to matched tokens
+                for (let r_token of tokens_dict)
+                {
+                    r_token.confidence_dictionary = score_dict;
+                    index = r_token.index;
+                }
+                
+                index++;
+            }
+        }
+
+        // 1: associative pass
+        if (this.verbosity > 0) console.log('associative pass');
+        for (let classifier of this.language_model.classifiers)
+        {
+            let index = 0;
+            while (index < tokenizer.tokens.length)
+            {
+                let token = tokenizer.tokens[index];
+                let [tokens_assoc, score_assoc] = classifier.classify_associative(token);
+                if (score_assoc.valid)
+                {
+                    // add score to results
+                    score_assoc.group_root = tokens_assoc[0];
+                    // add score to matched tokens
+                    for (let r_token of tokens_assoc)
+                    {
+                        r_token.confidences_associative.push(score_assoc);
+                        index = r_token.index;
+                    }
+                }
+                index++;
+            }
+        }
+
+        for (let pass_index = 0; pass_index < num_passes; ++pass_index)
+        {
+            if (this.verbosity > 0) console.log(`pass index ${pass_index}`);
+            // 2: add pass container
+            for (let token of tokenizer.tokens)
+                token.confidences_classification.push(new Parsing.Confidences());
+            // 3: classification pass
+            for (let classifier of this.language_model.classifiers)
+            {
+                let index = 0;
+                while (index < tokenizer.tokens.length)
+                {
+                    let token = tokenizer.tokens[index];
+                    let [tokens_conf, score_conf] = classifier.classify_confidence(token, pass_index);
+                    if (score_conf.valid)
+                    {
+                        // add score to results
+                        score_conf.group_root = tokens_conf[0];
+                        // add score to matched tokens
+                        for (let r_token of tokens_conf)
+                        {
+                            r_token.confidences_classification[pass_index].add(score_conf);
+                            index = r_token.index;
+                        }
+                    }
+                    index++;
+                }
+            }
+        }
         for (let token of tokenizer.tokens)
         {
-
+            console.log(`[${token.index}] Token: \"${token.symbol}\"`);
+            if (token.confidence_dictionary)
+                console.log(`- dict score: ${token.confidence_dictionary.score}`);
+            for (let assoc of token.confidences_associative)
+            {
+                console.log(`  assoc: ${assoc.classifier.name}, score: ${assoc.score}, root: ${assoc.group_root.index}`);
+            }
+            for (let conf of token.confidences_classification[token.confidences_classification.length-1].all)
+            {
+                console.log(`   ++conf: ${conf.classifier.name}, score: ${conf.score}, root: ${conf.group_root.index}`);
+            }
         }
+        // console.log(tokenizer.tokens);
     }
 };
-
-/**
- * include piifilter
- * 
- * let something_filter = new pii_filter({settings})
- * 
- * process_input(text: string)
- * {
- *  let result =    something_filter.classify(text)
- *  let new_text =  result.replace_pii_with_placeholders(threshold=0.5)
- * }
- */
-
-// export namespace PIIFilter
-// {
-//     export namespace Parsing
-//     {
-//         export class Context
-//         {
-//             private static initialized:         boolean =   Context.init();
-//             private static text_split_regex:    RegExp;
-//             private static init(): boolean
-//             {
-//                 Context.text_split_regex = new RegExp(/(\.|\!|\?|\;)/g);
-//                 Context.text_split_regex.compile();
-//                 return true;
-//             }
-//             public phrases:                     Array<Context.Phrase>;
-//             constructor(public readonly text: string)
-//             {
-//                 this.phrases = new Array<Context.Phrase>();
-//                 for (let phrase of text.split(Context.text_split_regex))
-//                     this.phrases.push(new Context.Phrase(phrase));
-//             }
-//             *[Symbol.iterator](): IterableIterator<Context.Phrase>
-//             {
-//                 for (let phrase of this.phrases)
-//                     yield phrase;
-//             }
-//         };
-//         export namespace Context
-//         {
-//             export class Phrase
-//             {
-//                 // associative vars
-//                 // pii vars
-//                 // TODO
-//                 private phrase_segments: Array<string>;
-//                 constructor(public readonly text: string)
-//                 {
-//                     this.phrase_segments = text.split(' ');
-//                 }
-
-//                 get cursor(): Cursor
-//                 {
-//                     return new Cursor(this.phrase_segments);
-//                 }
-                
-//                 *[Symbol.iterator](): IterableIterator<Cursor>
-//                 {
-//                     for (let segment of this.phrase_segments)
-//                         yield segment;
-//                 }
-//                 // next_phrase?
-//             };
-//         };
-//         export class Cursor
-//         {
-//             private _index:     number =    0;
-//             private _length:    number =    0;
-//             constructor(public readonly segments: Array<string>)
-//             {
-//                 this._length = segments.length;
-//             }
-//             set index(_index: number)
-//             {
-//                 if (_index >= this._length || _index < 0)
-//                     throw new RangeError('Index out of range.');
-//                 this._index = _index;
-//             }
-//             get index(): number
-//             {
-//                 return this._index;
-//             }
-//             get length(): number
-//             {
-//                 return this._length;
-//             }
-//             get current_word(): string
-//             {
-//                 return this.segments[this.index];
-//             }
-//             // distance_to(x) null(not found)/number(distance)
-//             public distance_to(word: string): number
-//             {
-//                 return null;
-//             }
-//             // needs copy()
-//         };
-//         export class Result
-//         {
-//             constructor(
-//                 public readonly confidence: number,
-//                 public readonly cursor:     Parsing.Cursor
-//                 // how does tagging work here?
-//             ) {}
-//         };
-//         // TODO total result type?
-//     }
-//     //-------
-//     export interface IClassifier
-//     {
-//         classify(context: Parsing.Context, cursor: Parsing.Cursor): Parsing.Result;
-//     };
-//     export abstract class SegmentClassifier implements IClassifier
-//     {
-//         protected _pii_associative_multipliers: Array<[string, number]>;
-
-//         public set pii_associative_multipliers(_pii_associative_multipliers: Array<[string, number]>)
-//         { this._pii_associative_multipliers = _pii_associative_multipliers; }
-
-//         public classify;
-//     };
-
-//     // TRIE should be sep. out.
-
-//     export class WordClassifier extends SegmentClassifier
-//     {
-//         constructor()
-//         {
-//             super();
-//         }
-
-//         // classify todo
-//     };
-// };
 
 // TODO:
 // add test text

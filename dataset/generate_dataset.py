@@ -10,15 +10,19 @@ import json
 import feature_templates
 from feature_sets import all
 
-
 # paths
 build_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
-    'build'
+    'build',
+    'nl',
 )
-dataset_output_path = os.path.join(
+ds_full_output_path = os.path.join(
     build_path,
-    'dataset.json'
+    'ds_full.json'
+)
+ds_severity_output_path = os.path.join(
+    build_path,
+    'ds_severity.json'
 )
 benchmark_output_path = os.path.join(
     build_path,
@@ -40,10 +44,24 @@ wordlists = {}
 print('Loading sets:')
 for feature_set in all:
     print('* {}'.format(feature_set.NAME))
-    wordlists[feature_set.NAME] = feature_set.get_wordlists(print_cb)
+    wordlist = feature_set.get_wordlists(print_cb)
+    wordlists[feature_set.NAME] = wordlist
     print()
+    ds_partial_output_path = os.path.join(
+        build_path,
+        'ds_{}.json'.format(feature_set.NAME)
+    )
+    with open(ds_partial_output_path, 'w') as f:
+        print('saving to {}'.format(ds_partial_output_path))
+        json.dump(wordlist, f)
 
-# store aggregated dataset
+# store severity mapping
+print('Storing severity mapping.')
+with open(ds_severity_output_path, 'w') as f:
+    print('saving to {}'.format(ds_severity_output_path))
+    json.dump(feature_templates.severity_mapping, f)
+
+# store aggregated ds
 all_data = {
     'name':                 'pii_dataset_nl',
     'version':              0,
@@ -51,12 +69,12 @@ all_data = {
     'severity_mapping':     feature_templates.severity_mapping
 }
 print('Storing pii dataset.')
-with open(dataset_output_path, 'w') as f:
-    print('saving to {}'.format(dataset_output_path))
+with open(ds_full_output_path, 'w') as f:
+    print('saving to {}'.format(ds_full_output_path))
     json.dump(all_data, f)
 
 print('Storing benchmark dataset.')
-# store benchmark dataset
+# store benchmark ds
 with open(benchmark_output_path, 'w') as f:
     print('saving to {}'.format(benchmark_output_path))
     json.dump(feature_templates.benchmark_data, f)

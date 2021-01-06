@@ -11,5 +11,6 @@ man //1.5
 vrouw //1.5
 echtgenoot //1.5
 partner //1.5
-naam //1.5
+achternaam //1.5
+familienaam //1.5
 heet //1.5

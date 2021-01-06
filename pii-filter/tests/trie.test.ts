@@ -58,7 +58,7 @@ describe('Trie', ()=>{
         let trie = new Trie<boolean>();
         for (let w of ['hoi', 'hallo', 'waldo', 'wat'])
             trie.insert(w, true);
-        expect(trie.matched_node('hoi').end[0]).equals(true);
+        expect(trie.matched_node('hoi').end).equals(true);
     });
 
     it('test_matches', ()=>{

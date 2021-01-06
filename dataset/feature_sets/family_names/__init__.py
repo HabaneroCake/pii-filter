@@ -53,6 +53,5 @@ def get_wordlists(line_printer_cb):
 
     return {
         **{'main': word_list.keys},
-        **parse_assoc.read_assoc_data([raw_association_multipliers_1_path],
-        line_printer_cb)
+        **parse_assoc.read_assoc_data([raw_association_multipliers_1_path], line_printer_cb)
     }
