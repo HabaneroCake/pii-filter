@@ -163,18 +163,20 @@ export namespace Parsing
             // check for wildcard
             if (matched_node == null && last_symbol != null)
             {
-                symbol = last_symbol + wildcard
-                trie.matched_node(symbol);
+                symbol =        last_symbol + wildcard;
+                matched_node =  trie.matched_node(symbol);
             }
+            // check for match
             if (matched_node != null)
             {
                 matches.push(token_iter);
+                // store last full match
                 if (matched_node.end)
                 {
                     end_token = token_iter;
                     end_value = matched_node.end;
                 }
-
+                // check for extended match
                 if (token_iter.next != null)
                 {
                     last_symbol =       symbol;
@@ -186,6 +188,7 @@ export namespace Parsing
             }
         } while(matched_node != null)
 
+        // full match was found
         if (end_token)
         {
             for (let match of matches)
@@ -244,29 +247,33 @@ export namespace Parsing
         // TODO deduplicate
         if (left_it)
         {
-            if (left_it.confidences_associative.has(classifier))
+            if (left_it.confidences_associative.has(classifier) && left_it.previous)
             {
                 let score: AssociationScore = left_it.confidences_associative.get(classifier);
                 left_distance += count_str_tokens(
                     score.group_root_start,
-                    left_it,
+                    left_it.previous,
                     language_model.punctuation_map
                 );
                 left_it = score.group_root_start.previous;
             }
+            else
+                left_it = left_it.previous;
         }
         if (right_it)
         {
-            if (right_it.confidences_associative.has(classifier))
+            if (right_it.confidences_associative.has(classifier) && right_it.next)
             {
                 let score: AssociationScore = right_it.confidences_associative.get(classifier);
-                left_distance += count_str_tokens(
-                    right_it,
+                right_distance += count_str_tokens(
+                    right_it.next,
                     score.group_root_end,
                     language_model.punctuation_map
                 );
                 right_it = score.group_root_end.next;
             }
+            else
+                right_it = right_it.next;
         }
         for (let step = 0; step < max_steps; ++step)
         {
