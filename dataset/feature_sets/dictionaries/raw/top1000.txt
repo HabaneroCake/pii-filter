@@ -30,7 +30,6 @@ wat
 op
 naar
 hoe
-ben
 als
 zweeds
 hoe gaat het
@@ -39,6 +38,7 @@ lekker
 dag
 hoi
 kus
+ben
 dan
 kunnen
 meisje

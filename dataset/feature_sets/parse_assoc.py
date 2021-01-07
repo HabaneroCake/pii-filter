@@ -5,13 +5,15 @@ def read_assoc_data(paths, line_printer_cb=None):
     association_multipliers =       word_list_counter.WordListCounter()
     pii_association_multipliers =   word_list_counter.WordListCounter()
     def add_and_print(row):
-        word, score = row.strip().split(' //')
-        score = float(score)
+        tokens = row.strip().split(' //')
+        word = tokens[0]
+        values = [float(token) for token in tokens[1:]]
+        assert(len(values) == 3)
         # check if this row is pii var
         if word[0] == '{':
-            pii_association_multipliers.check_and_add(word[1:-1], score)
+            pii_association_multipliers.check_and_add(word[1:-1], values)
         else:
-            association_multipliers.check_and_add(word, score)
+            association_multipliers.check_and_add(word, values)
             
         if line_printer_cb:
             line_printer_cb('assoc: {}, pii_assoc: {}'.format(association_multipliers.count, 

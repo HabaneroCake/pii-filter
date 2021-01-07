@@ -8,6 +8,7 @@ import json
 
 from .. import word_list_counter
 from .. import parse_assoc
+from .. import dictionaries
 
 NAME = 'family_name'
  
@@ -45,8 +46,10 @@ def get_wordlists(line_printer_cb):
         with open(path) as f:
             data = f.readlines()
             for row in data:
-                word_list.check_and_add(row)
-                line_printer_cb('main: {}'.format(word_list.count))
+                row = row.lower().strip()
+                if row not in dictionaries.popular_words.top_40:
+                    word_list.check_and_add(row)
+                    line_printer_cb('main: {}'.format(word_list.count))
 
     # new line
     line_printer_cb(None)

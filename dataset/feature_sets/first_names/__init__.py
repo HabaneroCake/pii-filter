@@ -8,6 +8,7 @@ import json
 
 from .. import word_list_counter
 from .. import parse_assoc
+from .. import dictionaries
 
 NAME = 'first_name'
 
@@ -48,8 +49,10 @@ raw_association_multipliers_1_path = os.path.join(
 def get_wordlists(line_printer_cb):
     word_list = word_list_counter.WordListCounter()
     def add_and_print(word):
-        word_list.check_and_add(word)
-        line_printer_cb('main: {}'.format(word_list.count))
+        word = word.lower().strip()
+        if word not in dictionaries.popular_words.top_40:
+            word_list.check_and_add(word)
+            line_printer_cb('main: {}'.format(word_list.count))
 
     with open(raw_first_names_1_path) as csvfile:
         data = list(csv.DictReader(csvfile, delimiter=','))

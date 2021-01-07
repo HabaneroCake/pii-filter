@@ -69,7 +69,7 @@ export class PIIFilter
                     // add score to matched tokens
                     for (let r_token of tokens_assoc)
                     {
-                        r_token.confidences_associative.push(score_assoc);
+                        r_token.confidences_associative.set(classifier, score_assoc);
                         index = r_token.index;
                     }
                 }
@@ -94,8 +94,8 @@ export class PIIFilter
                     if (score_conf.valid)
                     {
                         // add score to results
-                        score_conf.group_root_start = tokens_conf[0];
-                        score_conf.group_root_end =   tokens_conf[tokens_conf.length-1];
+                        score_conf.group_root_start =   tokens_conf[0];
+                        score_conf.group_root_end =     tokens_conf[tokens_conf.length-1];
                         // add score to matched tokens
                         for (let r_token of tokens_conf)
                         {
@@ -112,7 +112,7 @@ export class PIIFilter
             console.log(`[${token.index}] Token: \"${token.symbol}\"`);
             if (token.confidence_dictionary)
                 console.log(`- dict score: ${token.confidence_dictionary.score}, root: [${token.confidence_dictionary.group_root_start.index}, ${token.confidence_dictionary.group_root_end.index}]`);
-            for (let assoc of token.confidences_associative)
+            for (let assoc of token.confidences_associative.values())
             {
                 console.log(`  assoc: ${assoc.classifier.name}, score: ${assoc.score}, root: [${assoc.group_root_start.index}, ${assoc.group_root_end.index}]`);
             }

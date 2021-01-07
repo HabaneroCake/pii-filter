@@ -1,10 +1,8 @@
-{email_address} //2
-{mobile_number} //2
-jaar //1.5
-verjaardag //1.5
-jarig //1.5
-birthday //1.5
-gefeliciteerd //1.5
-trouwen //1.5
-trouwdag //1.5
-jubileum //1.5
+jaar //5 //5 //0.25
+verjaardag //5 //5 //0.25
+jarig //5 //5 //0.25
+birthday //5 //5 //0.25
+gefeliciteerd //7 //7 //0.125
+trouwen //7 //7 //0.125
+trouwdag //5 //5 //0.25
+jubileum //5 //5 //0.25

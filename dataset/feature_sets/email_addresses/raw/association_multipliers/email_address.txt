@@ -1,13 +1,6 @@
-{first_name} //2
-{family_name} //2
-{mobile_number} //2
-{date_d_m} //1.5
-{date_d_m_y} //1.5
-{pet_name} //1.5
-mail //1.5
-mailadres //1.5
-mail-adres //1.5
-adres //1.25
-gebruikersnaam //2
-inloggen //2
-wachtwoord //3
+mail //3 //3 //0.25
+mailadres //3 //3 //0.25
+mail-adres //3 //3 //0.25
+adres //3 //3 //0.25
+gebruikersnaam //5 //5 //0.25
+inloggen //5 //5 //0.2

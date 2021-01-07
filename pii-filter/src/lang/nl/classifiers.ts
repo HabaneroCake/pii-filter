@@ -47,7 +47,7 @@ export namespace Classifiers
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             let final_matches: Array<Parsing.Token> = new Array<Parsing.Token>();
-            let assoc_multiplier: number = 1;
+            let assoc_sum: number = 0.0;
             let at_index = token.symbol.indexOf('@');
             if (at_index > -1)
             {
@@ -67,7 +67,7 @@ export namespace Classifiers
 
                 if (pass_index > 0)
                 {
-                    assoc_multiplier = Parsing.calc_assoc_multiplier(
+                    assoc_sum = Parsing.calc_assoc_sum(
                         left_it,
                         right_it,
                         this,
@@ -91,7 +91,7 @@ export namespace Classifiers
                     score += 0.5;
 
                 return [final_matches, new Parsing.ClassificationScore(
-                    score * assoc_multiplier, this
+                    Math.min(score + assoc_sum, 1.0), this
                 )];
             }
             else

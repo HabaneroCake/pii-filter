@@ -1,16 +1,51 @@
-{family_name} //2
-{email_address} //2
-{mobile_number} //1.5
-dochter //1.5
-zoon //1.5
-dochtertje //1.5
-zoontje //1.5
-kind //1.5
-baby //1.5
-man //1.5
-vrouw //1.5
-echtgenoot //1.5
-partner //1.5
-naam //1.5
-voornaam //1.5
-heet //1.5
+{family_name} //2 //2 //0.25
+dochter //5 //5 //0.125
+zoon //5 //5 //0.125
+dochtertje //5 //5 //0.125
+zoontje //5 //5 //0.125
+kind //5 //5 //0.125
+baby //5 //5 //0.125
+man //5 //5 //0.125
+vrouw //5 //5 //0.125
+echtgenoot //5 //5 //0.125
+partner //5 //5 //0.125
+voornaam //2 //2 //0.25
+ben ik //1 //1 //0.25
+naam is //1 //0 //0.33
+ben jij //1 //2 //0.33
+bent u //1 //2 //0.33
+hee //2 //0 //0.4
+hoi //2 //0 //0.4
+hallo //2 //0 //0.4
+hola //2 //0 //0.4
+ey //2 //0 //0.4
+hi //2 //0 //0.4
+heet //1 //0 //0.25
+voornaam is //1 //0 //0.5
+is * voornaam //1 //1 //0.5
+is * * voornaam //1 //0 //0.33
+is * naam //1 //1 //0.5
+is * * naam //1 //1 //0.33
+ik ben //1 //0 //0.5
+de naam van mijn * is //1 //0 //0.5
+de voornaam van mijn * is //1 //0 //0.5
+is de naam //1 //1 //0.5
+is de voornaam //1 //1 //0.5
+x //4 //0 //0.25
+xx //4 //0 //0.25
+xxx //4 //0 //0.25
+xoxo //4 //0 //0.25
+mvg //4 //0 //0.25
+fijne avond //4 //0 //0.25
+liefs //4 //0 //0.25
+groet //4 //0 //0.25
+groetjes //4 //0 //0.25
+doei //4 //0 //0.25
+doeitjes //4 //0 //0.25
+kus //4 //0 //0.25
+kusjes //4 //0 //0.25
+later //4 //0 //0.25
+bedankt //4 //0 //0.25
+tot ziens //4 //0 //0.25
+tot snel //4 //0 //0.25
+tot dan //4 //0 //0.25
