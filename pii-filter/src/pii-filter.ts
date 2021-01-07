@@ -1,13 +1,6 @@
 import { Parsing } from './parsing';
 import { Language } from './language-interface';
 
-// redo trie (array etc)
-// how to integrate assoc
-// how to add severity mappings
-// write tests
-// write benchmark tests
-// more pii
-
 export class PIIFilter
 {
     //------------------------------------------------------------------------------------------------------------------
@@ -124,11 +117,3 @@ export class PIIFilter
         // console.log(tokenizer.tokens);
     }
 };
-
-// TODO:
-// add test text
-// convert test texts
-// generate tests
-// build tests
-// attempt to complete tests
-// what coverage should succeed? or is integration testing a separate from benchmark?
