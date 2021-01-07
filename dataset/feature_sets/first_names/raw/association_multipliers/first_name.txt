@@ -39,6 +39,7 @@ mvg //4 //0 //0.25
 fijne avond //4 //0 //0.25
 liefs //4 //0 //0.25
 groet //4 //0 //0.25
+groeten //4 //0 //0.25
 groetjes //4 //0 //0.25
 doei //4 //0 //0.25
 doeitjes //4 //0 //0.25
@@ -49,3 +50,4 @@ bedankt //4 //0 //0.25
 tot ziens //4 //0 //0.25
 tot snel //4 //0 //0.25
 tot dan //4 //0 //0.25
+wie is //1 //0 //0.25
