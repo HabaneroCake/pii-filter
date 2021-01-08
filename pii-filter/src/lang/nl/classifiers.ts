@@ -6,6 +6,7 @@ import ds_family_name from './dataset/ds_family_name.json';
 import ds_pet_name from './dataset/ds_pet_name.json';
 import ds_medicine_name from './dataset/ds_medicine_name.json';
 import ds_email_address from './dataset/ds_email_address.json';
+import ds_phone_number from './dataset/ds_phone_number.json';
 
 export namespace Classifiers
 {
@@ -51,7 +52,7 @@ export namespace Classifiers
             let at_index = token.symbol.indexOf('@');
             if (at_index > -1)
             {
-                let score = (at_index > 0 ? 0.5 : 0.25);
+                let score: number = (at_index > 0 ? 0.5 : 0.25);
 
                 let left_it = token;
                 while (left_it.previous != null && left_it.previous.symbol != ' ')
@@ -60,7 +61,7 @@ export namespace Classifiers
                 let right_it = token;
                 while (right_it.next != null)
                 {
-                    if (right_it.symbol == ' ' && this.language_model.punctuation_map.has(right_it.next.symbol))
+                    if (right_it.next.symbol == ' ')
                         break;
                     right_it = right_it.next;
                 }
@@ -72,7 +73,7 @@ export namespace Classifiers
                         right_it,
                         this,
                         this.language_model,
-                        20
+                        this.language_model.max_assoc_distance
                     );
                 }
 
@@ -100,5 +101,91 @@ export namespace Classifiers
                 )];
         }
         public name: string = 'email_address';
+    };
+
+    export class PhoneNumber extends Parsing.SimpleTextClassifier
+    {
+        constructor() { super(ds_phone_number); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            const min_number_length:    number =                5; // although 7 is more common
+            
+            let number_value:           string =                '';
+            let final_matches:          Array<Parsing.Token> =  new Array<Parsing.Token>();
+            let assoc_sum:              number =                0.0;
+            
+            function get_symbols(token: string):
+                { letters: string, numbers: string, other: string }
+            {
+                return {
+                    letters:    token.replace(/[^a-zA-Z]+/g, ''),
+                    numbers:    token.replace(/\D+/g, ''),
+                    other:      token.replace(/[a-zA-Z0-9]/g, '')
+                }
+            }
+
+            function parse_token(token: Parsing.Token): [boolean, string]
+            {
+                let symbols = get_symbols(token.symbol);
+                return [(symbols.other.length <= 3 && symbols.other != '.') &&
+                            symbols.letters.length == 0 && 
+                            symbols.numbers.length > 0, symbols.numbers];
+            }
+            
+            let [could_be_number, number_part] = parse_token(token);
+            if (could_be_number)
+            {
+                number_value += number_part;
+                
+                let right_it = token;
+                while (right_it.next != null)
+                {
+                    let is_space =                      right_it.next.symbol == ' ';
+                    [could_be_number, number_part] =    parse_token(right_it.next);
+                    
+                    if (!is_space && !could_be_number)
+                        break;
+                    else if (could_be_number)
+                        number_value += number_part;
+
+                    right_it = right_it.next;
+                }
+
+                if (number_value.length < min_number_length)
+                    return [final_matches, new Parsing.ClassificationScore(
+                        0.0, this
+                    )];
+
+                let score: number = (token.symbol.indexOf('+') == 0 ? 0.35 : 0.25);
+
+                if (pass_index > 0)
+                {
+                    assoc_sum = Parsing.calc_assoc_sum(
+                        token,
+                        right_it,
+                        this,
+                        this.language_model,
+                        this.language_model.max_assoc_distance
+                    );
+                }
+
+                while (token.index < right_it.index)
+                {
+                    final_matches.push(token);
+                    token = token.next;
+                }
+                final_matches.push(token);
+
+                return [final_matches, new Parsing.ClassificationScore(
+                    Math.min(score + assoc_sum, 1.0), this
+                )];
+            }
+            else
+                return [final_matches, new Parsing.ClassificationScore(
+                    0.0, this
+                )];
+        }
+        public name: string = 'phone_number';
     };
 };

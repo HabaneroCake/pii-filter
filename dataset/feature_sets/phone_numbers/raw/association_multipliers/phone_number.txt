@@ -1,0 +1,8 @@
+bevestiging //5 //5 //0.1
+inloggen //5 //5 //0.1
+log //5 //5 //0.1
+account //5 //5 //0.1
+aanmelden //5 //5 //0.1
+telefoonnummer //2 //2 //0.25
+telefoon nummer //2 //2 //0.25
+nummer //2 //2 //0.125

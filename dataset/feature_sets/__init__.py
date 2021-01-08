@@ -10,7 +10,7 @@ from .email_addresses import *
 from .first_names import *
 from .family_names import *
 from .medicine_names import *
-from .mobile_numbers import *
+from .phone_numbers import *
 from .passwords import *
 from .pet_names import *
 
@@ -23,7 +23,7 @@ all = [
     first_names,
     family_names,
     medicine_names,
-    mobile_numbers,
+    phone_numbers,
     passwords,
     pet_names
 ]

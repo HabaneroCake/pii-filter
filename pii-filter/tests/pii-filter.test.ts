@@ -7,7 +7,7 @@ let pii_filter = new PIIFilter(new NL());
 describe('PII_Filter_NL', ()=>{
     it('classify_single_token', ()=>{
         let result = pii_filter.classify(
-            'Hee Hoi Hallo Hee, asdasd asd Ben is jalala voornaam Bram, ik wilde graag melden dat mijn achternaam verkeerd staat in jullie dossier, het is namelijk van der Beek. Er is overigens meer vraag naar Paracetamol. Daarnaast heb je hier mijn mail adres: hoi.asd@hankel.com'
+            'Hee Hoi Hallo Hee, asdasd asd Ben is jalala voornaam Bram, ik wilde graag melden dat mijn achternaam verkeerd staat in jullie dossier, het is namelijk van der Beek. Er is overigens meer vraag naar Paracetamol. Daarnaast heb je hier mijn mail adres: hoi.asd@hankel.com en mijn telefoonnummer: +31 (6) 10987654. blaasdasd .asdasd'
         );
         // expect(result).not.equals(null);
         // expect(result).is.instanceOf(PIIFilter.Classification.Result);

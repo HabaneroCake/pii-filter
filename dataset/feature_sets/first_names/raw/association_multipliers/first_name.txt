@@ -1,3 +1,4 @@
+{first_name} //2 //2 //0.125
 {family_name} //2 //2 //0.25
 dochter //5 //5 //0.125
 zoon //5 //5 //0.125
@@ -51,3 +52,8 @@ tot ziens //4 //0 //0.25
 tot snel //4 //0 //0.25
 tot dan //4 //0 //0.25
 wie is //1 //0 //0.25
+zeg hoi tegen //1 //0 //0.25
+voornamen zijn //1 //0 //0.25
+namen zijn //1 //0 //0.125
+voornamen //3 //3 //0.125
+namen zijn //3 //3 //0.125

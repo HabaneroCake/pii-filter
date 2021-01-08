@@ -1,5 +1,0 @@
-bevestiging //5 //5 //0.1
-inloggen //5 //5 //0.1
-log //5 //5 //0.1
-account //5 //5 //0.1
-aanmelden //5 //5 //0.1

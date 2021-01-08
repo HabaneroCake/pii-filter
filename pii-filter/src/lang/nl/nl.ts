@@ -23,6 +23,7 @@ export class NL implements Language
             new Classifiers.PetName(),
             new Classifiers.MedicineName(),
             new Classifiers.EmailAddress(),
+            new Classifiers.PhoneNumber(),
         ]
     )
     {

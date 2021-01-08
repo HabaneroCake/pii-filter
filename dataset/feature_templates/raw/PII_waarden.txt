@@ -4,6 +4,4 @@
 {date_d_m} //1
 {date_d_m_y} //1
 {email_address} //2
-{mobile_number} //2
-{landline_phone_number} //1
-{password} //8
+{phone_number} //2
