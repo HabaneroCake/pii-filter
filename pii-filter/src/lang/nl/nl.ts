@@ -9,7 +9,7 @@ export class NL implements Language
 {
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public max_assoc_distance:  number =                5;
-    public punctuation:         RegExp =                new RegExp(/(\.|\,|\:|\!|\?|\;|\ )/g);
+    public punctuation:         RegExp =                new RegExp(/(\.|\,|\:|\!|\?|\;|\ |\-|\/|\\|\_)/g);
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
     public severity_mappings:   Array<{classifiers: Array<Parsing.Classifier>, severity: number}>;
     /**
@@ -24,6 +24,7 @@ export class NL implements Language
             new Classifiers.MedicineName(),
             new Classifiers.EmailAddress(),
             new Classifiers.PhoneNumber(),
+            new Classifiers.Date(),
         ]
     )
     {

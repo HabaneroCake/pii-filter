@@ -1,0 +1,25 @@
+geboortedatum //5 //5 //0.25
+geboorte //5 //5 //0.25
+geboren //5 //5 //0.25
+ter wereld gekomen //5 //5 //0.125
+nieuw leven //5 //5 //0.125
+baby //5 //5 //0.125
+dochter //5 //5 //0.125
+dochtertje //5 //5 //0.125
+zoontje //5 //5 //0.125
+zoon //5 //5 //0.125
+kind //5 //5 //0.125
+kindje //5 //5 //0.125
+trouwen //5 //5 //0.125
+getrouwd //5 //5 //0.125
+overleden //5 //5 //0.125
+heengegaan //5 //5 //0.125
+ingeslapen //5 //5 //0.125
+ontslapen //5 //5 //0.125
+in de hemel opgenomen //5 //5 //0.125
+jaar //5 //5 //0.25
+verjaardag //5 //5 //0.25
+jarig //5 //5 //0.25
+birthday //5 //5 //0.25
+gefeliciteerd //7 //7 //0.125
+op //1 //0 //0.25

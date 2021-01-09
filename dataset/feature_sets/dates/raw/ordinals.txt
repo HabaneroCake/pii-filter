@@ -1,0 +1,62 @@
+eerste
+tweede
+derde
+vierde
+vijfde
+zesde
+zevende
+achtste
+negende
+tiende
+elfde
+twaalfde
+dertiende
+veertiende
+vijftiende
+zestiende
+zeventiende
+achttiende
+negentiende
+twintigste
+eenentwintigste
+tweeëntwintigste
+drieentwintigste
+vierentwintigste
+vijfentwintigste
+zesentwintigste
+zevenentwintigste
+achtentwintigste
+negenentwintigste
+dertigste
+eenendertigste
+eerste van
+tweede van
+derde van
+vierde van
+vijfde van
+zesde van
+zevende van
+achtste van
+negende van
+tiende van
+elfde van
+twaalfde van
+dertiende van
+veertiende van
+vijftiende van
+zestiende van
+zeventiende van
+achttiende van
+negentiende van
+twintigste van
+eenentwintigste van
+tweeëntwintigste van
+drieentwintigste van
+vierentwintigste van
+vijfentwintigste van
+zesentwintigste van
+zevenentwintigste van
+achtentwintigste van
+negenentwintigste van
+dertigste van
+eenendertigste van

@@ -330,13 +330,9 @@ export namespace Parsing
         return associative_sum;
     }
 
-    export abstract class SimpleTextClassifier extends Parsing.Classifier
+    export abstract class SimpleAssociativeClassifier extends Parsing.Classifier
     {
         protected association_trie: Trie<AssociativeScore> =    new Trie();
-        protected main_trie:        Trie<boolean> =             new Trie();
-        // assoc pii 3
-        // then classify again
-
         constructor(protected dataset: object)
         {
             super();
@@ -348,9 +344,6 @@ export namespace Parsing
                         Array<[string, [number, number, number]]>)
                     this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score));
             }
-            // add main word list to trie
-            if ('main' in this.dataset && this.dataset['main'].length > 0)
-                this.main_trie.add_list(this.dataset['main'], true)
         }
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
         {
@@ -365,6 +358,21 @@ export namespace Parsing
                 return [matches, new AssociationScore(
                     null, 0.0, this
                 )];
+        }
+    }
+
+    export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
+    {
+        protected main_trie:        Trie<boolean> =             new Trie();
+        // assoc pii 3
+        // then classify again
+
+        constructor(protected dataset: object)
+        {
+            super(dataset);
+            // add main word list to trie
+            if ('main' in this.dataset && this.dataset['main'].length > 0)
+                this.main_trie.add_list(this.dataset['main'], true)
         }
         public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
         {
