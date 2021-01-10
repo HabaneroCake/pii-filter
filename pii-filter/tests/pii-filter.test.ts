@@ -19,6 +19,10 @@ describe('PII_Filter_NL', ()=>{
         );
         console.log(result.render_placeholders(0.25, 0.1));
         console.log(result.render_removed(0.25, 0.25));
+        for (let x of result.pii())
+        {
+            console.log(`${x.classification.classifier.name}: ${x.text}, ${x.classification.score}, ${x.classification.severity}`)
+        }
         // expect(result).not.equals(null);
         // expect(result).is.instanceOf(PIIFilter.Classification.Result);
         // expect(result.num_pii).equals(1);

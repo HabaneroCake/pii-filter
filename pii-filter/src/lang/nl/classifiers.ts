@@ -38,7 +38,7 @@ export namespace Classifiers
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             let [tokens, score] = super.classify_confidence(token, pass_index);
-            score.severity = Math.min(score.severity + 0.1, 1.0);
+            score.severity = Math.min(score.severity + 0.2, 1.0);
             return [tokens, score];
         }
         public name: string = 'family_name';

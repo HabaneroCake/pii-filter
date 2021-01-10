@@ -107,12 +107,12 @@ export class PIIFilter
             let index = 0;
             while (index < tokenizer.tokens.length)
             {
-                // TODO check dict against full (all associated tokens)
                 let token = tokenizer.tokens[index];
                 let classification = token.confidences_classification[num_passes-1].max;
-                if (classification.valid && 
+                if (classification.valid &&
                     (token.confidence_dictionary == null ||
-                        classification.score >= token.confidence_dictionary.score))
+                     classification.score >= token.confidence_dictionary.score ||
+                     classification.group_root_end.index > token.confidence_dictionary.group_root_end.index))
                 {
                     if (!n_classifications.has(classification.classifier))
                         n_classifications.set(classification.classifier, 0);
@@ -190,8 +190,7 @@ export namespace PIIFilter
             public tokens:              Array<[Parsing.ClassificationScore, Parsing.Token]>
         ) {}
 
-        // TODO: confidence_threshold?: number, severity_threshold?: number
-        public render_placeholders(confidence_threshold?: number, severity_threshold?: number): string
+        public render_replaced(fn: Function, confidence_threshold?: number, severity_threshold?: number): string
         {
             let result: string = '';
 
@@ -202,7 +201,7 @@ export namespace PIIFilter
                 if (classification.valid)
                 {
                     if (above_confidence && above_severity)
-                        result += `{${classification.classifier.name}}`;
+                        result += fn(classification, token);
                     else
                     {
                         do {
@@ -220,9 +219,27 @@ export namespace PIIFilter
             return result;
         }
 
+        public render_placeholders(confidence_threshold?: number, severity_threshold?: number): string
+        {
+            return this.render_replaced((classification: Parsing.ClassificationScore, token: Parsing.Token): string =>
+            {
+                return `{${classification.classifier.name}}`;
+            }, confidence_threshold, severity_threshold);
+        }
+
         public render_removed(confidence_threshold?: number, severity_threshold?: number): string
         {
-            let result: string = '';
+            return this.render_replaced((classification: Parsing.ClassificationScore, token: Parsing.Token): string =>
+            {
+                return '';
+            }, confidence_threshold, severity_threshold);
+        }
+
+        public pii(confidence_threshold?: number, severity_threshold?: number): 
+            Array<{classification: Parsing.ClassificationScore, text: string}>
+        {
+            let result: Array<{classification: Parsing.ClassificationScore, text: string}> = 
+                new Array<{classification: Parsing.ClassificationScore, text: string}>();
 
             for (let [classification, token] of this.tokens)
             {
@@ -230,18 +247,19 @@ export namespace PIIFilter
                 let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
                 if (classification.valid)
                 {
-                    if (!(above_confidence && above_severity))
+                    if (above_confidence && above_severity)
                     {
+                        let text: string = '';
                         do {
-                            result += token.symbol;
+                            text += token.symbol;
                             if (token.index == classification.group_root_end.index)
                                 break;
                             token = token.next;
                         } while(token != null)
+
+                        result.push({classification: classification, text: text});
                     }
                 }
-                else
-                    result += token.symbol;
             }
             
             return result;
