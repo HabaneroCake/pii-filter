@@ -14,5 +14,7 @@ weken
 maand
 maanden
 jaar
+volgend jaar
+vorig jaar
 jr
 jaren

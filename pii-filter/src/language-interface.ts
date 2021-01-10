@@ -9,11 +9,9 @@ export interface Language
     // punctuation to split string by
     punctuation:        RegExp;
     // base dictionary for the language
-    // TODO replace with actual dict object?
     dictionary:         Parsing.Classifier;
     // list of classifiers which will be used
     classifiers:        Array<Parsing.Classifier>;
-    // a mapping of classifiers and their scores
-    // TODO for all text? or per paragraph? how will this weigh
-    severity_mappings:  Array<{classifiers: Array<Parsing.Classifier>, severity: number}>;
+    // a mapping of occurrences of classifications and their scores
+    severity_mappings:  Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
 };

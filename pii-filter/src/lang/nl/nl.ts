@@ -9,9 +9,9 @@ export class NL implements Language
 {
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public max_assoc_distance:  number =                5;
-    public punctuation:         RegExp =                new RegExp(/(\.|\,|\:|\!|\?|\;|\ |\-|\/|\\|\_)/g);
+    public punctuation:         RegExp =                new RegExp(/(\.|\,|\:|\=|\!|\?|\;|\ |\-|\/|\\|\_)/g);
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
-    public severity_mappings:   Array<{classifiers: Array<Parsing.Classifier>, severity: number}>;
+    public severity_mappings:   Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
     /**
      * 
      * @param classifiers a list of classifiers, if not specified, all will be used
@@ -32,36 +32,41 @@ export class NL implements Language
         this.punctuation_map.set('.', 0.25);
         this.punctuation_map.set('!', 0.25);
         this.punctuation_map.set('?', 0.25);
+        this.punctuation_map.set(';', 0.5);
         this.punctuation_map.set(',', 0.6);
-        this.punctuation_map.set(';', 0.6);
-        this.punctuation_map.set(':', 0.8);
         this.punctuation_map.set(' ', 0.9);
+        this.punctuation_map.set(':', 1.0);
+        this.punctuation_map.set('=', 1.0);
+        this.punctuation_map.set('-', 1.0);
+        this.punctuation_map.set('_', 1.0);
+        this.punctuation_map.set('/', 1.0);
+        this.punctuation_map.set('\\', 1.0);
 
         for (let classifier of this.classifiers)
             classifier.init(this);
 
         // ---- severity mapping
-        this.severity_mappings = new Array<{classifiers: Array<Parsing.Classifier>, severity: number}>();
+        this.severity_mappings = new Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>();
         for (let mapping of ds_severity_mapping)
         {
-            let classifier_array = new Array<Parsing.Classifier>();
+            let classifier_map = new Map<Parsing.Classifier, number>();
             for (let pii of mapping.pii)
             {
-                let found = false;
+                // let found = false;
                 for (let classifier of this.classifiers)
                 {
                     if (pii === classifier.name)
                     {
-                        classifier_array.push(classifier);
-                        found = true;
+                        if (!classifier_map.has(classifier))
+                            classifier_map.set(classifier, 0);
+                        
+                        classifier_map.set(classifier, classifier_map.get(classifier) + 1);
+                        // found = true;
                         break;
                     }
                 }
-                // TODO: remove
-                if (!found)
-                    console.log(`Could not find classifier ${pii} for severity mapping.`)
             }
-            this.severity_mappings.push({classifiers: classifier_array, severity: mapping.severity});
+            this.severity_mappings.push({classifiers: classifier_map, severity: mapping.severity});
         }
     }
 };

@@ -21,12 +21,26 @@ export namespace Classifiers
     export class FirstName extends Parsing.SimpleNameClassifier
     {
         constructor() { super(ds_first_name); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            let [tokens, score] = super.classify_confidence(token, pass_index);
+            score.severity = Math.min(score.severity + 0.1, 1.0);
+            return [tokens, score];
+        }
         public name: string = 'first_name';
     };
 
     export class FamilyName extends Parsing.SimpleNameClassifier
     {
         constructor() { super(ds_family_name); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            let [tokens, score] = super.classify_confidence(token, pass_index);
+            score.severity = Math.min(score.severity + 0.1, 1.0);
+            return [tokens, score];
+        }
         public name: string = 'family_name';
     };
 
@@ -40,6 +54,13 @@ export namespace Classifiers
     export class MedicineName extends Parsing.SimpleNameClassifier
     {
         constructor() { super(ds_medicine_name); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            let [tokens, score] = super.classify_confidence(token, pass_index);
+            score.severity = Math.min(score.severity + 0.5, 1.0);
+            return [tokens, score];
+        }
         public name: string = 'medicine_name';
     };
 
@@ -51,12 +72,9 @@ export namespace Classifiers
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             let final_matches: Array<Parsing.Token> = new Array<Parsing.Token>();
-            let assoc_sum: number = 0.0;
             let at_index = token.symbol.indexOf('@');
             if (at_index > -1)
             {
-                let score: number = (at_index > 0 ? 0.5 : 0.25);
-
                 let left_it = token;
                 while (left_it.previous != null && left_it.previous.symbol != ' ')
                     left_it = left_it.previous;
@@ -69,15 +87,20 @@ export namespace Classifiers
                     right_it = right_it.next;
                 }
 
+                let assoc_sum:      number = 0.0;
+                let score:          number = (at_index > 0 ? 0.5 : 0.25);
+                let severity_sum:   number = (at_index > 0 ? 0.5 : 0.25);
                 if (pass_index > 0)
                 {
-                    assoc_sum = Parsing.calc_assoc_sum(
+                    let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
                         left_it,
                         right_it,
                         this,
                         this.language_model,
                         this.language_model.max_assoc_distance
                     );
+                    assoc_sum +=    severity_sum_;
+                    severity_sum += severity_sum_;
                 }
 
                 if (left_it.index == right_it.index)
@@ -92,15 +115,18 @@ export namespace Classifiers
 
                 // add to score if contains ".something"
                 if (final_matches.length > 1 && final_matches[final_matches.length - 2].symbol == '.')
-                    score += 0.5;
+                {
+                    score +=        0.5;
+                    severity_sum += 0.25;
+                }
 
                 return [final_matches, new Parsing.ClassificationScore(
-                    Math.min(score + assoc_sum, 1.0), this
+                    Math.min(score + assoc_sum, 1.0), Math.min(severity_sum, 1.0), this
                 )];
             }
             else
                 return [final_matches, new Parsing.ClassificationScore(
-                    0.0, this
+                    0.0, 0.0, this
                 )];
         }
         public name: string = 'email_address';
@@ -119,7 +145,6 @@ export namespace Classifiers
             let n_other_symbols:        number =                0;
             let number_value:           string =                '';
             let final_matches:          Array<Parsing.Token> =  new Array<Parsing.Token>();
-            let assoc_sum:              number =                0.0;
             
             function get_symbols(token: string):
                 { letters: string, numbers: string, other: string }
@@ -166,20 +191,25 @@ export namespace Classifiers
 
                 if (number_value.length < min_number_length || n_other_symbols >= max_n_other_symbols)
                     return [final_matches, new Parsing.ClassificationScore(
-                        0.0, this
+                        0.0, 0.0, this
                     )];
 
-                let score: number = (token.symbol.indexOf('+') == 0 ? 0.35 : 0.25);
+                let country_plus:           boolean =   token.symbol.indexOf('+') == 0;
+                let score:                  number =    (country_plus ? 0.35 : 0.25);
+                let severity_sum:           number =    (country_plus ? 0.5 : 0.35);;
+                let assoc_sum:              number =    0.0;
 
                 if (pass_index > 0)
                 {
-                    assoc_sum = Parsing.calc_assoc_sum(
+                    let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
                         token,
                         right_it,
                         this,
                         this.language_model,
                         this.language_model.max_assoc_distance
                     );
+                    assoc_sum +=    assoc_sum_;
+                    severity_sum += severity_sum_;
                 }
 
                 while (token.index < right_it.index)
@@ -190,12 +220,12 @@ export namespace Classifiers
                 final_matches.push(token);
 
                 return [final_matches, new Parsing.ClassificationScore(
-                    Math.min(score + assoc_sum, 1.0), this
+                    Math.min(score + assoc_sum, 1.0), Math.min(severity_sum, 1.0), this
                 )];
             }
             else
                 return [final_matches, new Parsing.ClassificationScore(
-                    0.0, this
+                    0.0, 0.0, this
                 )];
         }
         public name: string = 'phone_number';
@@ -222,6 +252,7 @@ export namespace Classifiers
             const max_n_sep:        number =                5;
             let final_matches:      Array<Parsing.Token> =  new Array<Parsing.Token>();
             let score:              number =                0.0;
+            let severity:           number =                0.0;
 
             function token_part_of_date(token: Parsing.Token,
                                         match_trie: Trie<Date.SegmentFormats>):
@@ -244,7 +275,7 @@ export namespace Classifiers
                     if (numbers.length > 0 && numbers.length+n_sep == token.symbol.length)
                         return [true, [token], Date.SegmentFormats.number, n_sep];
                 }
-                return [false, new Array<Parsing.Token>(), 0, 0];
+                return [false, new Array<Parsing.Token>(), Date.SegmentFormats.invalid, 0];
             }
 
             let token_ok:           boolean;
@@ -306,10 +337,17 @@ export namespace Classifiers
                 if (!only_units && (!only_numbers || (only_numbers && last_valid_n_sep != 0)))
                 {
                     if (only_numbers)
-                        score = 0.25;
+                    {
+                        score =     (n_seg-1 >= last_valid_n_sep ? 0.5 : 0.25);
+                        severity =  (n_seg-1 >= last_valid_n_sep ? 0.2 : 0.1);
+                    }
                     else
-                        score = 0.5;
+                    {
+                        score =     0.5;
+                        severity =  0.2;
+                    }
                     
+                        
                     for (let [match, type] of matches)
                     {
                         final_matches.push(match);
@@ -319,26 +357,29 @@ export namespace Classifiers
 
                     if (pass_index > 0)
                     {
-                        score += Parsing.calc_assoc_sum(
-                            token,
+                        let [assoc_sum, severity_sum] = Parsing.calc_assoc_severity_sum(
+                            final_matches[0],
                             final_matches[final_matches.length-1],
                             this,
                             this.language_model,
                             this.language_model.max_assoc_distance
                         );
+                        score +=    assoc_sum;
+                        severity += severity_sum;
                     }
                 }
             }
 
             return [final_matches, new Parsing.ClassificationScore(
-                Math.min(score, 1.0), this
+                Math.min(score, 1.0), Math.min(severity, 1.0), this
             )];
         }
         public name: string = 'date';
     };
     export namespace Date {
         export enum SegmentFormats {
-            day = 0,
+            invalid = 0,
+            day,
             month,
             number,
             ordinal,

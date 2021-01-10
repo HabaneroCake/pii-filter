@@ -33,6 +33,7 @@ export namespace Parsing
     {
         constructor(
             public score:       number,
+            public severity:    number,
             classifier:         Parsing.Classifier
         ) { super(classifier); }
     };
@@ -41,7 +42,8 @@ export namespace Parsing
         constructor(
             public left_max:    number,
             public right_max:   number,
-            public score:       number
+            public score:       number,
+            public severity:    number
         ){}
     };
     export class AssociationScore extends ClassificationScore
@@ -49,8 +51,9 @@ export namespace Parsing
         constructor(
             public associative_score:   AssociativeScore, // global
             score:                      number, // can be adjusted
+            severity:                   number, // can be adjusted
             classifier:                 Parsing.Classifier
-        ) { super(score, classifier); }
+        ) { super(score, severity, classifier); }
     };
     export class Confidences
     {
@@ -81,7 +84,7 @@ export namespace Parsing
         {
             if (this.confidences.length)
                 return this.confidences[0];
-            return new ClassificationScore(0, null);
+            return new ClassificationScore(0, 0, null);
         }
         public get all(): ReadonlyArray<ClassificationScore>
         {
@@ -221,24 +224,24 @@ export namespace Parsing
         return n_tokens;
     }
     /**
-     * sums the associative scores for a classifier, taking into account punctuation distance
+     * sums the associative / severity scores for a classifier, taking into account punctuation distance
      * @param left_it left iterator token for the midpoint
      * @param right_it right iterator token for the midpoint
      * @param classifier classifier to match
      * @param language_model language_model to use
      * @param max_steps number of steps to stop after
      */
-    export function calc_assoc_sum(
+    export function calc_assoc_severity_sum(
         left_it: Token,
         right_it: Token,
         classifier: Parsing.Classifier,
         language_model: Language,
         max_steps: number
-    )
+    ): [number, number]
     {
-        // TODO make sure not to add score of token list it is part of / overlaps with
         // TODO should this have a not recognizer?
         let associative_sum:    number =    0.0;
+        let severity_sum:       number =    0.0;
         // TODO: should these only count word tokens such as currently
         let left_distance:      number =    0;
         let right_distance:     number =    0;
@@ -289,7 +292,9 @@ export namespace Parsing
                     let assoc = left_it.confidences_associative.get(classifier);
                     if (left_distance <= assoc.associative_score.left_max)
                     {
-                        associative_sum += assoc.score * left_it_scalar;
+                        associative_sum +=  assoc.score *       left_it_scalar;
+                        severity_sum +=     assoc.severity *    left_it_scalar;
+                        
                         left_distance += count_str_tokens(
                             assoc.group_root_start,
                             assoc.group_root_end,
@@ -313,7 +318,9 @@ export namespace Parsing
                     let assoc = right_it.confidences_associative.get(classifier);
                     if (right_distance <= assoc.associative_score.right_max)
                     {
-                        associative_sum += assoc.score * right_it_scalar;
+                        associative_sum +=  assoc.score *       right_it_scalar;
+                        severity_sum +=     assoc.severity *    right_it_scalar;
+
                         right_distance += count_str_tokens(
                             assoc.group_root_start,
                             assoc.group_root_end,
@@ -327,7 +334,7 @@ export namespace Parsing
             if (!left_it && !right_it)
                 break;
         }
-        return associative_sum;
+        return [associative_sum, severity_sum];
     }
 
     export abstract class SimpleAssociativeClassifier extends Parsing.Classifier
@@ -340,9 +347,9 @@ export namespace Parsing
             // add association multipliers to trie
             if ('association_multipliers' in this.dataset && this.dataset['association_multipliers'].length > 0)
             {
-                for (const [word, [left_max, right_max, score]] of this.dataset['association_multipliers'] as
-                        Array<[string, [number, number, number]]>)
-                    this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score));
+                for (const [word, [left_max, right_max, score, severity]] of this.dataset['association_multipliers'] as
+                        Array<[string, [number, number, number, number]]>)
+                    this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score, severity));
             }
         }
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
@@ -351,12 +358,12 @@ export namespace Parsing
             if (value)
             {
                 return [matches, new AssociationScore(
-                    value, value.score, this
+                    value, value.score, value.severity, this
                 )];
             }
             else
                 return [matches, new AssociationScore(
-                    null, 0.0, this
+                    null, 0.0, 0.0, this
                 )];
         }
     }
@@ -380,14 +387,15 @@ export namespace Parsing
 
             if (value)
             {
-                let assoc_sum = 0.0;
+                let assoc_sum:      number =    0.0;
+                let severity_sum:   number =    0.0;
                 if (pass_index > 0)
                 {
                     // check for associative multipliers
                     let left_it:    Token = matches[0];
                     let right_it:   Token = matches[matches.length-1];
 
-                    assoc_sum = calc_assoc_sum(
+                    [assoc_sum, severity_sum] = calc_assoc_severity_sum(
                         left_it,
                         right_it,
                         this,
@@ -396,12 +404,12 @@ export namespace Parsing
                     );
                 }
                 return [matches, new ClassificationScore(
-                    Math.min(0.25 + assoc_sum, 1.0), this
+                    Math.min(0.25 + assoc_sum, 1.0), Math.min(severity_sum, 1.0), this
                 )];
             }
             else
                 return [matches, new ClassificationScore(
-                    0.0, this
+                    0.0, 0.0, this
                 )];
         }
         public abstract name: string;
@@ -424,7 +432,7 @@ export namespace Parsing
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
         {
             return [new Array<Token>(), new AssociationScore(
-                null, 0.0, this
+                null, 0.0, 0.0, this
             )];
         }
         public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
@@ -434,12 +442,12 @@ export namespace Parsing
             if (value)
             {
                 return [matches, new ClassificationScore(
-                    value, this
+                    value, 0.0, this
                 )];
             }
             else
                 return [matches, new ClassificationScore(
-                    0.0, this
+                    0.0, 0.0, this
                 )];
         }
         public abstract name: string;

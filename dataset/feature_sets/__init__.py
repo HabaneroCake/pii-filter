@@ -10,7 +10,6 @@ from .first_names import *
 from .family_names import *
 from .medicine_names import *
 from .phone_numbers import *
-from .passwords import *
 from .pet_names import *
 
 all = [
@@ -22,6 +21,5 @@ all = [
     family_names,
     medicine_names,
     phone_numbers,
-    passwords,
     pet_names
 ]

@@ -8,7 +8,7 @@ def read_assoc_data(paths, line_printer_cb=None):
         tokens = row.strip().split(' //')
         word = tokens[0]
         values = [float(token) for token in tokens[1:]]
-        assert(len(values) == 3)
+        assert(len(values) == 4)
         # check if this row is pii var
         if word[0] == '{':
             pii_association_multipliers.check_and_add(word[1:-1], values)
