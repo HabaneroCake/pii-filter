@@ -486,7 +486,7 @@ export namespace Parsing
                         (this.language_model.punctuation_map.has(left_token.previous.symbol) &&
                         this.language_model.punctuation_map.get(left_token.previous.symbol) <= 0.5))
                     {
-                        score.score += 0.125;
+                        score.score += 0.10;
                     }
                     else
                         score.score += 0.25;

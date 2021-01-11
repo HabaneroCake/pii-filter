@@ -1,82 +1,42 @@
 #!/usr/local/bin/python3
 
 """
-Script to build the database of dutch PII
+Script to build the PII database
 """
 
 import os
-import json
+import nl
 
-import feature_templates
-from feature_sets import all
+languages = [nl]
 
-# paths
-build_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    'build',
-    'nl',
-)
-ds_full_output_path = os.path.join(
-    build_path,
-    'ds_full.json'
-)
-ds_severity_output_path = os.path.join(
-    build_path,
-    'ds_severity.json'
-)
-benchmark_output_path = os.path.join(
-    build_path,
-    'benchmark.json'
-)
-if not os.path.exists(build_path):
-    os.mkdir(build_path)
+current_folder =    os.path.dirname(os.path.realpath(__file__))
+pii_filter_path =   os.path.join(current_folder, os.pardir, 'pii-filter')
 
 # provide some form of progress indication
 def print_cb(msg):
     """Provides a callback to print progress"""
     if msg:
-        print('--- ' + msg, end="\r", flush=True)
+        print('---- ' + msg, end="\r", flush=True)
     else:
         print()
 
-# load wordlists
-wordlists = {}
-print('Loading sets:')
-for feature_set in all:
-    print('* {}'.format(feature_set.NAME))
-    wordlist = feature_set.get_wordlists(print_cb)
-    wordlists[feature_set.NAME] = wordlist
-    print()
-    ds_partial_output_path = os.path.join(
+print("Generating PII database.")
+for lang in languages:
+    print("[{}] Generating".format(lang.LANG))
+    build_path =        os.path.join(pii_filter_path, 'src', 'lang', lang.LANG, 'dataset')
+    benchmark_path =    os.path.join(pii_filter_path, 'tests', 'lang', lang.LANG)
+    aggregate_path =    os.path.join(current_folder, 'aggregate')
+
+    if not os.path.exists(build_path):
+        os.makedirs(build_path)
+    if not os.path.exists(benchmark_path):
+        os.makedirs(benchmark_path)
+    if not os.path.exists(aggregate_path):
+        os.makedirs(aggregate_path)
+
+    lang.generate_dataset(
         build_path,
-        'ds_{}.json'.format(feature_set.NAME)
+        benchmark_path,
+        aggregate_path,
+        print_cb
     )
-    with open(ds_partial_output_path, 'w') as f:
-        print('saving to {}'.format(ds_partial_output_path))
-        json.dump(wordlist, f)
-
-# store severity mapping
-print('Storing severity mapping.')
-with open(ds_severity_output_path, 'w') as f:
-    print('saving to {}'.format(ds_severity_output_path))
-    json.dump(feature_templates.severity_mapping, f)
-
-# store aggregated ds
-all_data = {
-    'name':                 'pii_dataset_nl',
-    'version':              0,
-    'wordlists':            wordlists,
-    'severity_mapping':     feature_templates.severity_mapping
-}
-print('Storing pii dataset.')
-with open(ds_full_output_path, 'w') as f:
-    print('saving to {}'.format(ds_full_output_path))
-    json.dump(all_data, f)
-
-print('Storing benchmark dataset.')
-# store benchmark ds
-with open(benchmark_output_path, 'w') as f:
-    print('saving to {}'.format(benchmark_output_path))
-    json.dump(feature_templates.benchmark_data, f)
-
-print('done.')

@@ -1,0 +1,20 @@
+sec
+second
+seconden
+min
+mins
+minute
+minuten
+uur
+uren
+dag
+dagen
+week
+weken
+maand
+maanden
+jaar
+volgend jaar
+vorig jaar
+jr
+jaren

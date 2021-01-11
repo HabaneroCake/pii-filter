@@ -1,7 +1,7 @@
 {
   "name": "pii-filter",
   "version": "1.0.0",
-  "description": "Dutch PII Filter",
+  "description": "PII Filter",
   "main": "dist/pii-filter.js",
   "dependencies": {},
   "devDependencies": {
@@ -16,9 +16,9 @@
     "yargs-parser": "^20.2.4"
   },
   "scripts": {
-    "compile": "cp ../dataset/build/nl/ds_*.json ./src/lang/nl/dataset/ && tsc;",
+    "compile": "tsc;",
     "start": "npm run compile && node dist/pii-filter.js;",
-    "test": "mocha -r ts-node/register tests/*.test.ts;",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts;",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },
   "author": "HabaneroCake",

@@ -155,32 +155,18 @@ export class PIIFilter
             highest_severity,
             tokens
         );
-
-        // // debug
-        // for (let token of tokenizer.tokens)
-        // {
-        //     console.log(`[${token.index}] Token: \"${token.symbol}\"`);
-        //     if (token.confidence_dictionary)
-        //         console.log(`- dict score: ${token.confidence_dictionary.score}, root: [${token.confidence_dictionary.group_root_start.index}, ${token.confidence_dictionary.group_root_end.index}]`);
-        //     for (let assoc of token.confidences_associative.values())
-        //     {
-        //         console.log(`  assoc: ${assoc.classifier.name}, score: ${assoc.score}, root: [${assoc.group_root_start.index}, ${assoc.group_root_end.index}]`);
-        //     }
-        //     for (let conf of token.confidences_classification[token.confidences_classification.length-1].all)
-        //     {
-        //         console.log(`   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`);
-        //     }
-        // }
-        // // console.log(tokenizer.tokens);
-
-        // console.log(`Overall severity: ${highest_severity}`);
-        // for (let [classifier, num] of n_classifications)
-        //     console.log(`PII[${classifier.name}]: ${num}`);
     }
 };
 
 export namespace PIIFilter
 {
+    export class PII
+    {
+        constructor(
+            public classification: Parsing.ClassificationScore,
+            public text: string
+        ) {}
+    };
     export class Result
     {
         constructor(
@@ -236,10 +222,9 @@ export namespace PIIFilter
         }
 
         public pii(confidence_threshold?: number, severity_threshold?: number): 
-            Array<{classification: Parsing.ClassificationScore, text: string}>
+            Array<PII>
         {
-            let result: Array<{classification: Parsing.ClassificationScore, text: string}> = 
-                new Array<{classification: Parsing.ClassificationScore, text: string}>();
+            let result: Array<PII> = new Array<PII>();
 
             for (let [classification, token] of this.tokens)
             {
@@ -257,12 +242,47 @@ export namespace PIIFilter
                             token = token.next;
                         } while(token != null)
 
-                        result.push({classification: classification, text: text});
+                        result.push(new PII(classification, text));
                     }
                 }
             }
             
             return result;
+        }
+
+        public print_debug()
+        {
+            let token = this.tokens[0][1];
+            while(token != null)
+            {
+                console.log(`[${token.index}] Token: \"${token.symbol}\"`);
+                if (token.confidence_dictionary)
+                    console.log(
+                        `- dict score: ${token.confidence_dictionary.score}, ` +
+                        `root: [${token.confidence_dictionary.group_root_start.index}, ` + 
+                        `${token.confidence_dictionary.group_root_end.index}]`
+                    );
+                for (let assoc of token.confidences_associative.values())
+                {
+                    console.log(
+                        `  assoc: ${assoc.classifier.name}, ` +
+                        `score: ${assoc.score}, root: [${assoc.group_root_start.index}, ` + 
+                        `${assoc.group_root_end.index}]`
+                    );
+                }
+                for (let conf of token.confidences_classification[token.confidences_classification.length-1].all)
+                {
+                    console.log(
+                        `   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, ` + 
+                        `root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`
+                    );
+                }
+                token = token.next;
+            }
+
+            console.log(`Overall severity: ${this.severity_mapping}`);
+            for (let [classifier, num] of this.num_pii)
+                console.log(`PII[${classifier.name}]: ${num}`);
         }
     };
 };

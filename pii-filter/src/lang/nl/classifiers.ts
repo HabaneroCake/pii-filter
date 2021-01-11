@@ -64,7 +64,7 @@ export namespace Classifiers
         public name: string = 'medicine_name';
     };
 
-    // stub
+    // stub, TODO: rework/clean up
     export class EmailAddress extends Parsing.SimpleAssociativeClassifier
     {
         constructor() { super(ds_email_address); }
@@ -86,6 +86,11 @@ export namespace Classifiers
                         break;
                     right_it = right_it.next;
                 }
+
+                // don't overshoot
+                if (this.language_model.punctuation_map.has(right_it.symbol))
+                    right_it = right_it.previous;
+
 
                 let assoc_sum:      number = 0.0;
                 let score:          number = (at_index > 0 ? 0.5 : 0.25);
@@ -139,12 +144,20 @@ export namespace Classifiers
         public classify_confidence(token: Parsing.Token, pass_index: number): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
-            const min_number_length:    number =                5; // although 7 is more common
+            const min_number_length:    number =                6; // although 7 is more common
             const max_n_other_symbols:  number =                5;
 
             let n_other_symbols:        number =                0;
             let number_value:           string =                '';
             let final_matches:          Array<Parsing.Token> =  new Array<Parsing.Token>();
+
+            const phone_symbols: Array<string> = [
+                '(', ')', '-', '[', ']'
+            ];
+
+            const start_symbols: Array<string> = [
+                '+', '(', '['
+            ];
             
             function get_symbols(token: string):
                 { letters: string, numbers: string, other: string }
@@ -159,15 +172,19 @@ export namespace Classifiers
             function parse_token(token: Parsing.Token): [boolean, number, string]
             {
                 let symbols = get_symbols(token.symbol);
-                return [(symbols.other.length <= 3 && symbols.other != '.') &&
+                return [
+                    start_symbols.indexOf(token.symbol) > -1 ||
+                        ((symbols.other.length <= 3 && symbols.other != '.') &&
                             symbols.letters.length == 0 && 
-                            symbols.numbers.length > 0,
-                        symbols.letters.length + symbols.other.length, symbols.numbers];
+                            symbols.numbers.length > 0),
+                    symbols.letters.length + symbols.other.length,
+                    symbols.numbers
+                ];
             }
             
-            // TODO: can be cleaned up
+            // TODO: should be cleaned up
             let [could_be_number, n_other_sym, number_part] = parse_token(token);
-            if (could_be_number)
+            if (token.symbol != ' ' && could_be_number)
             {
                 number_value    += number_part;
                 n_other_symbols += n_other_sym;
@@ -175,10 +192,11 @@ export namespace Classifiers
                 let right_it = token;
                 while (right_it.next != null)
                 {
-                    let is_space =                                  right_it.next.symbol == ' ';
-                    [could_be_number, n_other_sym, number_part] =   parse_token(right_it.next);
+                    let is_space = right_it.next.symbol == ' ';
+                    let is_phone_symbol = phone_symbols.indexOf(right_it.next.symbol) > -1;
+                    [could_be_number, n_other_sym, number_part] = parse_token(right_it.next);
                     
-                    if (!is_space && !could_be_number)
+                    if (!is_phone_symbol && !is_space && !could_be_number)
                         break;
                     else if (could_be_number)
                     {
@@ -188,6 +206,10 @@ export namespace Classifiers
 
                     right_it = right_it.next;
                 }
+
+                // don't keep overshoot
+                while (right_it.previous != null && this.language_model.punctuation_map.has(right_it.symbol))
+                    right_it = right_it.previous;
 
                 if (number_value.length < min_number_length || n_other_symbols >= max_n_other_symbols)
                     return [final_matches, new Parsing.ClassificationScore(
