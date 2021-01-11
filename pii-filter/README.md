@@ -1,1 +1,3 @@
-# PII-Filter (Dutch) Node Module
+# PII-Filter Node Module
+
+Currently supports Dutch only.

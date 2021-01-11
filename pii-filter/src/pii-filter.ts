@@ -1,5 +1,8 @@
-import { Parsing } from './parsing';
-import { Language } from './language-interface';
+import { Parsing } from './common/parsing';
+import { Language } from './common/language-interface';
+
+// Languages
+export { NL } from './lang/nl/nl';
 
 export class PIIFilter
 {

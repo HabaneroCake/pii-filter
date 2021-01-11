@@ -1,6 +1,6 @@
 {
   "name": "pii-filter",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "PII Filter",
   "main": "dist/pii-filter.js",
   "dependencies": {},
@@ -17,9 +17,9 @@
   },
   "scripts": {
     "compile": "tsc;",
-    "start": "npm run compile && node dist/pii-filter.js;",
+    "install": "npm run compile;",
     "test": "mocha -r ts-node/register tests/**/*.test.ts;",
-    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test;"
   },
   "author": "HabaneroCake",
   "license": "MIT"

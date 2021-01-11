@@ -1,0 +1,8 @@
+# node
+node_modules
+
+# typescript
+dist
+
+# etc
+.nyc_output

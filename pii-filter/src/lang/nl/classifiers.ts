@@ -1,5 +1,5 @@
-import { Parsing } from '../../parsing';
-import { Trie } from '../../trie';
+import { Parsing } from '../../common/parsing';
+import { Trie } from '../../common/trie';
 
 import ds_dictionary from './dataset/ds_dictionary.json';
 import ds_first_name from './dataset/ds_first_name.json';
