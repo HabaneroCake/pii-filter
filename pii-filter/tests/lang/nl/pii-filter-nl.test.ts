@@ -7,6 +7,8 @@ let pii_filter = new PIIFilter(new NL());
 
 describe('PII_Filter_NL', ()=>{
     const first_name:       string = 'Katherina';
+    const first_name2:      string = 'Bram';
+    const first_name3:      string = 'Peter';
     const family_name:      string = 'Vink';
     const pet_name:         string = 'Miffy';
     const medicine_name:    string = 'Paracetamol';
@@ -18,6 +20,24 @@ describe('PII_Filter_NL', ()=>{
         let result = pii_filter.classify(`Hoi, ik ben ${first_name}.`);
         let pii_all = result.pii();
         let pii_match = get_pii(pii_all, first_name);
+        expect(pii_match && pii_all.length == 1).equals(true);
+        expect(pii_match.classification.classifier.name).equals('first_name');
+        expect(pii_match.classification.score).gte(0.25);
+        expect(pii_match.classification.severity).gte(0.1);
+    });
+    it('classify_first_name_2', ()=>{
+        let result = pii_filter.classify(`Hoi, ik ben ${first_name2}.`);
+        let pii_all = result.pii();
+        let pii_match = get_pii(pii_all, first_name2);
+        expect(pii_match && pii_all.length == 1).equals(true);
+        expect(pii_match.classification.classifier.name).equals('first_name');
+        expect(pii_match.classification.score).gte(0.25);
+        expect(pii_match.classification.severity).gte(0.1);
+    });
+    it('classify_first_name_3', ()=>{
+        let result = pii_filter.classify(`Hoi, ik ben ${first_name3}.`);
+        let pii_all = result.pii();
+        let pii_match = get_pii(pii_all, first_name3);
         expect(pii_match && pii_all.length == 1).equals(true);
         expect(pii_match.classification.classifier.name).equals('first_name');
         expect(pii_match.classification.score).gte(0.25);
@@ -58,6 +78,13 @@ describe('PII_Filter_NL', ()=>{
         expect(pii_match.classification.classifier.name).equals('email_address');
         expect(pii_match.classification.score).gte(0.25);
         expect(pii_match.classification.severity).gte(0.5);
+    });
+    it('classify_not_email_address', ()=>{
+        let result = pii_filter.classify(`Mijn email adres is niet @.`);
+        let pii_all = result.pii();
+        let pii_match = get_pii(pii_all, '@');
+        console.log(pii_match);
+        expect(!pii_match && pii_all.length == 0).equals(true);
     });
     it('classify_phone_number', ()=>{
         let result = pii_filter.classify(`Mijn mobiele nummer is ${phone_number}.`);

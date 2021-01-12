@@ -47,6 +47,13 @@ export namespace Classifiers
     export class PetName extends Parsing.SimpleNameClassifier
     {
         constructor() { super(ds_pet_name); }
+        public classify_confidence(token: Parsing.Token, pass_index: number): 
+            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        {
+            let [tokens, score] = super.classify_confidence(token, pass_index);
+            score.severity = Math.min(score.severity + 0.15, 1.0);
+            return [tokens, score];
+        }
         public name: string = 'pet_name';
     };
     
@@ -94,7 +101,7 @@ export namespace Classifiers
 
                 let assoc_sum:      number = 0.0;
                 let score:          number = (at_index > 0 ? 0.5 : 0.25);
-                let severity_sum:   number = (at_index > 0 ? 0.5 : 0.25);
+                let severity_sum:   number = (at_index > 0 ? 0.25 : 0.125);
                 if (pass_index > 0)
                 {
                     let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
@@ -108,9 +115,6 @@ export namespace Classifiers
                     severity_sum += severity_sum_;
                 }
 
-                if (left_it.index == right_it.index)
-                    final_matches.push(left_it);
-
                 while (left_it.index < right_it.index)
                 {
                     final_matches.push(left_it);
@@ -118,11 +122,18 @@ export namespace Classifiers
                 }
                 final_matches.push(left_it);
 
+                if (final_matches.length == 1 && final_matches[0].symbol == '@')
+                {
+                    return [[], new Parsing.ClassificationScore(
+                        0.0, 0.0, this
+                    )];
+                }
+
                 // add to score if contains ".something"
                 if (final_matches.length > 1 && final_matches[final_matches.length - 2].symbol == '.')
                 {
                     score +=        0.5;
-                    severity_sum += 0.25;
+                    severity_sum += 0.125;
                 }
 
                 return [final_matches, new Parsing.ClassificationScore(

@@ -102,6 +102,8 @@ export class PIIFilter
         }
 
         // 4: get all (highest scoring) pii tokens
+        let severity_max_pii:   number =                            0.0;
+        let severity_sum_pii:   number =                            0.0;
         let total_n_pii:        number =                            0;
         let n_classifications:  Map<Parsing.Classifier, number> =   new Map<Parsing.Classifier, number>();
         let tokens:             Array<[Parsing.ClassificationScore, Parsing.Token]> = 
@@ -123,6 +125,8 @@ export class PIIFilter
                     n_classifications.set(classification.classifier,
                         n_classifications.get(classification.classifier) + 1);
                     
+                    severity_sum_pii += classification.severity;
+                    severity_max_pii = Math.max(severity_max_pii, classification.severity);
                     total_n_pii++;
                     
                     index = classification.group_root_end.index;
@@ -140,24 +144,63 @@ export class PIIFilter
         for (let mapping of this.language_model.severity_mappings)
         {
             let full_match: boolean = true;
+            let n_classifications_match: number = 0;
             for (let [classifier, num_classifications] of mapping.classifiers)
             {
-                if (!n_classifications.has(classifier) || n_classifications.get(classifier) < num_classifications)
+                if (!n_classifications.has(classifier))
                 {
                     full_match = false;
                     break;
                 }
+                else
+                    n_classifications_match += Math.min(num_classifications / n_classifications.get(classifier), 1.5);
             }
-            if (full_match && highest_severity < mapping.severity)
-                highest_severity =  mapping.severity;
+            let classification_ratio: number = n_classifications_match / mapping.classifiers.size;
+            if (full_match && highest_severity < mapping.severity && classification_ratio >= 1.0)
+                highest_severity = mapping.severity * classification_ratio;
         }
+
+        // TODO: clean this up and/or use different mapping system
+        let severity_factor_pii = total_n_pii > 1 ? severity_sum_pii / total_n_pii : severity_sum_pii;
 
         return new PIIFilter.Result(
             total_n_pii,
             n_classifications,
-            highest_severity,
+            Math.min((0.4 * highest_severity + 0.2 * severity_max_pii + 0.4 * severity_factor_pii), 1.0),
             tokens
         );
+    }
+
+    public sanitize_str(
+        text: string,
+        placeholders: boolean,
+        confidence_threshold?: number,
+        severity_threshold?: number
+    ): string
+    {
+        let result = this.classify(text);
+        return placeholders ? 
+            result.render_placeholders(confidence_threshold, severity_threshold) : 
+            result.render_removed(confidence_threshold, severity_threshold);
+    }
+
+    public sanitize_object(
+        obj: object,
+        placeholders: boolean,
+        confidence_threshold?: number,
+        severity_threshold?: number
+    ): object
+    {
+        let obj_result: object = {};
+        for (let key in obj)
+            if (typeof obj[key] == 'string')
+                obj_result[key] = this.sanitize_str(
+                    obj[key],
+                    placeholders,
+                    confidence_threshold,
+                    severity_threshold
+                );
+        return obj_result;
     }
 };
 
