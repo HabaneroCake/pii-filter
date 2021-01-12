@@ -1,6 +1,6 @@
 {
   "name": "pii-filter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "PII Filter",
   "main": "dist/pii-filter.js",
   "dependencies": {},
@@ -17,7 +17,6 @@
   },
   "scripts": {
     "compile": "tsc;",
-    "install": "npm run compile;",
     "test": "mocha -r ts-node/register tests/**/*.test.ts;",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test;"
   },
