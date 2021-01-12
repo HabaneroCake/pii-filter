@@ -83,7 +83,6 @@ describe('PII_Filter_NL', ()=>{
         let result = pii_filter.classify(`Mijn email adres is niet @.`);
         let pii_all = result.pii();
         let pii_match = get_pii(pii_all, '@');
-        console.log(pii_match);
         expect(!pii_match && pii_all.length == 0).equals(true);
     });
     it('classify_phone_number', ()=>{

@@ -161,12 +161,12 @@ export class PIIFilter
         }
 
         // TODO: clean this up and/or use different mapping system
-        let severity_factor_pii = total_n_pii > 1 ? severity_sum_pii / total_n_pii : severity_sum_pii;
+        // let severity_factor_pii = total_n_pii > 1 ? severity_sum_pii / total_n_pii : severity_sum_pii;
 
         return new PIIFilter.Result(
             total_n_pii,
             n_classifications,
-            Math.min((0.4 * highest_severity + 0.2 * severity_max_pii + 0.4 * severity_factor_pii), 1.0),
+            Math.min((0.4 * highest_severity + 0.3 * severity_max_pii + 0.3 * severity_sum_pii), 1.0),
             tokens
         );
     }
