@@ -14,4 +14,6 @@ export interface Language
     classifiers:        Array<Parsing.Classifier>;
     // a mapping of occurrences of classifications and their scores
     severity_mappings:  Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
+    // base thresholds for classification
+    thresholds:         Parsing.Thresholds;
 };

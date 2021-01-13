@@ -3,6 +3,40 @@ import { Trie } from './trie';
 
 export namespace Parsing
 {
+    export class Thresholds
+    {
+        // TODO: wellformed vs nonwellformed
+        constructor(
+            
+        ) {};
+
+        public validate(classification: ClassificationScore): boolean
+        {
+            let classification_exceeds_dict_match: boolean = 
+                (classification.valid() &&
+                classification.group_root_start != null && 
+                classification.group_root_end != null) &&
+                    (classification.group_root_start.confidence_dictionary == null ||
+                    (classification.score > classification.group_root_start.confidence_dictionary.score ||
+                        classification.group_root_end.index >
+                        classification.group_root_start.confidence_dictionary.group_root_end.index));
+
+            return classification_exceeds_dict_match &&
+                    classification.score > this.min_classification_score &&
+                    classification.severity > this.min_severity_score;
+        }
+    };
+    export namespace Thresholds
+    {
+        export class Group
+        {
+            constructor(
+                public min_classification_score: number =   0,
+                public min_severity_score: number =         0
+            ) {};
+        }
+    };
+
     export abstract class Classifier
     {
         protected language_model: Language;
@@ -27,7 +61,7 @@ export namespace Parsing
             public classifier:  Parsing.Classifier
         ) {}
 
-        public get valid(): boolean {return this.classifier != null;}
+        public valid(): boolean { return this.classifier != null; }
     };
     export class ClassificationScore extends Classification
     {
@@ -374,7 +408,11 @@ export namespace Parsing
         // assoc pii 3
         // then classify again
 
-        constructor(protected dataset: object)
+        constructor(
+            protected dataset: object,
+            protected classification_score_base: number,
+            protected severity_score_base: number,
+        )
         {
             super(dataset);
             // add main word list to trie
@@ -404,7 +442,9 @@ export namespace Parsing
                     );
                 }
                 return [matches, new ClassificationScore(
-                    Math.min(0.25 + assoc_sum, 1.0), Math.min(severity_sum, 1.0), this
+                    Math.min(this.classification_score_base + assoc_sum, 1.0), 
+                    Math.min(this.severity_score_base + severity_sum, 1.0), 
+                    this
                 )];
             }
             else
@@ -419,15 +459,19 @@ export namespace Parsing
     {
         protected main_trie:        Trie<number> =      new Trie();
 
-        constructor(protected dataset: object)
+        constructor(
+            protected dataset: object,
+            general_word_score: number,
+            popular_word_score: number
+        )
         {
             super();
             // add main word list to trie
             if ('main' in this.dataset && this.dataset['main'].length > 0)
-                this.main_trie.add_list(this.dataset['main'], 0.5)
+                this.main_trie.add_list(this.dataset['main'], general_word_score)
             // add popular word list to trie (overwrites previous score if it exists)
             if ('pop' in this.dataset && this.dataset['pop'].length > 0)
-                this.main_trie.add_list(this.dataset['pop'], 0.75)
+                this.main_trie.add_list(this.dataset['pop'], popular_word_score)
         }
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
         {
@@ -455,7 +499,19 @@ export namespace Parsing
 
     export abstract class SimpleNameClassifier extends Parsing.SimpleTextClassifier
     {
-        constructor(dataset: object) { super(dataset); }
+        constructor(
+            dataset: object,
+            classification_score_base: number,
+            protected uppercase_classification_score_base: number,
+            severity_score_base: number,
+        ) 
+        { 
+            super(
+                dataset,
+                classification_score_base,
+                severity_score_base
+            );
+        }
         public classify_confidence(token: Parsing.Token, pass_index: number): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
@@ -470,7 +526,8 @@ export namespace Parsing
                 for (let r_token of tokens)
                 {
                     let first_letter = r_token.symbol[0];
-                    let first_uppercase = first_letter == first_letter.toUpperCase();
+                    let first_uppercase: boolean = (first_letter == first_letter.toUpperCase() &&
+                                                    !this.language_model.punctuation_map.has(first_letter));
                     // TODO: could check for rest/most lowercase
                     any_uppercase ||= first_uppercase;
                 }
@@ -486,10 +543,11 @@ export namespace Parsing
                         (this.language_model.punctuation_map.has(left_token.previous.symbol) &&
                         this.language_model.punctuation_map.get(left_token.previous.symbol) <= 0.5))
                     {
-                        score.score += 0.10;
+                        // TODO: check for POS
+                        score.score += 0.0;
                     }
                     else
-                        score.score += 0.25;
+                        score.score += this.uppercase_classification_score_base;
                 }
             }
             score.score = Math.min(score.score, 1.0);

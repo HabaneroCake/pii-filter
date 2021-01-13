@@ -14,7 +14,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
     let missed:             number = 0;
     let false_positive:     number = 0;
     let total:              number = 0;
-    const debug:            boolean = false;
+    const debug:            boolean = true;
 
     for (let item of benchmark as Array<{phrase: string, pii: Array<[string, string]>, severity: number}>)
     {
@@ -22,7 +22,11 @@ describe('PII_Filter_NL_Benchmark', ()=>{
         let result_pii = result.pii();
 
         if (debug)
+        {
             console.log(`--- [Phrase]: ${item.phrase}`);
+            result.print_debug();
+            console.log('\n');
+        }
         
         for (let [pii, segment] of item.pii)
         {
@@ -69,6 +73,9 @@ describe('PII_Filter_NL_Benchmark', ()=>{
                 );
             false_positive++;
         }
+
+        if (debug)
+            console.log('\n');
     }
 
     let rmse_severity_mapping: number = Math.sqrt(severity_map_err_s / total);

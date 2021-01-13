@@ -12,6 +12,10 @@ export class NL implements Language
     public max_assoc_distance:  number =                5;
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
     public severity_mappings:   Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
+    public thresholds:          Parsing.Thresholds =    new Parsing.Thresholds(
+        0.2,
+        0.0
+    );         
     /**
      * 
      * @param classifiers a list of classifiers, if not specified, all will be used
@@ -45,6 +49,7 @@ export class NL implements Language
         this.punctuation_map.set(')', 1.0);
         this.punctuation_map.set('[', 1.0);
         this.punctuation_map.set(']', 1.0);
+        this.punctuation_map.set('\n', 0.0);
 
         let r_str: string =     '';
         let first: boolean =    true;

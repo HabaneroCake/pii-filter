@@ -14,45 +14,54 @@ export namespace Classifiers
 {
     export class Dictionary extends Parsing.SimpleDictionary
     {
-        constructor() { super(ds_dictionary); }
+        constructor() 
+        { 
+            super(
+                ds_dictionary,
+                0.2,
+                0.4
+        ); }
         public name: string = 'dictionary';
     };
 
     export class FirstName extends Parsing.SimpleNameClassifier
     {
-        constructor() { super(ds_first_name); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
-            [Array<Parsing.Token>, Parsing.ClassificationScore]
-        {
-            let [tokens, score] = super.classify_confidence(token, pass_index);
-            score.severity = Math.min(score.severity + 0.1, 1.0);
-            return [tokens, score];
+        constructor() 
+        { 
+            super(
+                ds_first_name,
+                0.10,
+                0.15,
+                0.10
+            );
         }
         public name: string = 'first_name';
     };
 
     export class FamilyName extends Parsing.SimpleNameClassifier
     {
-        constructor() { super(ds_family_name); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
-            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        constructor() 
         {
-            let [tokens, score] = super.classify_confidence(token, pass_index);
-            score.severity = Math.min(score.severity + 0.2, 1.0);
-            return [tokens, score];
+            super(
+                ds_family_name,
+                0.10,
+                0.15,
+                0.20
+            );
         }
         public name: string = 'family_name';
     };
 
     export class PetName extends Parsing.SimpleNameClassifier
     {
-        constructor() { super(ds_pet_name); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
-            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        constructor() 
         {
-            let [tokens, score] = super.classify_confidence(token, pass_index);
-            score.severity = Math.min(score.severity + 0.15, 1.0);
-            return [tokens, score];
+            super(
+                ds_pet_name,
+                0.1,
+                0.15,
+                0.15
+            );
         }
         public name: string = 'pet_name';
     };
@@ -60,13 +69,14 @@ export namespace Classifiers
     // NOTE: still needs assoc list
     export class MedicineName extends Parsing.SimpleNameClassifier
     {
-        constructor() { super(ds_medicine_name); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
-            [Array<Parsing.Token>, Parsing.ClassificationScore]
+        constructor()
         {
-            let [tokens, score] = super.classify_confidence(token, pass_index);
-            score.severity = Math.min(score.severity + 0.5, 1.0);
-            return [tokens, score];
+            super(
+                ds_medicine_name,
+                0.25,
+                0.25,
+                0.5
+            );
         }
         public name: string = 'medicine_name';
     };

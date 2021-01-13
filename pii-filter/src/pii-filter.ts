@@ -54,7 +54,7 @@ export class PIIFilter
             {
                 let token = tokenizer.tokens[index];
                 let [tokens_assoc, score_assoc] = classifier.classify_associative(token);
-                if (score_assoc.valid)
+                if (score_assoc.valid())
                 {
                     // add score to results
                     score_assoc.group_root_start = tokens_assoc[0];
@@ -84,7 +84,7 @@ export class PIIFilter
                 {
                     let token = tokenizer.tokens[index];
                     let [tokens_conf, score_conf] = classifier.classify_confidence(token, pass_index);
-                    if (score_conf.valid)
+                    if (score_conf.valid())
                     {
                         // add score to results
                         score_conf.group_root_start =   tokens_conf[0];
@@ -114,14 +114,10 @@ export class PIIFilter
             {
                 let token = tokenizer.tokens[index];
                 let classification = token.confidences_classification[num_passes-1].max;
-                if (classification.valid &&
-                    (token.confidence_dictionary == null ||
-                     classification.score >= token.confidence_dictionary.score ||
-                     classification.group_root_end.index > token.confidence_dictionary.group_root_end.index))
+                if (this.language_model.thresholds.validate(classification))
                 {
                     if (!n_classifications.has(classification.classifier))
                         n_classifications.set(classification.classifier, 0);
-
                     n_classifications.set(classification.classifier,
                         n_classifications.get(classification.classifier) + 1);
                     
@@ -131,7 +127,7 @@ export class PIIFilter
                     
                     index = classification.group_root_end.index;
                 }
-                else if (token.confidence_dictionary != null)
+                else
                     classification = new Parsing.ClassificationScore(0, 0, null);
 
                 tokens.push([classification, token]);
@@ -230,7 +226,7 @@ export namespace PIIFilter
             {
                 let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
                 let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
-                if (classification.valid)
+                if (classification.valid())
                 {
                     if (above_confidence && above_severity)
                         result += fn(classification, token);
@@ -276,7 +272,7 @@ export namespace PIIFilter
             {
                 let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
                 let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
-                if (classification.valid)
+                if (classification.valid())
                 {
                     if (above_confidence && above_severity)
                     {
