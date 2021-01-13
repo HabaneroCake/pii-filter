@@ -1,6 +1,12 @@
+e-mail //3 //3 //0.5 //0.0
+email //3 //3 //0.25 //0.0
 mail //3 //3 //0.25 //0.0
+emailadres //3 //3 //0.5 //0.0
+e-mailadres //3 //3 //0.5 //0.0
 mailadres //3 //3 //0.25 //0.0
-mail-adres //3 //3 //0.25 //0.25
-adres //3 //3 //0.25 //0.25
-gebruikersnaam //5 //5 //0.25 //0.5
+mail-adres //3 //3 //0.25 //0.0
+e-mail-adres //3 //3 //0.5 //0.0
+email-adres //3 //3 //0.25 //0.0
+adres //3 //3 //0.125 //0.0
+gebruikersnaam //5 //5 //0.25 //0.25
 inloggen //5 //5 //0.2 //0.25

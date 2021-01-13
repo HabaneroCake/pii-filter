@@ -13,8 +13,8 @@ export class NL implements Language
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
     public severity_mappings:   Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
     public thresholds:          Parsing.Thresholds =    new Parsing.Thresholds(
-        0.2,
-        0.0
+        new Parsing.Thresholds.Group(0.2, 0.0),
+        new Parsing.Thresholds.Group(0.0, 0.0),
     );         
     /**
      * 

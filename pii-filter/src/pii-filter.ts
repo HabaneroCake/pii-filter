@@ -218,7 +218,8 @@ export namespace PIIFilter
             public tokens:              Array<[Parsing.ClassificationScore, Parsing.Token]>
         ) {}
 
-        public render_replaced(fn: Function, confidence_threshold?: number, severity_threshold?: number): string
+        public render_replaced(fn: (classification: Parsing.ClassificationScore, token: Parsing.Token) => string, 
+                                confidence_threshold?: number, severity_threshold?: number): string
         {
             let result: string = '';
 

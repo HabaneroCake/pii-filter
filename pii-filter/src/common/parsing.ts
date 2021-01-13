@@ -5,12 +5,12 @@ export namespace Parsing
 {
     export class Thresholds
     {
-        // TODO: wellformed vs nonwellformed
         constructor(
-            
+            public well_formed: Thresholds.Group,
+            public ill_formed: Thresholds.Group
         ) {};
 
-        public validate(classification: ClassificationScore): boolean
+        public validate(classification: ClassificationScore, well_formed: boolean = true): boolean
         {
             let classification_exceeds_dict_match: boolean = 
                 (classification.valid() &&
@@ -21,9 +21,11 @@ export namespace Parsing
                         classification.group_root_end.index >
                         classification.group_root_start.confidence_dictionary.group_root_end.index));
 
+            let active_config: Thresholds.Group = well_formed? this.well_formed : this.ill_formed;
+
             return classification_exceeds_dict_match &&
-                    classification.score > this.min_classification_score &&
-                    classification.severity > this.min_severity_score;
+                    classification.score > active_config.min_classification_score &&
+                    classification.severity > active_config.min_severity_score;
         }
     };
     export namespace Thresholds
@@ -88,6 +90,17 @@ export namespace Parsing
             severity:                   number, // can be adjusted
             classifier:                 Parsing.Classifier
         ) { super(score, severity, classifier); }
+
+        public valid_from_left(distance_from_left: number, n_phrase_endings: number): boolean
+        {
+            return (this.associative_score.left_max == -1 && n_phrase_endings == 0) || 
+                    (this.associative_score.left_max > 0 && distance_from_left <= this.associative_score.left_max);
+        }
+        public valid_from_right(distance_from_right: number, n_phrase_endings: number): boolean
+        {
+            return (this.associative_score.right_max == -1 && n_phrase_endings == 0) || 
+                    (this.associative_score.right_max > 0 && distance_from_right <= this.associative_score.right_max);
+        }
     };
     export class Confidences
     {
@@ -274,101 +287,116 @@ export namespace Parsing
     ): [number, number]
     {
         // TODO should this have a not recognizer?
-        let associative_sum:    number =    0.0;
-        let severity_sum:       number =    0.0;
-        // TODO: should these only count word tokens such as currently
-        let left_distance:      number =    0;
-        let right_distance:     number =    0;
-        let left_it_scalar:     number =    1.0;
-        let right_it_scalar:    number =    1.0;
-        // TODO deduplicate
-        if (left_it)
+        class DistanceIterator 
         {
-            if (left_it.confidences_associative.has(classifier) && left_it.previous)
+            public associative_sum: number =    0.0;
+            public severity_sum:    number =    0.0;
+            public distance:        number =    0;
+            public phrase_ends:     number =    0;
+            public scalar:          number =    1.0;
+
+            constructor(
+                public it: Token,
+                public language_model: Language,
+                public iterate: (iterator: Token) => Token,
+                public group_root_getter: (score: AssociationScore) => Token,
+                public check_valid: (score: AssociationScore, self: DistanceIterator) => boolean
+                
+            )
             {
-                let score: AssociationScore = left_it.confidences_associative.get(classifier);
-                left_distance += count_str_tokens(
-                    score.group_root_start,
-                    left_it.previous,
-                    language_model.punctuation_map
-                );
-                left_it = score.group_root_start.previous;
+                if (this.it != null)
+                {
+                    // move iterator past current associative marker if it exists
+                    if (this.it.confidences_associative.has(classifier) && this.it.next)
+                    {
+                        let score:          AssociationScore =  this.it.confidences_associative.get(classifier);
+                        let group_root:     Token =             this.group_root_getter(score);
+                        
+                        let [l_it, r_it] = (this.it.index < group_root.index) ? 
+                                        [this.it, group_root] : [group_root, this.it];
+
+                        this.distance += count_str_tokens(
+                            l_it,
+                            r_it,
+                            this.language_model.punctuation_map
+                        );
+                        this.it = this.iterate(this.group_root_getter(score));
+                    }
+                    else
+                        this.it = this.iterate(this.it);
+                }
             }
-            else
-                left_it = left_it.previous;
-        }
-        if (right_it)
-        {
-            if (right_it.confidences_associative.has(classifier) && right_it.next)
+
+            public next(): boolean
             {
-                let score: AssociationScore = right_it.confidences_associative.get(classifier);
-                right_distance += count_str_tokens(
-                    right_it.next,
-                    score.group_root_end,
-                    language_model.punctuation_map
-                );
-                right_it = score.group_root_end.next;
+                if (this.it)
+                {
+                    if (this.language_model.punctuation_map.has(this.it.symbol))
+                    {
+                        if (this.it.symbol == '.')
+                            this.phrase_ends++;
+                            
+                        this.scalar *= this.language_model.punctuation_map.get(this.it.symbol);
+                    }
+                    else
+                        this.distance += 1;
+
+                    // NOTE: some symbols split up text into more than 1 token
+                    // TODO: tokens are only counted as distance once a ' ' is encountered as well
+
+
+                    if (this.it.confidences_associative.has(classifier))
+                    {
+                        let assoc = this.it.confidences_associative.get(classifier);
+                        if (this.check_valid(assoc, this))
+                        {
+                            this.associative_sum +=  assoc.score *       this.scalar;
+                            this.severity_sum +=     assoc.severity *    this.scalar;
+                            
+                            this.distance += count_str_tokens(
+                                assoc.group_root_start,
+                                assoc.group_root_end,
+                                this.language_model.punctuation_map
+                            )
+                            this.it = this.group_root_getter(assoc);
+                        }
+                    }
+                    this.it = this.iterate(this.it);
+
+                    return true;
+                }
+
+                return false;
             }
-            else
-                right_it = right_it.next;
-        }
+        };
+
+        let left_distance_iterator =    new DistanceIterator(
+            left_it,
+            language_model,
+            (it: Token): Token => { return it.previous; },
+            (score: AssociationScore): Token => { return score.group_root_start; },
+            (score: AssociationScore, self: DistanceIterator) => { 
+                return score.valid_from_right(self.distance, self.phrase_ends);
+            }
+        );
+        let right_distance_iterator =   new DistanceIterator(
+            right_it,
+            language_model,
+            (it: Token): Token => { return it.next; },
+            (score: AssociationScore): Token => { return score.group_root_end; },
+            (score: AssociationScore, self: DistanceIterator) => { 
+                return score.valid_from_left(self.distance, self.phrase_ends);
+            }
+        );
+        
         for (let step = 0; step < max_steps; ++step)
         {
-            if (left_it)
-            {
-                if (language_model.punctuation_map.has(left_it.symbol))
-                    left_it_scalar *= language_model.punctuation_map.get(left_it.symbol);
-                else
-                    left_distance += 1;
-                
-                if (left_it.confidences_associative.has(classifier))
-                {
-                    let assoc = left_it.confidences_associative.get(classifier);
-                    if (left_distance <= assoc.associative_score.left_max)
-                    {
-                        associative_sum +=  assoc.score *       left_it_scalar;
-                        severity_sum +=     assoc.severity *    left_it_scalar;
-                        
-                        left_distance += count_str_tokens(
-                            assoc.group_root_start,
-                            assoc.group_root_end,
-                            language_model.punctuation_map
-                        )
-                        left_it = assoc.group_root_start;
-                    }
-                }
-                left_it = left_it.previous;
-            }
-            if (right_it)
-            {
-                if (language_model.punctuation_map.has(right_it.symbol))
-                    right_it_scalar *= language_model.punctuation_map.get(right_it.symbol);
-                else
-                    right_distance += 1;
-
-
-                if (right_it.confidences_associative.has(classifier))
-                {
-                    let assoc = right_it.confidences_associative.get(classifier);
-                    if (right_distance <= assoc.associative_score.right_max)
-                    {
-                        associative_sum +=  assoc.score *       right_it_scalar;
-                        severity_sum +=     assoc.severity *    right_it_scalar;
-
-                        right_distance += count_str_tokens(
-                            assoc.group_root_start,
-                            assoc.group_root_end,
-                            language_model.punctuation_map
-                        )
-                        right_it = assoc.group_root_end;
-                    }
-                }
-                right_it = right_it.next;
-            }
-            if (!left_it && !right_it)
+            if (!left_distance_iterator.next() && !right_distance_iterator.next())
                 break;
         }
-        return [associative_sum, severity_sum];
+        return [
+            left_distance_iterator.associative_sum + right_distance_iterator.associative_sum,
+            left_distance_iterator.severity_sum + right_distance_iterator.severity_sum];
     }
 
     export abstract class SimpleAssociativeClassifier extends Parsing.Classifier
