@@ -1,14 +1,14 @@
-bevestiging //5 //5 //0.1 //0.5
+bevestiging //5 //5 //0.1 //0.3
 inloggen //5 //5 //0.1 //0.5
-log //5 //5 //0.1 //0.5
+log //5 //5 //0.1 //0.2
 account //5 //5 //0.1 //0.5
-aanmelden //5 //5 //0.1 //0.5
-telefoonnummer //2 //2 //0.25 //0.5
-telefoon nummer //2 //2 //0.25 //0.5
-nummer //2 //2 //0.125 //0.5
-bellen op //0 //3 //0.5 //0.5
-bellen //5 //5 //0.25 //0.5
-bereiken //5 //5 //0.125 //0.30
+aanmelden //5 //5 //0.1 //0.4
+telefoonnummer //2 //2 //0.25 //0.2
+telefoon nummer //2 //2 //0.25 //0.2
+nummer //2 //2 //0.125 //0.0
+bellen op //0 //3 //0.5 //0.1
+bellen //5 //5 //0.25 //0.1
+bereiken //5 //5 //0.125 //0.1
 via //0 //1 //0.125 //0.0
 op //0 //1 //0.125 //0.0
 naar //0 //1 //0.125 //0.0

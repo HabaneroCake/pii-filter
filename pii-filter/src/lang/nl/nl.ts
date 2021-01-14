@@ -2,11 +2,14 @@ import { Language } from '../../common/language-interface';
 import { Parsing } from '../../common/parsing';
 
 import { Classifiers } from './classifiers';
+import { POS_Tagger } from './pos-tagger';
+
 
 import ds_severity_mapping from './dataset/ds_severity.json';
 
 export class NL implements Language
 {
+    public pos_tagger:          POS_Tagger =            new POS_Tagger();
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public punctuation:         RegExp;
     public max_assoc_distance:  number =                5;
@@ -36,9 +39,9 @@ export class NL implements Language
         this.punctuation_map.set('.', 0.25);
         this.punctuation_map.set('!', 0.25);
         this.punctuation_map.set('?', 0.25);
-        this.punctuation_map.set(';', 0.5);
-        this.punctuation_map.set(',', 0.6);
+        this.punctuation_map.set(';', 0.75);
         this.punctuation_map.set(' ', 0.9);
+        this.punctuation_map.set(',', 1.0);
         this.punctuation_map.set(':', 1.0);
         this.punctuation_map.set('=', 1.0);
         this.punctuation_map.set('-', 1.0);

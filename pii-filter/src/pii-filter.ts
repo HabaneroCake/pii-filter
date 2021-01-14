@@ -359,10 +359,14 @@ export namespace PIIFilter
 
         public print_debug()
         {
+            if(this.tokens.length == 0)
+                return;
+                
             let token = this.tokens[0][1];
             while(token != null)
             {
                 console.log(`[${token.index}] Token: \"${token.symbol}\"`);
+                console.log(`-- POS[${token.tag.tag_base}], ${JSON.stringify(token.tag.tag_rest)}`);
                 if (token.confidence_dictionary)
                     console.log(
                         `- dict score: ${token.confidence_dictionary.score}, ` +

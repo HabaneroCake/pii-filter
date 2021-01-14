@@ -109,7 +109,7 @@ describe('PII_Filter_NL', ()=>{
             phone_number,
             'phone_number',
             0.25,
-            0.5
+            0.3
         );
     });
     it('classify_date', ()=>{

@@ -22,7 +22,10 @@ class WordListCounter(object):
     def check_and_add(self, word, value=None):
         """Adds word to wordlist if it conforms to logic"""
         word = word.lower().strip()
-        if len(word) > 1 and word not in self._all:
+        if len(word) > 0 and word not in self._all:
+            if len(word) == 1: 
+                print(word)
+                print()
             self._all.setdefault(word, value)
             self._word_counter += 1
     @property

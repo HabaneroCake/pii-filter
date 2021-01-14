@@ -1,4 +1,5 @@
 import { Language } from './language-interface';
+import { POS } from './pos';
 import { Trie } from './trie';
 
 export namespace Parsing
@@ -99,12 +100,12 @@ export namespace Parsing
 
         public valid_from_left(distance_from_left: number, n_phrase_endings: number): boolean
         {
-            return (this.associative_score.left_max == -1 && n_phrase_endings == 0) || 
+            return this.valid() && (this.associative_score.left_max == -1 && n_phrase_endings == 0) || 
                     (this.associative_score.left_max > 0 && distance_from_left <= this.associative_score.left_max);
         }
         public valid_from_right(distance_from_right: number, n_phrase_endings: number): boolean
         {
-            return (this.associative_score.right_max == -1 && n_phrase_endings == 0) || 
+            return this.valid() && (this.associative_score.right_max == -1 && n_phrase_endings == 0) || 
                     (this.associative_score.right_max > 0 && distance_from_right <= this.associative_score.right_max);
         }
     };
@@ -154,33 +155,36 @@ export namespace Parsing
         public confidences_classification:  Array<Confidences> =                new Array<Confidences>();
         constructor(
             public symbol:      string,
+            public tag:         POS.Tag,
             public index:       number
         ) {}
     };
     export class Tokenizer
     {
-        public tokens:                      Array<Token> =  new Array<Token>();
-        
+        public tokens: Array<Token> =  new Array<Token>();
 
         /**
          * creates a linked list of tokens from input text
          * @param text input text
-         * @param lang the input language
+         * @param language_model the input language model
          */
         constructor(
             text: string,
-            lang: Language
+            language_model: Language
         )
         {
-            let string_tokens = text.split(lang.punctuation);
+            let string_tokens = text.split(language_model.punctuation);
+            let tagged_tokens: Array<[string, POS.Tag]> = language_model.pos_tagger.tag(string_tokens);
+
+            // TODO: eventually add character offset index
             let index: number = 0;
-            let l_tok: Token =  null; 
-            for (let token of string_tokens)
+            let l_tok: Token =  null;
+            for (let [token, pos_tag] of tagged_tokens)
             {
                 if (token.length == 0)
                     continue;
 
-                let c_tok = new Token(token, index);
+                let c_tok = new Token(token, pos_tag, index);
 
                 if (l_tok != null)
                     l_tok.next = c_tok;
@@ -337,15 +341,18 @@ export namespace Parsing
             {
                 if (this.it)
                 {
+                    let is_punctuation: boolean = false;
                     if (this.language_model.punctuation_map.has(this.it.symbol))
                     {
+                        is_punctuation = true;
+                        
                         if (this.it.symbol == '.')
                             this.phrase_ends++;
                             
                         this.scalar *= this.language_model.punctuation_map.get(this.it.symbol);
                     }
                     else
-                        this.distance += 1;
+                        this.distance++;
 
                     // NOTE: some symbols split up text into more than 1 token
                     // TODO: tokens are only counted as distance once a ' ' is encountered as well
@@ -353,6 +360,9 @@ export namespace Parsing
 
                     if (this.it.confidences_associative.has(classifier))
                     {
+                        if (is_punctuation)
+                            this.distance++;
+                            
                         let assoc = this.it.confidences_associative.get(classifier);
                         if (this.check_valid(assoc, this))
                         {
@@ -407,6 +417,8 @@ export namespace Parsing
 
     export abstract class SimpleAssociativeClassifier extends Parsing.Classifier
     {
+        protected assoc_pos_map:    Map<string, Array<[POS.Tag, AssociativeScore]>> = 
+                                                                new Map<string, Array<[POS.Tag, AssociativeScore]>>();
         protected association_trie: Trie<AssociativeScore> =    new Trie();
         constructor(protected dataset: object)
         {
@@ -422,6 +434,21 @@ export namespace Parsing
         }
         public bind_language_model(language_model: Language): void
         {
+            if ('pos_association_multipliers' in this.dataset && this.dataset['pos_association_multipliers'].length > 0)
+            {
+                for (const [pos, [left_max, right_max, score, severity]] 
+                    of this.dataset['pos_association_multipliers'] as
+                        Array<[string, [number, number, number, number]]>)
+                {
+                    let tag: POS.Tag = POS.from_brill_pos_tag(pos);
+                    
+                    let assoc_score: AssociativeScore = new AssociativeScore(left_max, right_max, score, severity);
+                    if (!this.assoc_pos_map.has(tag.tag_base))
+                        this.assoc_pos_map.set(tag.tag_base, new Array<[POS.Tag, AssociativeScore]>());
+
+                    this.assoc_pos_map.get(tag.tag_base).push([tag, assoc_score])
+                }
+            }
             if ('pii_association_multipliers' in this.dataset && this.dataset['pii_association_multipliers'].length > 0)
             {
                 for (const [name, [left_max, right_max, score, severity]] 
@@ -442,17 +469,66 @@ export namespace Parsing
                 }
             }
         }
+
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
         {
-            let [matches, value] = tokens_trie_lookup<AssociativeScore>(token, this.association_trie);
-            if (value)
+            let best_pos_score: AssociativeScore = null;
+            
+            let lower_tag_base: string = token.tag.tag_base.toLowerCase();
+            if (this.assoc_pos_map.has(lower_tag_base))
             {
-                return [matches, new AssociationScore(
-                    value, value.score, value.severity, this
+                let tags = this.assoc_pos_map.get(lower_tag_base);
+
+                for (let [tag, score] of tags)
+                {
+                    let match: boolean = true;
+
+                    for (let t_rest of tag.tag_rest)
+                    {
+                        if (t_rest.length == 0)
+                            continue;
+
+                        let found: boolean = false;
+                        for (let tt_rest of token.tag.tag_rest)
+                        {
+                            if (tt_rest.toLowerCase() == t_rest)
+                                found = true;
+                                break;
+                        }
+                        if (!found)
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    if (match && (best_pos_score == null || score.score > best_pos_score.score))
+                        best_pos_score = score;
+                }
+                // let tag = null;
+                // [tag, best_pos_score] = tags[0];
+            }
+
+            let [matches, value] = tokens_trie_lookup<AssociativeScore>(token, this.association_trie);
+            if (value != null)
+            {
+                if (best_pos_score != null && best_pos_score.score > value.score)
+                    return [matches, new AssociationScore(
+                        best_pos_score, best_pos_score.score, best_pos_score.severity, this
+                    )];
+                else
+                    return [matches, new AssociationScore(
+                        value, value.score, value.severity, this
+                    )];
+            }
+            else if (best_pos_score != null)
+            {
+                return [[token], new AssociationScore(
+                    best_pos_score, best_pos_score.score, best_pos_score.severity, this
                 )];
             }
             else
-                return [matches, new AssociationScore(
+                return [new Array<Token>(), new AssociationScore(
                     null, 0.0, 0.0, this
                 )];
         }
@@ -500,7 +576,7 @@ export namespace Parsing
                 )];
             }
             else
-                return [matches, new ClassificationScore(
+                return [new Array<Token>(), new ClassificationScore(
                     0.0, 0.0, this
                 )];
         }
@@ -543,7 +619,7 @@ export namespace Parsing
                 )];
             }
             else
-                return [matches, new ClassificationScore(
+                return [new Array<Token>(), new ClassificationScore(
                     0.0, 0.0, this
                 )];
         }
