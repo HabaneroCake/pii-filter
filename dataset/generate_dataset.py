@@ -25,7 +25,7 @@ for lang in languages:
     print("[{}] Generating".format(lang.LANG))
     build_path =        os.path.join(pii_filter_path, 'src', 'lang', lang.LANG, 'dataset')
     benchmark_path =    os.path.join(pii_filter_path, 'tests', 'lang', lang.LANG)
-    aggregate_path =    os.path.join(current_folder, 'aggregate')
+    aggregate_path =    os.path.join(current_folder, 'aggregate', lang.LANG)
 
     if not os.path.exists(build_path):
         os.makedirs(build_path)
