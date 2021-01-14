@@ -21,16 +21,62 @@ export class PIIFilter
 
     public classify(text: string) : PIIFilter.Result
     {
-        const num_passes: number = 2;
         let tokenizer = new Parsing.Tokenizer(text, this.language_model);
 
-        // 0: dictionary pass
+        let iterate_tokens = (fn: (index: number, token: Parsing.Token) => number) =>
         {
             let index = 0;
             while (index < tokenizer.tokens.length)
             {
-                let token = tokenizer.tokens[index];
-                let [tokens_dict, score_dict] = this.language_model.dictionary.classify_confidence(token, 0);
+                index = fn(index, tokenizer.tokens[index]);
+                index++;
+            }
+        };
+        let iterate_classifiers_and_tokens = (
+            fn: (classifier: Parsing.Classifier, index: number, token: Parsing.Token) => number
+        ) =>
+        {
+            for (let classifier of this.language_model.classifiers)
+            {
+                iterate_tokens(
+                    (index: number, token: Parsing.Token): number => 
+                    {
+                        return fn(classifier, index, token);
+                    }
+                )
+            }
+        };
+        let run_classification = () => {
+            // add pass container
+            for (let token of tokenizer.tokens)
+                token.confidences_classification.push(new Parsing.Confidences());
+            // classification pass
+            iterate_classifiers_and_tokens(
+                (classifier: Parsing.Classifier, index: number, token: Parsing.Token): number => 
+                {
+                    let [tokens_conf, score_conf] = classifier.classify_confidence(token);
+                    if (score_conf.valid())
+                    {
+                        // add score to results
+                        score_conf.group_root_start =   tokens_conf[0];
+                        score_conf.group_root_end =     tokens_conf[tokens_conf.length-1];
+                        // add score to matched tokens
+                        for (let r_token of tokens_conf)
+                        {
+                            r_token.confidences_classification[r_token.confidences_classification.length-1].add(score_conf);
+                            index = r_token.index;
+                        }
+                    }
+                    return index;
+                }
+            )
+        };
+
+        // dictionary pass
+        iterate_tokens(
+            (index: number, token: Parsing.Token): number => 
+            {
+                let [tokens_dict, score_dict] = this.language_model.dictionary.classify_confidence(token);
                 
                 // add score to results
                 score_dict.group_root_start =   tokens_dict[0];
@@ -41,18 +87,14 @@ export class PIIFilter
                     r_token.confidence_dictionary = score_dict;
                     index = r_token.index;
                 }
-                
-                index++;
+                return index;
             }
-        }
+        );
 
-        // 1: associative pass
-        for (let classifier of this.language_model.classifiers)
-        {
-            let index = 0;
-            while (index < tokenizer.tokens.length)
+        // associative pass
+        iterate_classifiers_and_tokens(
+            (classifier: Parsing.Classifier, index: number, token: Parsing.Token): number => 
             {
-                let token = tokenizer.tokens[index];
                 let [tokens_assoc, score_assoc] = classifier.classify_associative(token);
                 if (score_assoc.valid())
                 {
@@ -66,54 +108,75 @@ export class PIIFilter
                         index = r_token.index;
                     }
                 }
-                index++;
+                return index;
             }
-        }
+        );
 
-        // multiple passes are necessary for pii assoc variables (nyi)
-        for (let pass_index = 0; pass_index < num_passes; ++pass_index)
-        {
-            // 2: add pass container
-            for (let token of tokenizer.tokens)
-                token.confidences_classification.push(new Parsing.Confidences());
-            // 3: classification pass
-            for (let classifier of this.language_model.classifiers)
+        // initial classification pass
+        run_classification();
+
+        // associative pass (PII)
+        iterate_tokens(
+            (index: number, token: Parsing.Token): number => 
             {
-                let index = 0;
-                while (index < tokenizer.tokens.length)
+                let max = token.confidences_classification[token.confidences_classification.length-1].max;
+                if (this.language_model.thresholds.validate(max))
                 {
-                    let token = tokenizer.tokens[index];
-                    let [tokens_conf, score_conf] = classifier.classify_confidence(token, pass_index);
-                    if (score_conf.valid())
+                    for (let [classifier, associative_score] of max.classifier.associative_references)
                     {
-                        // add score to results
-                        score_conf.group_root_start =   tokens_conf[0];
-                        score_conf.group_root_end =     tokens_conf[tokens_conf.length-1];
-                        // add score to matched tokens
-                        for (let r_token of tokens_conf)
+                        let overlap:    boolean =               false;
+                        let r_tokens:   Array<Parsing.Token> =  new Array<Parsing.Token>();
+                        let t_token:    Parsing.Token =         token;
+                        
+                        do
                         {
-                            r_token.confidences_classification[pass_index].add(score_conf);
-                            index = r_token.index;
+                            if (t_token.confidences_associative.has(classifier))
+                            {
+                                overlap = true;
+                                break;
+                            }
+                            r_tokens.push(t_token);
+                            t_token = t_token.next;
+                        } while (t_token != null && t_token.index < max.group_root_end.index);
+
+                        // could: if has and score is higher than token.confidences_associative score remove
+                        if (!overlap)
+                        {
+                            let association_score: Parsing.AssociationScore = new Parsing.AssociationScore(
+                                associative_score,
+                                associative_score.score,
+                                associative_score.severity,
+                                classifier
+                            );
+                            
+                            association_score.group_root_start =    max.group_root_start;
+                            association_score.group_root_end =      max.group_root_end;
+
+                            for (let r_token of r_tokens)
+                                r_token.confidences_associative.set(classifier, association_score);
                         }
                     }
-                    index++;
-                }
-            }
-        }
 
-        // 4: get all (highest scoring) pii tokens
+                    index = max.group_root_end.index;
+                }
+                return index;
+            }
+        );
+
+        // secondary classification pass
+        run_classification();
+
+        // get all (highest scoring) pii tokens
         let severity_max_pii:   number =                            0.0;
         let severity_sum_pii:   number =                            0.0;
         let total_n_pii:        number =                            0;
         let n_classifications:  Map<Parsing.Classifier, number> =   new Map<Parsing.Classifier, number>();
         let tokens:             Array<[Parsing.ClassificationScore, Parsing.Token]> = 
                                         new Array<[Parsing.ClassificationScore, Parsing.Token]>();
-        {
-            let index = 0;
-            while (index < tokenizer.tokens.length)
+        iterate_tokens(
+            (index: number, token: Parsing.Token): number => 
             {
-                let token = tokenizer.tokens[index];
-                let classification = token.confidences_classification[num_passes-1].max;
+                let classification = token.confidences_classification[token.confidences_classification.length-1].max;
                 if (this.language_model.thresholds.validate(classification))
                 {
                     if (!n_classifications.has(classification.classifier))
@@ -131,11 +194,12 @@ export class PIIFilter
                     classification = new Parsing.ClassificationScore(0, 0, null);
 
                 tokens.push([classification, token]);
-                index++;
+                return index;
             }
-        }
+        );
 
-        // 5: calc severity
+        // calc severity
+        // TODO: rework
         let highest_severity: number = 0.0;
         for (let mapping of this.language_model.severity_mappings)
         {

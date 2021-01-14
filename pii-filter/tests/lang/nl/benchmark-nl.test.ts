@@ -101,7 +101,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
 
     // TODO: this really needs to be improved
     it('false_positives_lt_10_percent', ()=>{
-        expect(false_positive/total).lt(0.15);
+        expect(false_positive/total).lt(0.10);
     });
 
     // TODO: could be improved, but benchmark scores aren't great mappings yet either.

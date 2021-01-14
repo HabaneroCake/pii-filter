@@ -41,13 +41,19 @@ export namespace Parsing
 
     export abstract class Classifier
     {
+        public associative_references: Array<[Parsing.Classifier, AssociativeScore]> = 
+                                                new Array<[Parsing.Classifier, AssociativeScore]>();
+
         protected language_model: Language;
         public init(language_model: Language)
         {
             this.language_model = language_model;
+            this.bind_language_model(this.language_model);
         }
+        
+        public abstract bind_language_model(language_model: Language): void;
         public abstract classify_associative(token: Token): [Array<Token>, AssociationScore];
-        public abstract classify_confidence(token: Token, pass_index: number): [Array<Token>, ClassificationScore];
+        public abstract classify_confidence(token: Token): [Array<Token>, ClassificationScore];
         public abstract name: string;
     };
     export class Classification
@@ -261,10 +267,10 @@ export namespace Parsing
 
         while (start_token != null)
         {
-            if (!punctuation_map.has(start_token.symbol))
-                n_tokens++;
             if (start_token.index == end_token.index)
                 break;
+            if (!punctuation_map.has(start_token.symbol))
+                n_tokens++;
             start_token = start_token.next;
         }
 
@@ -414,6 +420,28 @@ export namespace Parsing
                     this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score, severity));
             }
         }
+        public bind_language_model(language_model: Language): void
+        {
+            if ('pii_association_multipliers' in this.dataset && this.dataset['pii_association_multipliers'].length > 0)
+            {
+                for (const [name, [left_max, right_max, score, severity]] 
+                        of this.dataset['pii_association_multipliers'] as
+                            Array<[string, [number, number, number, number]]>)
+                {
+                    for (let classifier of language_model.classifiers)
+                    {
+                        if (classifier.name == name)
+                        {
+                            classifier.associative_references.push([
+                                this,
+                                new AssociativeScore(left_max, right_max, score, severity)
+                            ]);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         public classify_associative(token: Parsing.Token): [Array<Token>, AssociationScore]
         {
             let [matches, value] = tokens_trie_lookup<AssociativeScore>(token, this.association_trie);
@@ -447,28 +475,24 @@ export namespace Parsing
             if ('main' in this.dataset && this.dataset['main'].length > 0)
                 this.main_trie.add_list(this.dataset['main'], true)
         }
-        public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
+        public classify_confidence(token: Parsing.Token): [Array<Token>, ClassificationScore]
         {
             let [matches, value] = tokens_trie_lookup<boolean>(token, this.main_trie);
 
             if (value)
             {
-                let assoc_sum:      number =    0.0;
-                let severity_sum:   number =    0.0;
-                if (pass_index > 0)
-                {
-                    // check for associative multipliers
-                    let left_it:    Token = matches[0];
-                    let right_it:   Token = matches[matches.length-1];
+                // check for associative multipliers
+                let left_it:    Token = matches[0];
+                let right_it:   Token = matches[matches.length-1];
 
-                    [assoc_sum, severity_sum] = calc_assoc_severity_sum(
-                        left_it,
-                        right_it,
-                        this,
-                        this.language_model,
-                        20
-                    );
-                }
+                let [assoc_sum, severity_sum] = calc_assoc_severity_sum(
+                    left_it,
+                    right_it,
+                    this,
+                    this.language_model,
+                    20
+                );
+
                 return [matches, new ClassificationScore(
                     Math.min(this.classification_score_base + assoc_sum, 1.0), 
                     Math.min(this.severity_score_base + severity_sum, 1.0), 
@@ -507,7 +531,8 @@ export namespace Parsing
                 null, 0.0, 0.0, this
             )];
         }
-        public classify_confidence(token: Parsing.Token, pass_index: number): [Array<Token>, ClassificationScore]
+        public bind_language_model(language_model: Language): void {}
+        public classify_confidence(token: Parsing.Token): [Array<Token>, ClassificationScore]
         {
             let [matches, value] = tokens_trie_lookup<number>(token, this.main_trie);
 
@@ -540,11 +565,11 @@ export namespace Parsing
                 severity_score_base
             );
         }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
+        public classify_confidence(token: Parsing.Token): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
-            let [tokens, score] = super.classify_confidence(token, pass_index);
-            if (tokens.length > 0 && pass_index > 0)
+            let [tokens, score] = super.classify_confidence(token);
+            if (tokens.length > 0)
             {
                 // // adjust score if in dictionary
                 // if (tokens[0].confidence_dictionary)

@@ -85,7 +85,7 @@ export namespace Classifiers
     export class EmailAddress extends Parsing.SimpleAssociativeClassifier
     {
         constructor() { super(ds_email_address); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
+        public classify_confidence(token: Parsing.Token): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             let final_matches: Array<Parsing.Token> = new Array<Parsing.Token>();
@@ -112,18 +112,15 @@ export namespace Classifiers
                 let assoc_sum:      number = 0.0;
                 let score:          number = (at_index > 0 ? 0.5 : 0.25);
                 let severity_sum:   number = (at_index > 0 ? 0.25 : 0.125);
-                if (pass_index > 0)
-                {
-                    let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
-                        left_it,
-                        right_it,
-                        this,
-                        this.language_model,
-                        this.language_model.max_assoc_distance
-                    );
-                    assoc_sum +=    severity_sum_;
-                    severity_sum += severity_sum_;
-                }
+                let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
+                    left_it,
+                    right_it,
+                    this,
+                    this.language_model,
+                    this.language_model.max_assoc_distance
+                );
+                assoc_sum +=    severity_sum_;
+                severity_sum += severity_sum_;
 
                 while (left_it.index < right_it.index)
                 {
@@ -162,7 +159,7 @@ export namespace Classifiers
     export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
     {
         constructor() { super(ds_phone_number); }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
+        public classify_confidence(token: Parsing.Token): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             const min_number_length:    number =                6; // although 7 is more common
@@ -242,18 +239,15 @@ export namespace Classifiers
                 let severity_sum:           number =    (country_plus ? 0.5 : 0.35);;
                 let assoc_sum:              number =    0.0;
 
-                if (pass_index > 0)
-                {
-                    let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
-                        token,
-                        right_it,
-                        this,
-                        this.language_model,
-                        this.language_model.max_assoc_distance
-                    );
-                    assoc_sum +=    assoc_sum_;
-                    severity_sum += severity_sum_;
-                }
+                let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
+                    token,
+                    right_it,
+                    this,
+                    this.language_model,
+                    this.language_model.max_assoc_distance
+                );
+                assoc_sum +=    assoc_sum_;
+                severity_sum += severity_sum_;
 
                 while (token.index < right_it.index)
                 {
@@ -288,7 +282,7 @@ export namespace Classifiers
             this.match_trie.add_list(this.dataset['number'], Date.SegmentFormats.number);
             this.match_trie.add_list(this.dataset['unit'], Date.SegmentFormats.unit);
         }
-        public classify_confidence(token: Parsing.Token, pass_index: number): 
+        public classify_confidence(token: Parsing.Token): 
             [Array<Parsing.Token>, Parsing.ClassificationScore]
         {
             const separators:       Array<string> =         ['.', ' ', '/', '\\', '-', '_', ':'];
@@ -398,18 +392,15 @@ export namespace Classifiers
                             break;
                     }
 
-                    if (pass_index > 0)
-                    {
-                        let [assoc_sum, severity_sum] = Parsing.calc_assoc_severity_sum(
-                            final_matches[0],
-                            final_matches[final_matches.length-1],
-                            this,
-                            this.language_model,
-                            this.language_model.max_assoc_distance
-                        );
-                        score +=    assoc_sum;
-                        severity += severity_sum;
-                    }
+                    let [assoc_sum, severity_sum] = Parsing.calc_assoc_severity_sum(
+                        final_matches[0],
+                        final_matches[final_matches.length-1],
+                        this,
+                        this.language_model,
+                        this.language_model.max_assoc_distance
+                    );
+                    score +=    assoc_sum;
+                    severity += severity_sum;
                 }
             }
 
