@@ -47,7 +47,7 @@ function Lexicon(language, defaultCategory, defaultCategoryCapitalised) {
 Lexicon.prototype.parseLexicon = function(data) {
   // Split into an array of non-empty lines
   var arrayOfLines = data.match(/[^\r\n]+/g);
-  this.lexicon = {}; //Object.create(null);
+  this.lexicon = Object.create(null);
   var that = this;
   arrayOfLines.forEach(function(line) {
     // Split line by whitespace

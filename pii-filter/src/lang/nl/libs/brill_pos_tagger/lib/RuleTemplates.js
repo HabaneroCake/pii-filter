@@ -314,7 +314,7 @@ function current_word_is_number(sentence, i, parameter) {
   var is_number = isNumeric(sentence.taggedWords[i].token);
   // Attempt to parse it as a float
   if (!is_number) {
-    is_number = parseFloat(sentence.taggedWords[i].token);
+    is_number = null == parseFloat(sentence.taggedWords[i].token);
   }
   return((parameter === "YES") ? is_number : !is_number);
 }
@@ -527,8 +527,8 @@ function twoWordBeforeParameterValues(sentence, i) {
 }
 
 function next_1_or_2_word_is(sentence, i, parameter1, parameter2) {
-  next_1 = false;
-  next_2 = false;
+  var next_1 = false;
+  var next_2 = false;
   if (i < sentence.taggedWords.length - 1) {
     next_1 = (sentence.taggedWords[i+1].token === parameter1);
   }
@@ -705,7 +705,7 @@ function prev_1_or_2_tag(sentence, i, parameter) {
 }
 
 function prev1Or2TagParameterValues(sentence, i) {
-  values = [];
+  var values = [];
   if (i > 0) {
     values.push(sentence.taggedWords[i - 1].tag);
   }

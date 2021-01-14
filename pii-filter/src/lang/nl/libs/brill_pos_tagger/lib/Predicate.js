@@ -33,11 +33,11 @@ function Predicate(name, parameter1, parameter2) {
   //if (this.meta.nrParameters > 1) {
     this.parameter2 = parameter2;
   //}
-  DEBUG && console.log('Predicate\n' + JSON.toString(this.meta, null, 2));
+  // DEBUG && console.log('Predicate\n' + JSON.toString(this.meta, null, 2));
 }
 
 Predicate.prototype.evaluate = function(sentence, position) {
-  DEBUG && console.log('Predicate.evalute: ' + this.name);
+  // DEBUG && console.log('Predicate.evalute: ' + this.name);
   var predicate = this.meta.function;
   return (predicate(sentence, position, this.parameter1, this.parameter2));
 };
