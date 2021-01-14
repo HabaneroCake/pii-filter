@@ -198,27 +198,26 @@ export class PIIFilter
             }
         );
 
-        // calc severity
-        // TODO: rework
-        let highest_severity: number = 0.0;
-        for (let mapping of this.language_model.severity_mappings)
-        {
-            let full_match: boolean = true;
-            let n_classifications_match: number = 0;
-            for (let [classifier, num_classifications] of mapping.classifiers)
-            {
-                if (!n_classifications.has(classifier))
-                {
-                    full_match = false;
-                    break;
-                }
-                else
-                    n_classifications_match += Math.min(num_classifications / n_classifications.get(classifier), 1.5);
-            }
-            let classification_ratio: number = n_classifications_match / mapping.classifiers.size;
-            if (full_match && highest_severity < mapping.severity && classification_ratio >= 1.0)
-                highest_severity = mapping.severity * classification_ratio;
-        }
+        // // calc severity
+        // let severity_sum: number = 0.0;
+        // for (let mapping of this.language_model.severity_mappings)
+        // {
+        //     let full_match: boolean = true;
+        //     let n_classifications_match: number = 0;
+        //     for (let [classifier, num_classifications] of mapping.classifiers)
+        //     {
+        //         if (!n_classifications.has(classifier))
+        //         {
+        //             full_match = false;
+        //             break;
+        //         }
+        //         else
+        //             n_classifications_match += Math.min(num_classifications / n_classifications.get(classifier), 1.5);
+        //     }
+        //     let classification_ratio: number = n_classifications_match / mapping.classifiers.size;
+        //     if (full_match && highest_severity < mapping.severity && classification_ratio >= 1.0)
+        //         highest_severity = mapping.severity * classification_ratio;
+        // }
 
         // TODO: clean this up and/or use different mapping system
         // let severity_factor_pii = total_n_pii > 1 ? severity_sum_pii / total_n_pii : severity_sum_pii;
@@ -226,7 +225,7 @@ export class PIIFilter
         return new PIIFilter.Result(
             total_n_pii,
             n_classifications,
-            Math.min((0.4 * highest_severity + 0.3 * severity_max_pii + 0.3 * severity_sum_pii), 1.0),
+            Math.min(severity_sum_pii, 1.0),
             tokens
         );
     }

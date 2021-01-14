@@ -14,7 +14,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
     let missed:             number = 0;
     let false_positive:     number = 0;
     let total:              number = 0;
-    const debug:            boolean = true;
+    const debug:            boolean = false;
 
     for (let item of benchmark as Array<{phrase: string, pii: Array<[string, string]>, severity: number}>)
     {
@@ -87,8 +87,8 @@ describe('PII_Filter_NL_Benchmark', ()=>{
             `rmse_severity_mapping ${rmse_severity_mapping}`
         );
 
-    it('correct_pii_gte_85_percent', ()=>{
-        expect(correct/total).gte(0.85);
+    it('correct_pii_gte_90_percent', ()=>{
+        expect(correct/total).gte(0.90);
     });
 
     it('missed_pii_lt_10_percent', ()=>{

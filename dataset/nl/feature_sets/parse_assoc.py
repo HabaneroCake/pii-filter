@@ -12,11 +12,11 @@ def read_assoc_data(paths, line_printer_cb=None):
         assert(len(values) == 4)
         # check what row type is
         if word[0] == '{': # PII
-            pii_association_multipliers.check_and_add(word[1:-1], values)
+            pii_association_multipliers.check_and_add(word[1:-1], values, 0)
         elif word[0] == '[': # POS
-            pos_association_multipliers.check_and_add(word[1:-1], values)
+            pos_association_multipliers.check_and_add(word[1:-1], values, 0)
         else:
-            association_multipliers.check_and_add(word, values)
+            association_multipliers.check_and_add(word, values, 0)
             
         if line_printer_cb:
             line_printer_cb('assoc: {}, pos_assoc: {}, pii_assoc: {}'.format(association_multipliers.count, 

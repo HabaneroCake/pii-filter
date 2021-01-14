@@ -19,13 +19,10 @@ class WordListCounter(object):
         ret_list = list(self._all.items())
         ret_list.sort()
         return ret_list
-    def check_and_add(self, word, value=None):
+    def check_and_add(self, word, value=None, min_len=1):
         """Adds word to wordlist if it conforms to logic"""
         word = word.lower().strip()
-        if len(word) > 0 and word not in self._all:
-            if len(word) == 1: 
-                print(word)
-                print()
+        if len(word) > min_len and word not in self._all:
             self._all.setdefault(word, value)
             self._word_counter += 1
     @property

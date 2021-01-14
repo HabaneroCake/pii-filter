@@ -129,7 +129,7 @@ export namespace Classifiers
                 }
                 final_matches.push(left_it);
 
-                if (final_matches.length == 1 && final_matches[0].symbol == '@')
+                if (final_matches.length > 0 && final_matches[0].symbol == '@')
                 {
                     return [[], new Parsing.ClassificationScore(
                         0.0, 0.0, this
@@ -139,7 +139,7 @@ export namespace Classifiers
                 // add to score if contains ".something"
                 if (final_matches.length > 1 && final_matches[final_matches.length - 2].symbol == '.')
                 {
-                    score +=        0.5;
+                    score +=        0.25;
                     severity_sum += 0.125;
                 }
 
@@ -365,13 +365,27 @@ export namespace Classifiers
             
             if (n_seg != 0 && n_seg >= last_valid_n_sep && last_valid_n_sep < max_n_sep)
             {
+                let only_days = formats_found.has(Date.SegmentFormats.day) &&
+                                    formats_found.get(Date.SegmentFormats.day) == n_seg;
+
                 let only_numbers = formats_found.has(Date.SegmentFormats.number) &&
                                     formats_found.get(Date.SegmentFormats.number) == n_seg;
 
                 let only_units = formats_found.has(Date.SegmentFormats.unit) &&
                                     formats_found.get(Date.SegmentFormats.unit) == n_seg;
+                    
+                let only_ordinals = formats_found.has(Date.SegmentFormats.ordinal) &&
+                                    formats_found.get(Date.SegmentFormats.ordinal) == n_seg;
 
-                if (!only_units && (!only_numbers || (only_numbers && last_valid_n_sep != 0)))
+                let only_numbers_and_units = formats_found.has(Date.SegmentFormats.number) &&
+                                                formats_found.has(Date.SegmentFormats.unit) &&
+                                                formats_found.get(Date.SegmentFormats.number) +
+                                                formats_found.get(Date.SegmentFormats.unit) == n_seg;
+                if (!only_numbers_and_units &&
+                    !only_units && 
+                    !only_days && 
+                    !only_ordinals &&
+                    (!only_numbers || (only_numbers && last_valid_n_sep != 0)))
                 {
                     if (only_numbers)
                     {
