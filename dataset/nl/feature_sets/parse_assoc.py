@@ -3,7 +3,7 @@ from . import word_list_counter
 # parsing of default association file formats
 def read_assoc_data(paths, line_printer_cb=None):
     association_multipliers =       word_list_counter.WordListCounter()
-    pii_association_multipliers =   word_list_counter.WordListCounter()
+    pii_association_multipliers =   word_list_counter.WordListCounterMulti()
     pos_association_multipliers =   word_list_counter.WordListCounter()
     def add_and_print(row):
         tokens = row.strip().split(' //')

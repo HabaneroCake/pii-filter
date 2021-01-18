@@ -7,26 +7,42 @@ export namespace Parsing
     export class Thresholds
     {
         constructor(
+            public well_formedness_threshold: number,
             public well_formed: Thresholds.Group,
             public ill_formed: Thresholds.Group
         ) {};
 
-        public validate(classification: ClassificationScore, well_formed: boolean = true): boolean
+        public validate(classification: ClassificationScore, well_formed?: boolean): boolean
         {
-            let classification_exceeds_dict_match: boolean = 
-                (classification.valid() &&
-                classification.group_root_start != null && 
-                classification.group_root_end != null) &&
-                    (classification.group_root_start.confidence_dictionary == null ||
-                    (classification.score > classification.group_root_start.confidence_dictionary.score ||
-                        classification.group_root_end.index >
-                        classification.group_root_start.confidence_dictionary.group_root_end.index));
+            if (classification.valid())
+            {
+                let classification_exceeds_dict_match:  boolean = (
+                    classification.group_root_start != null && 
+                    classification.group_root_end != null) &&
+                        (classification.group_root_start.confidence_dictionary == null ||
+                        (classification.score > classification.group_root_start.confidence_dictionary.score ||
+                            classification.group_root_end.index >
+                            classification.group_root_start.confidence_dictionary.group_root_end.index));
+                            
+                let tag_groups_match:       boolean = (classification.group_root_start.tag.group ==
+                                                        classification.group_root_end.tag.group);
+                let tag_group_well_formed:  boolean = (classification.group_root_start.tag.group.well_formed >
+                                                        this.well_formedness_threshold);
+                
+                let active_config: Thresholds.Group = (
+                    well_formed == null ?
+                        ((tag_groups_match && tag_group_well_formed) ?  
+                            this.well_formed : this.ill_formed) :
+                        (well_formed ?  
+                            this.well_formed : this.ill_formed)
+                );
 
-            let active_config: Thresholds.Group = well_formed? this.well_formed : this.ill_formed;
-
-            return classification_exceeds_dict_match &&
-                    classification.score > active_config.min_classification_score &&
-                    classification.severity > active_config.min_severity_score;
+                return ((active_config.compare_against_dict_score && classification_exceeds_dict_match) || 
+                        !active_config.compare_against_dict_score) &&
+                        classification.score > active_config.min_classification_score &&
+                        classification.severity > active_config.min_severity_score;
+            }
+            return false;
         }
     };
     export namespace Thresholds
@@ -34,8 +50,9 @@ export namespace Parsing
         export class Group
         {
             constructor(
-                public min_classification_score: number =   0,
-                public min_severity_score: number =         0
+                public min_classification_score: number =       0,
+                public min_severity_score: number =             0,
+                public compare_against_dict_score: boolean =    false
             ) {};
         }
     };
@@ -109,6 +126,46 @@ export namespace Parsing
                     (this.associative_score.right_max > 0 && distance_from_right <= this.associative_score.right_max);
         }
     };
+    export class Associations
+    {
+        protected assoc_map: Map<Classifier, Array<AssociationScore>> = new Map<Classifier, Array<AssociationScore>>();
+        public add(classifier: Classifier, association_score: AssociationScore)
+        {
+            if (!this.assoc_map.has(classifier))
+                this.assoc_map.set(classifier, new Array<AssociationScore>());
+            
+            let arr = this.assoc_map.get(classifier);
+            
+            if (arr.indexOf(association_score) > -1)
+                throw new Error('association score has already been added');
+
+            // only if bounds conform to existing bounds
+            if (arr.length == 0 || 
+                association_score.group_root_start.index == arr[0].group_root_start.index &&
+                association_score.group_root_end.index ==   arr[0].group_root_end.index)
+            {
+                arr.push(association_score);
+
+                // sort in descending order
+                this.assoc_map.set(classifier, arr.sort((i1, i2) => i2.score - i1.score));
+            }
+        }
+        public has(classifier: Classifier): boolean { return this.assoc_map.has(classifier); }
+        public get(classifier: Classifier): Array<AssociationScore>
+        {
+            return this.assoc_map.get(classifier);
+        }
+        public max(classifier: Classifier): AssociationScore
+        {
+            if (this.has(classifier))
+                return this.assoc_map.get(classifier)[0];
+            return new AssociationScore(null, 0, 0, null);
+        }
+        public values(): IterableIterator<Array<AssociationScore>>
+        {
+            return this.assoc_map.values();
+        }
+    };
     export class Confidences
     {
         private confidences: Array<ClassificationScore> = new Array<ClassificationScore>();
@@ -132,7 +189,13 @@ export namespace Parsing
             else
                 this.confidences.push(classification_score);
             // sort descending
-            this.confidences = this.confidences.sort((i1, i2) => i2.score - i1.score);
+            this.confidences = this.confidences.sort((i1, i2) => 
+            {
+                // let len_diff: number = (i2.group_root_end.index-i2.group_root_start.index) - 
+                //                         (i1.group_root_end.index-i1.group_root_start.index);
+                // return (len_diff == 0) ? (i2.score - i1.score) : len_diff;
+                return (i2.score - i1.score);
+            });
         }
         public get max(): ClassificationScore
         {
@@ -151,8 +214,8 @@ export namespace Parsing
         public next:        Token;
         // stores passes
         public confidence_dictionary:       ClassificationScore;
-        public confidences_associative:     Map<Classifier, AssociationScore> = new Map<Classifier, AssociationScore>();
-        public confidences_classification:  Array<Confidences> =                new Array<Confidences>();
+        public confidences_associative:     Associations =          new Associations();
+        public confidences_classification:  Array<Confidences> =    new Array<Confidences>();
         constructor(
             public symbol:      string,
             public tag:         POS.Tag,
@@ -161,8 +224,7 @@ export namespace Parsing
     };
     export class Tokenizer
     {
-        public tokens: Array<Token> =  new Array<Token>();
-
+        public tokens:      Array<Token> =  new Array<Token>();
         /**
          * creates a linked list of tokens from input text
          * @param text input text
@@ -173,10 +235,20 @@ export namespace Parsing
             language_model: Language
         )
         {
-            let string_tokens = text.split(language_model.punctuation);
-            let tagged_tokens: Array<[string, POS.Tag]> = language_model.pos_tagger.tag(string_tokens);
+            let string_tokens_raw =                         text.split(language_model.punctuation);
+            let string_tokens =                             new Array<string>();
 
-            // TODO: eventually add character offset index
+            for (let str of string_tokens_raw)
+                if (str.length > 0)
+                    string_tokens.push(str);
+
+
+            let tagged_tokens: Array<[string, POS.Tag]> =   language_model.pos_tagger.tag(
+                string_tokens,
+                language_model
+            );
+
+            // TODO: eventually add character offset index?
             let index: number = 0;
             let l_tok: Token =  null;
             for (let [token, pos_tag] of tagged_tokens)
@@ -319,7 +391,7 @@ export namespace Parsing
                     // move iterator past current associative marker if it exists
                     if (this.it.confidences_associative.has(classifier) && this.it.next)
                     {
-                        let score:          AssociationScore =  this.it.confidences_associative.get(classifier);
+                        let score:          AssociationScore =  this.it.confidences_associative.max(classifier);
                         let group_root:     Token =             this.group_root_getter(score);
                         
                         let [l_it, r_it] = (this.it.index < group_root.index) ? 
@@ -357,18 +429,23 @@ export namespace Parsing
                     // NOTE: some symbols split up text into more than 1 token
                     // TODO: tokens are only counted as distance once a ' ' is encountered as well
 
-
                     if (this.it.confidences_associative.has(classifier))
                     {
                         if (is_punctuation)
                             this.distance++;
                             
-                        let assoc = this.it.confidences_associative.get(classifier);
-                        if (this.check_valid(assoc, this))
+                        let assoc_arr: Array<AssociationScore> = this.it.confidences_associative.get(classifier);
+                        let assoc: AssociationScore;
+                        for (assoc of assoc_arr)
                         {
-                            this.associative_sum +=  assoc.score *       this.scalar;
-                            this.severity_sum +=     assoc.severity *    this.scalar;
-                            
+                            if (this.check_valid(assoc, this))
+                            {
+                                this.associative_sum +=  assoc.score *       this.scalar;
+                                this.severity_sum +=     assoc.severity *    this.scalar;
+                            }
+                        }
+                        if (assoc != null)
+                        {
                             this.distance += count_str_tokens(
                                 assoc.group_root_start,
                                 assoc.group_root_end,
@@ -412,7 +489,8 @@ export namespace Parsing
         }
         return [
             left_distance_iterator.associative_sum + right_distance_iterator.associative_sum,
-            left_distance_iterator.severity_sum + right_distance_iterator.severity_sum];
+            left_distance_iterator.severity_sum + right_distance_iterator.severity_sum
+        ];
     }
 
     export abstract class SimpleAssociativeClassifier extends Parsing.Classifier
@@ -451,18 +529,21 @@ export namespace Parsing
             }
             if ('pii_association_multipliers' in this.dataset && this.dataset['pii_association_multipliers'].length > 0)
             {
-                for (const [name, [left_max, right_max, score, severity]] 
+                for (const [name, array_of_pii_scores]
                         of this.dataset['pii_association_multipliers'] as
-                            Array<[string, [number, number, number, number]]>)
+                            Array<[string, Array<[number, number, number, number]>]>)
                 {
                     for (let classifier of language_model.classifiers)
                     {
                         if (classifier.name == name)
                         {
-                            classifier.associative_references.push([
-                                this,
-                                new AssociativeScore(left_max, right_max, score, severity)
-                            ]);
+                            for (let [left_max, right_max, score, severity] of array_of_pii_scores)
+                            {
+                                classifier.associative_references.push([
+                                    this,
+                                    new AssociativeScore(left_max, right_max, score, severity)
+                                ]);
+                            }
                             break;
                         }
                     }
@@ -566,7 +647,7 @@ export namespace Parsing
                     right_it,
                     this,
                     this.language_model,
-                    20
+                    this.language_model.max_assoc_distance
                 );
 
                 return [matches, new ClassificationScore(
@@ -632,6 +713,8 @@ export namespace Parsing
             dataset: object,
             classification_score_base: number,
             protected uppercase_classification_score_base: number,
+            protected pos_classification_score_base: number,
+            protected pos_possible_classification_score_base: number,
             severity_score_base: number,
         ) 
         { 
@@ -647,20 +730,28 @@ export namespace Parsing
             let [tokens, score] = super.classify_confidence(token);
             if (tokens.length > 0)
             {
-                // // adjust score if in dictionary
-                // if (tokens[0].confidence_dictionary)
-                //     score.score *= 0.5;
-                // adjust score to capitalization
                 let any_uppercase: boolean = false;
                 for (let r_token of tokens)
                 {
                     let first_letter = r_token.symbol[0];
                     let first_uppercase: boolean = (first_letter == first_letter.toUpperCase() &&
                                                     !this.language_model.punctuation_map.has(first_letter));
-                    // TODO: could check for rest/most lowercase
-                    any_uppercase ||= first_uppercase;
+
+                    let pos_tagged_n: boolean = token.tag.tag_base.toLowerCase() == 'n' &&
+                                                token.tag.tag_rest.indexOf('eigen') > -1;
+                        
+                    if (pos_tagged_n)
+                        score.score += this.pos_classification_score_base;
+                    else if (token.tag.tag_base.toLowerCase() == this.language_model.pos_tagger.none_str)
+                        score.score += this.pos_possible_classification_score_base;
+
+                    if (first_uppercase)
+                    {
+                        score.score += this.uppercase_classification_score_base;
+                        any_uppercase = true;
+                    }
                 }
-                
+
                 if (any_uppercase)
                 {
                     // adjust score to punctuation proximity
@@ -668,14 +759,9 @@ export namespace Parsing
                     while (left_token.previous != null && left_token.previous.symbol == ' ')
                         left_token = left_token.previous;
 
-                    if (left_token.previous == null ||
+                    if (!(left_token.previous == null ||
                         (this.language_model.punctuation_map.has(left_token.previous.symbol) &&
-                        this.language_model.punctuation_map.get(left_token.previous.symbol) <= 0.5))
-                    {
-                        // TODO: check for POS
-                        score.score += 0.0;
-                    }
-                    else
+                        this.language_model.punctuation_map.get(left_token.previous.symbol) <= 0.5)))
                         score.score += this.uppercase_classification_score_base;
                 }
             }

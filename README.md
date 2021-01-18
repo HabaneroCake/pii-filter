@@ -1,11 +1,11 @@
-# <a name="title">PII Filter - personally identifiable information filter</a>
+# ![PII](https://raw.githubusercontent.com/prolody/piif_web_ext/master/assets/logos/a/PIIlogo.png) Filter
 
-The PII Filter project aims to build a personally identifiable information (PII) filter for all Dutch users of the
+This project aims to build a personally identifiable information (PII) filter for all Dutch users of the
 internet. Although we hope to support multiple languages in the future. Feel free to contribute to this project through
 pull requests and/or issues. The current shape of this project is: a library, an api-request sanitizer, and a
 [web-extension](https://github.com/prolody/piif_web_ext) for browsers.
 
-## <a name="current_state">The current state</a>
+## The current state
 
 The internet can be an unforgiving place, and the amount of personally identifiable data left behind on it has not 
 decreased much over the years. This could have to do in part with the massive increase in availability and usability. 
@@ -21,19 +21,25 @@ development into the domain of machine vision, detecting where and what PII need
 
 This project is under development.
 
-## <a name="pii">PII</a>
+## PII
 
-The following PII features have been collected for NER:
+The following information has been collected for NER:
 
-- `brand_names` (very basic and ad hoc for filtering brand names from medicine names)
-- `first_names`
-- `family_names`
-- `medicine_names`
+- `brand_name` (very basic and ad hoc for filtering brand names from medicine names)
+- `first_name`
+- `family_name`
+- `pet_name`
+- `medicine_name`
+
+Other PII that can be detected based on patterns:
+
+- `phone_number`
+- `email_address`
+- `date`
 
 More information can be found in [dataset/README.md](dataset/README.md).
 
-
-## <a name="future_work">Future work</a>
+## Future work
 
 - detecting PII in images and providing coordinates which can be used for blurring or erasing PII
 - detecting PII in other languages

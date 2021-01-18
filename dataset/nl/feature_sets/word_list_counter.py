@@ -28,3 +28,17 @@ class WordListCounter(object):
     @property
     def count(self):
         return self._word_counter
+
+class WordListCounterMulti(WordListCounter):
+    """Wordlist wrapper"""
+    def __init__(self):
+        super(WordListCounterMulti, self).__init__()
+    def check_and_add(self, word, value=None, min_len=1):
+        """Adds word to wordlist if it conforms to logic"""
+        word = word.lower().strip()
+        if len(word) > min_len:
+            if word not in self._all:
+                self._all.setdefault(word, [value])
+                self._word_counter += 1
+            else:
+                self._all[word].append(value)

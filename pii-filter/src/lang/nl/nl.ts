@@ -12,12 +12,13 @@ export class NL implements Language
     public pos_tagger:          POS_Tagger =            new POS_Tagger();
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public punctuation:         RegExp;
-    public max_assoc_distance:  number =                5;
+    public max_assoc_distance:  number =                30;
     public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
     public severity_mappings:   Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
     public thresholds:          Parsing.Thresholds =    new Parsing.Thresholds(
-        new Parsing.Thresholds.Group(0.2, 0.0),
-        new Parsing.Thresholds.Group(0.0, 0.0),
+        0.025,
+        new Parsing.Thresholds.Group(0.2, 0.0, true),
+        new Parsing.Thresholds.Group(0.045, 0.0, false),
     );         
     /**
      * 

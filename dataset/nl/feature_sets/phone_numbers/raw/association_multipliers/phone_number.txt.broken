@@ -1,0 +1,32 @@
+{email_address} //-1 //-1 //0 //0.35
+{first_name} //-1 //-1 //0 //0.1
+{family_name} //-1 //-1 //0 //0.1
+{date} //-1 //-1 //0 //0.05
+{pet_name} //-1 //-1 //0 //0.05
+bevestiging //10 //10 //0 //0.45
+bevestigen //10 //10 //0 //0.45
+bevestig //10 //10 //0 //0.45
+inloggen //10 //10 //0 //0.45
+ingelogd //10 //10 //0 //0.45
+log //10 //10 //0 //0.45
+account //10 //10 //0 //0.45
+aanmelden //7 //7 //0 //0.45
+aan te melden //7 //7 //0 //0.45
+naar //0 //3 //0.1125 //0
+op //0 //3 //0.1125 //0
+via //0 //3 //0.1125 //0
+telefoon //4 //7 //0.5 //0
+telefoonnummer //4 //7 //0.5 //0
+telefoon nummer //4 //7 //0.5 //0
+nummer //4 //5 //0.2 //0
+bellen //4 //10 //0.5 //0
+bellen op //0 //2 //0.5 //0
+contact opnemen //4 //5 //0.3 //0
+bereiken //4 //5 //0.3 //0
+spreken //6 //5 //0.2 //0
+bericht //5 //5 //0.1125 //0
+voicemail //4 //5 //0.3 //0
+appen //4 //5 //0.3 //0
+sms’en //4 //5 //0.3 //0
+sms //4 //5 //0.3 //0
+sturen //6 //5 //0.1125 //0

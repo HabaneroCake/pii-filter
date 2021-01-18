@@ -2125,7 +2125,6 @@ Diks
 Doldersum
 van Heijst
 Nanninga
-Bel
 van Helvoort
 Hoppenbrouwers
 Lodewijks
@@ -2257,7 +2256,6 @@ Lassche
 Cuperus
 Geven
 Pietersma
-Vet
 van Baaren
 van de Burgt
 Korte
@@ -7010,7 +7008,6 @@ Linde
 Scheeren
 Siekman
 Stoppels
-Super
 Theeuwes
 van 't Veen
 Verwegen

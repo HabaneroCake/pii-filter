@@ -85,7 +85,7 @@ describe('PII_Filter_NL', ()=>{
             medicine_name,
             'medicine_name',
             0.25,
-            0.5
+            0.3
         );
     });
     it('classify_email_address', ()=>{

@@ -1,0 +1,73 @@
+{phone_number} //-1 //-1 //0 //0.45
+{email_address} //-1 //-1 //0 //0.35
+{first_name} //-1 //-1 //0 //0.25
+{first_name} //1 //1 //0.05 //0
+[v()] //1 //1 //0.1 //0.0
+naam //3 //7 //0.2 //0
+achternaam //3 //7 //0.5 //0
+namen //4 //7 //0.2 //0
+achternamen //4 //7 //0.5 //0
+familienaam //3 //7 //0.5 //0
+familienamen //3 //7 //0.5 //0
+heet //3 //1 //0.2 //0
+heten //3 //1 //0.2 //0
+naam is //2 //1 //0.2 //0
+is de naam //1 //1 //0.2 //0
+is de familienaam //3 //3 //0.6 //0
+is de achternaam //3 //3 //0.6 //0
+familie //0 //1 //0.6 //0
+ben ik //1 //2 //0.2 //0.2
+zijn wij //1 //2 //0.2 //0.2
+ik ben //0 //1 //0.2 //0.2
+wij zijn //0 //1 //0.2 //0.2
+ben jij //2 //2 //0.2 //0.2
+zijn jullie //2 //2 //0.2 //0.2
+jij bent //2 //2 //0.2 //0.2
+jullie zijn //2 //2 //0.2 //0.2
+bent u //2 //2 //0.2 //0.2
+u bent //2 //2 //0.2 //0.2
+dochter //7 //7 //0 //0.15
+zoon //7 //7 //0 //0.15
+dochtertje //7 //7 //0 //0.15
+zoontje //7 //7 //0 //0.15
+kind //7 //7 //0 //0.15
+kindje //7 //7 //0 //0.15
+baby //7 //7 //0 //0.15
+man //7 //7 //0 //0.15
+vrouw //7 //7 //0 //0.15
+echtgenoot //7 //7 //0 //0.15
+partner //7 //7 //0 //0.15
+hallo //0 //2 //0.05 //0.2
+beste //0 //2 //0.05 //0.2
+lieve //0 //2 //0.05 //0.2
+geachte //0 //2 //0.6 //0.2
+goedemorgen //0 //2 //0.05 //0.2
+goedemiddag //0 //2 //0.05 //0.2
+goedenavond //0 //2 //0.05 //0.2
+mvg //0 //3 //0.3 //0.2
+fijne avond //0 //3 //0.1 //0.2
+fijne dag //0 //3 //0.1 //0.2
+liefs //0 //3 //0.1 //0.2
+groet //0 //3 //0.1 //0.2
+groeten //0 //3 //0.2 //0.2
+groetjes //0 //3 //0.1 //0.2
+doei //0 //3 //0.1 //0.2
+hoogachtend //0 //2 //0.6 //0.2
+bedankt //2 //4 //0.1 //0.2
+tot ziens //2 //4 //0.2 //0.2
+tot snel //2 //4 //0.1 //0.2
+tot dan //2 //4 //0.1 //0.2
+wie is //0 //2 //0.3 //0.1
+viert //1 //1 //0.15 //0.05
+is * achternaam //1 //1 //0.5 //0.0
+is * * achternaam //1 //0 //0.33 //0.0
+familienaam is //0 //1 //0.5 //0.0
+is * familienaam //1 //1 //0.5 //0.0
+is * * familienaam //1 //0 //0.33 //0.0
+is * naam //1 //1 //0.2 //0.0
+is * * naam //1 //1 //0.15 //0.0
+ik ben * //0 //2 //0.2 //0.25
+de naam van mijn * is //0 //1 //0.2 //0.05
+de achternaam van mijn * is //0 //1 //0.5 //0.1
+, //1 //0 //0.15 //0.0
+viert //1 //0 //0.15 //0.05

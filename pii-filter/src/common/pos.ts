@@ -1,16 +1,30 @@
+import { Language } from '../../src/common/language-interface';
+
 export namespace POS
 {
     export class Tag
     {
+        public group: Tag.Group = null;
         constructor(
             public tag_base: string,
             public tag_rest: Array<string>
         ) {};
     }
+    export namespace Tag
+    {
+        export class Group
+        {
+            constructor(
+                public well_formed: number = 0,
+                public n_tags: number = 0
+            ) {}
+        };
+    };
 
     export interface Tagger
     {
-        tag(tokens: Array<string>): Array<[string, POS.Tag]>;
+        none_str: string;
+        tag(tokens: Array<string>, language_model: Language): Array<[string, POS.Tag]>;
     };
 
     export function from_brill_pos_tag(tag: string): POS.Tag

@@ -1,30 +1,55 @@
-geboortedatum //5 //5 //0.25 //0.25
-datum //5 //5 //0.25 //0.0
-geboorte //5 //5 //0.25 //0.25
-geboren //5 //5 //0.25 //0.25
-ter wereld gekomen //5 //5 //0.125 //0.25
-nieuw leven //5 //5 //0.125 //0.25
-baby //5 //5 //0.125 //0.25
-dochter //5 //5 //0.125 //0.25
-dochtertje //5 //5 //0.125 //0.25
-zoontje //5 //5 //0.125 //0.25
-zoon //5 //5 //0.125 //0.25
-kind //5 //5 //0.125 //0.25
-kindje //5 //5 //0.125 //0.25
-trouwen //5 //5 //0.125 //0.25
-getrouwd //5 //5 //0.125 //0.25
-overleden //5 //5 //0.125 //0.25
-heengegaan //5 //5 //0.125 //0.25
-ingeslapen //5 //5 //0.125 //0.25
-ontslapen //5 //5 //0.125 //0.25
-in de hemel opgenomen //5 //5 //0.125 //0.25
-jaar //5 //5 //0.25 //0.0
-verjaardag //5 //5 //0.25 //0.25
-jarig //5 //5 //0.25 //0.125
-birthday //5 //5 //0.25 //0.25
-gefeliciteerd //7 //7 //0.125 //0.25
-op //0 //1 //0.25 //0.0
-over //0 //1 //0.25 //0.0
-sinds //0 //1 //0.25 //0.0
-van //0 //1 //0.125 //0.0
-tot //0 //1 //0.125 //0.0
+{phone_number} //-1 //-1 //0 //0.45
+{email_address} //-1 //-1 //0 //0.35
+{first_name} //-1 //-1 //0 //0.15
+{family_name} //-1 //-1 //0 //0.15
+geboortedatum //3 //3 //0.45 //0.2
+geboorte //-1 //-1 //0 //0.2
+geboren //-1 //-1 //0 //0.2
+geboren op //0 //1 //0.6 //0
+ter wereld gekomen //3 //3 //0 //0.2
+nieuw leven //-1 //-1 //0 //0.2
+baby //-1 //-1 //0 //0.2
+dochter //-1 //-1 //0 //0.15
+dochtertje //-1 //-1 //0 //0.15
+zoon //-1 //-1 //0 //0.15
+zoontje //-1 //-1 //0 //0.15
+kind //-1 //-1 //0 //0.15
+kindje //-1 //-1 //0 //0.15
+ouders //-1 //-1 //0 //0.2
+vader //-1 //-1 //0 //0.2
+moeder //-1 //-1 //0 //0.2
+trotse ouders //-1 //-1 //0 //0.2
+trotse vader //-1 //-1 //0 //0.2
+trotse moeder //-1 //-1 //0 //0.2
+trouwen //-1 //-1 //0 //0.2
+getrouwd //-1 //-1 //0 //0.2
+jawoord //-1 //-1 //0 //0.2
+ja-woord //-1 //-1 //0 //0.2
+huwelijk //-1 //-1 //0 //0.2
+huwelijksvoltrekking //-1 //-1 //0 //0.2
+trouwdag //-1 //-1 //0.15 //0.2
+jubileum //-1 //-1 //0 //0.2
+jaar //-1 //-1 //0 //0.1
+verjaardag //-1 //-1 //0 //0.2
+jarig //-1 //-1 //0 //0.2
+birthday //-1 //-1 //0 //0.2
+gefeliciteerd //-1 //-1 //0 //0.2
+van harte //-1 //-1 //0 //0.2
+proficiat //-1 //-1 //0 //0.2
+felicitaties //-1 //-1 //0 //0.2
+congratulations //-1 //-1 //0 //0.2
+congratz //-1 //-1 //0 //0.2
+congrats //-1 //-1 //0 //0.2
+overleden //-1 //-1 //0 //0.2
+overleden op //1 //0 //0.6 //0
+heengegaan //-1 //-1 //0 //0.2
+ingeslapen //-1 //-1 //0 //0.2
+ontslapen //-1 //-1 //0 //0.2
+hemel //-1 //-1 //0 //0.2
+afscheid //-1 //-1 //0 //0.1
+oprechte deelneming //-1 //-1 //0 //0.2
+gecondoleerd //-1 //-1 //0 //0.2
+op //0 //2 //0.4 //0
+sinds //0 //1 //0.4 //0
+van //0 //1 //0.2 //0
+tot //1 //1 //0.4 //0
