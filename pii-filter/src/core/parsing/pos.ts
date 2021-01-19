@@ -1,8 +1,8 @@
-import { Language } from '../../src/common/language-interface';
+import { ITag, IGroup } from '../interfaces/parsing/tagging';
 
 export namespace POS
 {
-    export class Tag
+    export class Tag implements ITag
     {
         public group: Tag.Group = null;
         constructor(
@@ -10,21 +10,16 @@ export namespace POS
             public tag_rest: Array<string>
         ) {};
     }
+
     export namespace Tag
     {
-        export class Group
+        export class Group implements IGroup
         {
             constructor(
                 public well_formed: number = 0,
                 public n_tags: number = 0
             ) {}
         };
-    };
-
-    export interface Tagger
-    {
-        none_str: string;
-        tag(tokens: Array<string>, language_model: Language): Array<[string, POS.Tag]>;
     };
 
     export function from_brill_pos_tag(tag: string): POS.Tag

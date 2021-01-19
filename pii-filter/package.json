@@ -1,10 +1,12 @@
 {
   "name": "pii-filter",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "PII Filter",
   "main": "dist/pii-filter.js",
   "types": "dist/pii-filter.d.ts",
-  "dependencies": {},
+  "dependencies": {
+    "natural": "^2.4.5"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",

@@ -1,4 +1,4 @@
-import { Parsing } from '../../../common/parsing';
+import { Parsing } from '../../../core/parsing';
 import ds_email_address from '../dataset/ds_email_address.json';
 
 function validate_email(str: string)

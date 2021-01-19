@@ -34,7 +34,7 @@ describe('PII_Filter_NL', ()=>{
         expect(pii_match.classification.severity).gte(severity);
     };
 
-    it('classify_first_name', ()=>{
+    it('should_classify_first_name', ()=>{
         test_pii(
             pii_filter.classify(`Hoi, ik ben ${first_name}.`),
             first_name,
@@ -43,7 +43,7 @@ describe('PII_Filter_NL', ()=>{
             0.1
         );
     });
-    it('classify_first_name_2', ()=>{
+    it('should_classify_first_name_2', ()=>{
         test_pii(
             pii_filter.classify(`Hoi, ik ben ${first_name2}.`),
             first_name2,
@@ -52,7 +52,7 @@ describe('PII_Filter_NL', ()=>{
             0.1
         );
     });
-    it('classify_first_name_3', ()=>{
+    it('should_classify_first_name_3', ()=>{
         test_pii(
             pii_filter.classify(`Hoi, ik ben ${first_name3}.`),
             first_name3,
@@ -61,7 +61,7 @@ describe('PII_Filter_NL', ()=>{
             0.1
         );
     });
-    it('classify_family_name', ()=>{
+    it('should_classify_family_name', ()=>{
         test_pii(
             pii_filter.classify(`Mijn achternaam is ${family_name}.`),
             family_name,
@@ -70,7 +70,7 @@ describe('PII_Filter_NL', ()=>{
             0.2
         );
     });
-    it('classify_pet_name', ()=>{
+    it('should_classify_pet_name', ()=>{
         test_pii(
             pii_filter.classify(`Mijn konijn heet ${pet_name}.`),
             pet_name,
@@ -79,7 +79,7 @@ describe('PII_Filter_NL', ()=>{
             0.1
         );
     });
-    it('classify_medicine_name', ()=>{
+    it('should_classify_medicine_name', ()=>{
         test_pii(
             pii_filter.classify(`We gebruiken veel ${medicine_name}.`),
             medicine_name,
@@ -88,7 +88,7 @@ describe('PII_Filter_NL', ()=>{
             0.3
         );
     });
-    it('classify_email_address', ()=>{
+    it('should_classify_email_address', ()=>{
         test_pii(
             pii_filter.classify(`Mijn email adres is ${email_address}.`),
             email_address,
@@ -97,13 +97,13 @@ describe('PII_Filter_NL', ()=>{
             0.25
         );
     });
-    it('classify_not_email_address', ()=>{
+    it('should_ignore_not_email_address', ()=>{
         let result = pii_filter.classify(`Mijn email adres is niet @.`);
         let pii_all = result.pii();
         let pii_match = get_pii(pii_all, '@');
         expect(!pii_match && pii_all.length == 0).equals(true);
     });
-    it('classify_phone_number', ()=>{
+    it('should_classify_phone_number', ()=>{
         test_pii(
             pii_filter.classify(`Mijn mobiele nummer is ${phone_number}.`),
             phone_number,
@@ -112,7 +112,7 @@ describe('PII_Filter_NL', ()=>{
             0.3
         );
     });
-    it('classify_date', ()=>{
+    it('should_classify_date', ()=>{
         test_pii(
             pii_filter.classify(`Mijn verjaardag is op ${date}.`),
             date,
@@ -129,7 +129,7 @@ describe('PII_Filter_NL', ()=>{
     let text_multiple_pii_removed: string = 
             'Mijn voornaam is , mijn achternaam is  en mijn konijn heet .';
 
-    it('classify_multiple', ()=>{
+    it('should_classify_multiple', ()=>{
         let result = pii_filter.classify(text_multiple_pii);
         let pii_all = result.pii();
         let pii_match_first_name = get_pii(pii_all, first_name);
@@ -145,17 +145,17 @@ describe('PII_Filter_NL', ()=>{
         expect(pii_match_pet_name.classification.classifier.name).equals('pet_name');
     });
 
-    it('replace_placeholders', ()=>{
+    it('should_replace_with_placeholders', ()=>{
         let result = pii_filter.classify(text_multiple_pii);
         expect(result.render_placeholders()).equals(text_multiple_pii_placeholders);
     });
 
-    it('replace_removed', ()=>{
+    it('should_remove', ()=>{
         let result = pii_filter.classify(text_multiple_pii);
         expect(result.render_removed()).equals(text_multiple_pii_removed);
     });
 
-    it('associative_scoring', ()=>{
+    it('should_associative_scoring_stub', ()=>{
         // TODO: create unit tests as well as testing in integration
         // baseline
         let result_1 = pii_filter.classify(`Hier, ${first_name}.`);
@@ -238,7 +238,7 @@ describe('PII_Filter_NL', ()=>{
         ), [first_name, first_name2, first_name3], w_phrase_score, true);
     });
 
-    it('associative_scoring_pii', ()=>{
+    it('should_associative_scoring_pii_stub', ()=>{
         let score_1 = pii_filter.classify(`Hier, ${first_name}.`).pii()[0].classification.score;
         let score_2 = pii_filter.classify(`Hier, ${family_name}.`).pii()[0].classification.score;
         let res = pii_filter.classify(`Hier, ${first_name} ${family_name}.`).pii();

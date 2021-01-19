@@ -1,10 +1,29 @@
-import { Parsing } from './common/parsing';
-import { Language } from './common/language-interface';
+import { Parsing } from './core/parsing';
+import { ILanguage } from './core/interfaces/language';
+
+import {
+    IAssociativeScore,
+    IAssociationScore,
+    IClassificationScore,
+    IClassifier, 
+    IConfidences
+} from './core/interfaces/parsing/classification';
+
+import { 
+    IResult,
+    IClassificationResult,
+    IMain
+} from './core/interfaces/main';
+
+import {
+    ITokenizer,
+    IToken
+} from './core/interfaces/parsing/tokens';
 
 // Languages
 export { NL } from './lang/nl/nl';
 
-export class PIIFilter
+export class PIIFilter implements IMain
 {
     //------------------------------------------------------------------------------------------------------------------
     /**
@@ -12,18 +31,30 @@ export class PIIFilter
      * @param language_model the language model
      * @param verbosity verbosity level
      */
-    constructor(
-        private language_model: Language
-    )
+    constructor(public language_model: ILanguage) {}
+    public classify(text: string): IResult
     {
+        // Factory functions (TODO: put somewhere logical)
+        // TODO these could be passed in somewhere
+        let make_tokenizer = (text: string, language_model: ILanguage): ITokenizer => 
+        { return new Parsing.Tokenizer(text, language_model); }
+        let make_confidences = (): IConfidences => { return new Parsing.Confidences();} 
+        let make_association_score = (associative_score: IAssociativeScore,
+                                      score: number, severity: number,
+                                      classifier: IClassifier): IAssociationScore =>
+        {
+            return new Parsing.AssociationScore(
+                associative_score,
+                score,
+                severity,
+                classifier
+            );
+        }
+        let make_classification_score = (score: number, severity: number, classifier: IClassifier): 
+            IClassificationScore => { return new Parsing.ClassificationScore(score, severity, classifier); }
+        // ---
 
-    }
-
-    public classify(text: string) : PIIFilter.Result
-    {
-        let tokenizer = new Parsing.Tokenizer(text, this.language_model);
-
-        let iterate_tokens = (fn: (index: number, token: Parsing.Token) => number) =>
+        let iterate_tokens = (fn: (index: number, token: IToken) => number) =>
         {
             let index = 0;
             while (index < tokenizer.tokens.length)
@@ -33,13 +64,13 @@ export class PIIFilter
             }
         };
         let iterate_classifiers_and_tokens = (
-            fn: (classifier: Parsing.Classifier, index: number, token: Parsing.Token) => number
+            fn: (classifier: IClassifier, index: number, token: IToken) => number
         ) =>
         {
             for (let classifier of this.language_model.classifiers)
             {
                 iterate_tokens(
-                    (index: number, token: Parsing.Token): number => 
+                    (index: number, token: IToken): number => 
                     {
                         return fn(classifier, index, token);
                     }
@@ -49,10 +80,10 @@ export class PIIFilter
         let run_classification = () => {
             // add pass container
             for (let token of tokenizer.tokens)
-                token.confidences_classification.push(new Parsing.Confidences());
+                token.confidences_classification.push(make_confidences());
             // classification pass
             iterate_classifiers_and_tokens(
-                (classifier: Parsing.Classifier, index: number, token: Parsing.Token): number => 
+                (classifier: IClassifier, index: number, token: IToken): number => 
                 {
                     let [tokens_conf, score_conf] = classifier.classify_confidence(token);
                     if (score_conf.valid())
@@ -63,7 +94,8 @@ export class PIIFilter
                         // add score to matched tokens
                         for (let r_token of tokens_conf)
                         {
-                            r_token.confidences_classification[r_token.confidences_classification.length-1].add(score_conf);
+                            r_token.confidences_classification[
+                                r_token.confidences_classification.length-1].add(score_conf);
                             index = r_token.index;
                         }
                     }
@@ -74,14 +106,14 @@ export class PIIFilter
         // associative pass (PII)
         let run_associative_pass_pii = () => {
             iterate_tokens(
-                (index: number, token: Parsing.Token): number => 
+                (index: number, token: IToken): number => 
                 {
-                    let max = token.confidences_classification[token.confidences_classification.length-1].max;
+                    let max = token.confidences_classification[token.confidences_classification.length-1].max();
                     if (this.language_model.thresholds.validate(max))
                     {
                         for (let [classifier, associative_score] of max.classifier.associative_references)
                         {
-                            let association_score: Parsing.AssociationScore = new Parsing.AssociationScore(
+                            let association_score = make_association_score(
                                 associative_score,
                                 associative_score.score,
                                 associative_score.severity,
@@ -91,7 +123,7 @@ export class PIIFilter
                             association_score.group_root_start =    max.group_root_start;
                             association_score.group_root_end =      max.group_root_end;
 
-                            let r_token:   Parsing.Token =  max.group_root_start;
+                            let r_token:   IToken =  max.group_root_start;
                             do
                             {
                                 r_token.confidences_associative.add(classifier, association_score);                            
@@ -105,10 +137,13 @@ export class PIIFilter
                 }
             );
         }
+        // =============================================================================================================
+        // Start of function control flow
+        let tokenizer: ITokenizer = make_tokenizer(text, this.language_model);
 
         // dictionary pass
         iterate_tokens(
-            (index: number, token: Parsing.Token): number => 
+            (index: number, token: IToken): number => 
             {
                 let [tokens_dict, score_dict] = this.language_model.dictionary.classify_confidence(token);
                 
@@ -127,7 +162,7 @@ export class PIIFilter
 
         // associative pass
         iterate_classifiers_and_tokens(
-            (classifier: Parsing.Classifier, index: number, token: Parsing.Token): number => 
+            (classifier: IClassifier, index: number, token: IToken): number => 
             {
                 let [tokens_assoc, score_assoc] = classifier.classify_associative(token);
                 if (score_assoc.valid())
@@ -154,16 +189,15 @@ export class PIIFilter
         run_classification();
 
         // get all (highest scoring) pii tokens
-        let severity_max_pii:   number =                            0.0;
-        let severity_sum_pii:   number =                            0.0;
-        let total_n_pii:        number =                            0;
-        let n_classifications:  Map<Parsing.Classifier, number> =   new Map<Parsing.Classifier, number>();
-        let tokens:             Array<[Parsing.ClassificationScore, Parsing.Token]> = 
-                                        new Array<[Parsing.ClassificationScore, Parsing.Token]>();
+        let severity_max_pii:   number =                                0.0;
+        let severity_sum_pii:   number =                                0.0;
+        let total_n_pii:        number =                                0;
+        let n_classifications:  Map<IClassifier, number> =              new Map<IClassifier, number>();
+        let tokens:             Array<[IClassificationScore, IToken]> = new Array<[IClassificationScore, IToken]>();
         iterate_tokens(
-            (index: number, token: Parsing.Token): number => 
+            (index: number, token: IToken): number => 
             {
-                let classification = token.confidences_classification[token.confidences_classification.length-1].max;
+                let classification = token.confidences_classification[token.confidences_classification.length-1].max();
                 if (this.language_model.thresholds.validate(classification))
                 {
                     if (!n_classifications.has(classification.classifier))
@@ -178,7 +212,7 @@ export class PIIFilter
                     index = classification.group_root_end.index;
                 }
                 else
-                    classification = new Parsing.ClassificationScore(0, 0, null);
+                    classification = make_classification_score(0, 0, null);
 
                 tokens.push([classification, token]);
                 return index;
@@ -228,23 +262,23 @@ export class PIIFilter
 
 export namespace PIIFilter
 {
-    export class PII
+    export class PII implements IClassificationResult
     {
         constructor(
-            public classification: Parsing.ClassificationScore,
+            public classification: IClassificationScore,
             public text: string
         ) {}
     };
-    export class Result
+    export class Result implements IResult
     {
         constructor(
             public total_num_pii:       number,
-            public num_pii:             Map<Parsing.Classifier, number>,
+            public num_pii:             Map<IClassifier, number>,
             public severity_mapping:    number,
-            public tokens:              Array<[Parsing.ClassificationScore, Parsing.Token]>
+            public tokens:              Array<[IClassificationScore, IToken]>
         ) {}
 
-        public render_replaced(fn: (classification: Parsing.ClassificationScore, token: Parsing.Token) => string, 
+        public render_replaced(fn: (classification: IClassificationScore, token: IToken) => string, 
                                 confidence_threshold?: number, severity_threshold?: number): string
         {
             let result: string = '';
@@ -276,7 +310,7 @@ export namespace PIIFilter
 
         public render_placeholders(confidence_threshold?: number, severity_threshold?: number): string
         {
-            return this.render_replaced((classification: Parsing.ClassificationScore, token: Parsing.Token): string =>
+            return this.render_replaced((classification: IClassificationScore, token: IToken): string =>
             {
                 return `{${classification.classifier.name}}`;
             }, confidence_threshold, severity_threshold);
@@ -284,16 +318,15 @@ export namespace PIIFilter
 
         public render_removed(confidence_threshold?: number, severity_threshold?: number): string
         {
-            return this.render_replaced((classification: Parsing.ClassificationScore, token: Parsing.Token): string =>
+            return this.render_replaced((classification: IClassificationScore, token: IToken): string =>
             {
                 return '';
             }, confidence_threshold, severity_threshold);
         }
 
-        public pii(confidence_threshold?: number, severity_threshold?: number): 
-            Array<PII>
+        public pii(confidence_threshold?: number, severity_threshold?: number): Array<IClassificationResult>
         {
-            let result: Array<PII> = new Array<PII>();
+            let result: Array<IClassificationResult> = new Array<IClassificationResult>();
 
             for (let [classification, token] of this.tokens)
             {
@@ -347,7 +380,7 @@ export namespace PIIFilter
                         );
                     }
                 }
-                for (let conf of token.confidences_classification[token.confidences_classification.length-1].all)
+                for (let conf of token.confidences_classification[token.confidences_classification.length-1].all())
                 {
                     console.log(
                         `   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, ` + 

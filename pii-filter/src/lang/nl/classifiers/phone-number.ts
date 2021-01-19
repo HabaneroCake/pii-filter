@@ -1,7 +1,12 @@
-import { Parsing } from '../../../common/parsing';
+import { Parsing } from '../../../core/parsing';
 import ds_phone_number from '../dataset/ds_phone_number.json';
 
 // stub
+
+// TODO:
+/**
+ * look for mobile numbers vs landline numbers (06)
+ */
 export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
 {
     constructor() { super(ds_phone_number); }
@@ -9,6 +14,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
         [Array<Parsing.Token>, Parsing.ClassificationScore]
     {
         const min_number_length:    number =                6; // although 7 is more common
+        const max_number_length:    number =                15;
         const max_n_other_symbols:  number =                5;
 
         let n_other_symbols:        number =                0;
@@ -75,7 +81,9 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             while (right_it.previous != null && this.language_model.punctuation_map.has(right_it.symbol))
                 right_it = right_it.previous;
 
-            if (number_value.length < min_number_length || n_other_symbols >= max_n_other_symbols)
+            if (number_value.length < min_number_length ||
+                number_value.length > max_number_length ||
+                n_other_symbols >= max_n_other_symbols)
                 return [final_matches, new Parsing.ClassificationScore(
                     0.0, 0.0, this
                 )];

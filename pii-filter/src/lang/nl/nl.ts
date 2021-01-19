@@ -1,14 +1,15 @@
-import { Language } from '../../common/language-interface';
-import { Parsing } from '../../common/parsing';
+import { ILanguage } from '../../core/interfaces/language';
+import { Parsing } from '../../core/parsing';
 
 import { Classifiers } from './classifiers';
 import { POS_Tagger } from './pos-tagger';
-
+import { Stemmer } from './stemmer';
 
 import ds_severity_mapping from './dataset/ds_severity.json';
 
-export class NL implements Language
+export class NL implements ILanguage
 {
+    public stemmer:             Stemmer =               new Stemmer();
     public pos_tagger:          POS_Tagger =            new POS_Tagger();
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public punctuation:         RegExp;

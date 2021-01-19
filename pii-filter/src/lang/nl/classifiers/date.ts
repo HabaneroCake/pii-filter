@@ -1,5 +1,5 @@
-import { Trie } from '../../../common/trie';
-import { Parsing } from '../../../common/parsing';
+import { Trie } from '../../../core/structures/trie';
+import { Parsing } from '../../../core/parsing';
 import ds_date from '../dataset/ds_date.json';
 
 // TODO: clean up and calculate better confidences based on patterns

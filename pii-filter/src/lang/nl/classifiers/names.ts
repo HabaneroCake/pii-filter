@@ -1,4 +1,4 @@
-import { Parsing } from '../../../common/parsing';
+import { Parsing } from '../../../core/parsing';
 
 
 import ds_dictionary from '../dataset/ds_dictionary.json';

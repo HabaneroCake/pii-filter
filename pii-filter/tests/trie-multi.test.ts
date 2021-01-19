@@ -1,4 +1,4 @@
-import { TrieMulti } from '../src/common/trie-multi';
+import { TrieMulti } from '../src/core/structures/trie-multi';
 import { expect } from 'chai';
 
 describe('TrieMulti_Branch', ()=>{
