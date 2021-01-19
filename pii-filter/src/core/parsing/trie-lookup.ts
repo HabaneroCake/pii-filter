@@ -1,4 +1,4 @@
-import { Token } from './token';
+import { IToken } from '../interfaces/parsing/tokens';
 import { Trie } from '../structures/trie';
 
 /**
@@ -6,17 +6,17 @@ import { Trie } from '../structures/trie';
  * @param token a token (linked to its neighbors), with a string symbol
  * @param trie a trie to look the token symbol up in
  */
-export function tokens_trie_lookup<T>(token: Token, trie: Trie<T>): [Array<Token>, T]
+export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>): [Array<IToken>, T]
 {
     const wildcard:     string =                '*';
-    let token_iter:     Token =                 token;
+    let token_iter:     IToken =                token;
     let matched_node:   Trie.Branch<T> =        null;
-    let matches:        Array<Token> =          new Array<Token>();
+    let matches:        Array<IToken> =         new Array<IToken>();
     let last_symbol:    string =                null;
     let symbol:         string =                token.symbol.toLowerCase();
-    let end_token:      Token =                 null;
+    let end_token:      IToken =                null;
     let end_value:      T =                     null;
-    let final_matches:  Array<Token> =          new Array<Token>();
+    let final_matches:  Array<IToken> =         new Array<IToken>();
 
     if (token.symbol == wildcard)
         return [final_matches, end_value];

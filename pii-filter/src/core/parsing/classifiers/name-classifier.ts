@@ -1,6 +1,6 @@
+import { IClassificationScore } from '../../interfaces/parsing/classification';
+import { IToken } from '../../interfaces/parsing/tokens';
 import { SimpleTextClassifier } from './text-classifier';
-import { ClassificationScore } from '../classification';
-import { Token } from '../token';
 
 export abstract class SimpleNameClassifier extends SimpleTextClassifier
 {
@@ -19,8 +19,8 @@ export abstract class SimpleNameClassifier extends SimpleTextClassifier
             severity_score_base
         );
     }
-    public classify_confidence(token: Token): 
-        [Array<Token>, ClassificationScore]
+    public classify_confidence(token: IToken): 
+        [Array<IToken>, IClassificationScore]
     {
         let [tokens, score] = super.classify_confidence(token);
         if (tokens.length > 0)

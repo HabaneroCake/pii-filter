@@ -1,6 +1,7 @@
 import { SimpleAssociativeClassifier } from './associative-classifier';
+import { IClassificationScore } from '../../interfaces/parsing/classification';
+import { IToken } from '../../interfaces/parsing/tokens';
 import { Trie } from '../../structures/trie';
-import { Token } from '../token';
 import { ClassificationScore } from '../classification';
 import { tokens_trie_lookup } from '../trie-lookup';
 import { calc_assoc_severity_sum } from '../calc-assoc-severity';
@@ -22,15 +23,15 @@ export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
         if ('main' in this.dataset && this.dataset['main'].length > 0)
             this.main_trie.add_list(this.dataset['main'], true)
     }
-    public classify_confidence(token: Token): [Array<Token>, ClassificationScore]
+    public classify_confidence(token: IToken): [Array<IToken>, IClassificationScore]
     {
         let [matches, value] = tokens_trie_lookup<boolean>(token, this.main_trie);
 
         if (value)
         {
             // check for associative multipliers
-            let left_it:    Token = matches[0];
-            let right_it:   Token = matches[matches.length-1];
+            let left_it:    IToken = matches[0];
+            let right_it:   IToken = matches[matches.length-1];
 
             let [assoc_sum, severity_sum] = calc_assoc_severity_sum(
                 left_it,
@@ -47,7 +48,7 @@ export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
             )];
         }
         else
-            return [new Array<Token>(), new ClassificationScore(
+            return [new Array<IToken>(), new ClassificationScore(
                 0.0, 0.0, this
             )];
     }

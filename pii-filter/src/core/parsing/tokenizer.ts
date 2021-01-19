@@ -1,11 +1,11 @@
-import { ITokenizer } from '../interfaces/parsing/tokens';
+import { IToken, ITokenizer } from '../interfaces/parsing/tokens';
 import { ILanguage } from '../interfaces/language';
+import { ITag } from '../interfaces/parsing/tagging';
 import { Token } from './token';
-import { POS } from './pos';
 
 export class Tokenizer implements ITokenizer
 {
-    public tokens:      Array<Token> =  new Array<Token>();
+    public tokens:      Array<IToken> =  new Array<IToken>();
     /**
      * creates a linked list of tokens from input text
      * @param text input text
@@ -24,7 +24,7 @@ export class Tokenizer implements ITokenizer
                 string_tokens.push(str);
 
 
-        let tagged_tokens: Array<[string, POS.Tag]> =   language_model.pos_tagger.tag(
+        let tagged_tokens: Array<[string, ITag]> =   language_model.pos_tagger.tag(
             string_tokens,
             language_model
         );

@@ -1,16 +1,27 @@
 import { ILanguage } from '../../interfaces/language';
+import { IToken } from '../../interfaces/parsing/tokens';
+import { ITag } from '../../interfaces/parsing/tagging';
 
-import { Classifier, AssociativeScore, AssociationScore } from '../classification';
+import {
+    IAssociativeScore,
+    IAssociationScore
+} from '../../interfaces/parsing/classification';
+
+import {
+    Classifier,
+    AssociativeScore,
+    AssociationScore
+} from '../classification';
+
 import { tokens_trie_lookup } from '../trie-lookup';
-import { Token } from '../token';
 import { Trie } from '../../structures/trie';
 import { POS } from '../pos';
 
 export abstract class SimpleAssociativeClassifier extends Classifier
 {
-    protected assoc_pos_map:    Map<string, Array<[POS.Tag, AssociativeScore]>> = 
-                                                            new Map<string, Array<[POS.Tag, AssociativeScore]>>();
-    protected association_trie: Trie<AssociativeScore> =    new Trie();
+    protected assoc_pos_map:    Map<string, Array<[ITag, IAssociativeScore]>> = 
+                                                            new Map<string, Array<[ITag, IAssociativeScore]>>();
+    protected association_trie: Trie<IAssociativeScore> =   new Trie();
     constructor(protected dataset: object)
     {
         super();
@@ -31,11 +42,11 @@ export abstract class SimpleAssociativeClassifier extends Classifier
                 of this.dataset['pos_association_multipliers'] as
                     Array<[string, [number, number, number, number]]>)
             {
-                let tag: POS.Tag = POS.from_brill_pos_tag(pos);
+                let tag: ITag = POS.from_brill_pos_tag(pos);
                 
-                let assoc_score: AssociativeScore = new AssociativeScore(left_max, right_max, score, severity);
+                let assoc_score: IAssociativeScore = new AssociativeScore(left_max, right_max, score, severity);
                 if (!this.assoc_pos_map.has(tag.tag_base))
-                    this.assoc_pos_map.set(tag.tag_base, new Array<[POS.Tag, AssociativeScore]>());
+                    this.assoc_pos_map.set(tag.tag_base, new Array<[ITag, IAssociativeScore]>());
 
                 this.assoc_pos_map.get(tag.tag_base).push([tag, assoc_score])
             }
@@ -64,9 +75,9 @@ export abstract class SimpleAssociativeClassifier extends Classifier
         }
     }
 
-    public classify_associative(token: Token): [Array<Token>, AssociationScore]
+    public classify_associative(token: IToken): [Array<IToken>, IAssociationScore]
     {
-        let best_pos_score: AssociativeScore = null;
+        let best_pos_score: IAssociativeScore = null;
         
         let lower_tag_base: string = token.tag.tag_base.toLowerCase();
         if (this.assoc_pos_map.has(lower_tag_base))
@@ -103,7 +114,7 @@ export abstract class SimpleAssociativeClassifier extends Classifier
             // [tag, best_pos_score] = tags[0];
         }
 
-        let [matches, value] = tokens_trie_lookup<AssociativeScore>(token, this.association_trie);
+        let [matches, value] = tokens_trie_lookup<IAssociativeScore>(token, this.association_trie);
         if (value != null)
         {
             if (best_pos_score != null && best_pos_score.score > value.score)
@@ -122,7 +133,7 @@ export abstract class SimpleAssociativeClassifier extends Classifier
             )];
         }
         else
-            return [new Array<Token>(), new AssociationScore(
+            return [new Array<IToken>(), new AssociationScore(
                 null, 0.0, 0.0, this
             )];
     }

@@ -1,3 +1,4 @@
+import { IClassifier, IThresholds } from '../../core/interfaces/parsing/classification';
 import { ILanguage } from '../../core/interfaces/language';
 import { Parsing } from '../../core/parsing';
 
@@ -14,9 +15,9 @@ export class NL implements ILanguage
     public punctuation_map:     Map<string, number> =   new Map<string, number>();
     public punctuation:         RegExp;
     public max_assoc_distance:  number =                30;
-    public dictionary:          Parsing.Classifier =    new Classifiers.Dictionary();
-    public severity_mappings:   Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>;
-    public thresholds:          Parsing.Thresholds =    new Parsing.Thresholds(
+    public dictionary:          IClassifier =           new Classifiers.Dictionary();
+    public severity_mappings:   Array<{classifiers: Map<IClassifier, number>, severity: number}>;
+    public thresholds:          IThresholds =           new Parsing.Thresholds(
         0.025,
         new Parsing.Thresholds.Group(0.2, 0.0, true),
         new Parsing.Thresholds.Group(0.045, 0.0, false),
@@ -26,7 +27,7 @@ export class NL implements ILanguage
      * @param classifiers a list of classifiers, if not specified, all will be used
      */
     constructor(
-        public classifiers: Array<Parsing.Classifier> = [
+        public classifiers: Array<IClassifier> = [
             new Classifiers.FirstName(),
             new Classifiers.FamilyName(),
             new Classifiers.PetName(),
@@ -69,10 +70,10 @@ export class NL implements ILanguage
             classifier.init(this);
 
         // ---- severity mapping
-        this.severity_mappings = new Array<{classifiers: Map<Parsing.Classifier, number>, severity: number}>();
+        this.severity_mappings = new Array<{classifiers: Map<IClassifier, number>, severity: number}>();
         for (let mapping of ds_severity_mapping)
         {
-            let classifier_map = new Map<Parsing.Classifier, number>();
+            let classifier_map = new Map<IClassifier, number>();
             for (let pii of mapping.pii)
             {
                 // let found = false;

@@ -22,7 +22,7 @@ export namespace POS
         };
     };
 
-    export function from_brill_pos_tag(tag: string): POS.Tag
+    export function from_brill_pos_tag(tag: string): ITag
     {
         let tag_base:           string =        tag;
         let tag_rest:           Array<string> = new Array<string>();
