@@ -115,7 +115,7 @@ export class POS_Tagger implements ITagger
                         default:
                             break;
                     }
-
+                    
                     // TODO: can add actual rules and parse correct ordering etc.
                     c_group.well_formed = Math.min(
                         c_group.well_formed,

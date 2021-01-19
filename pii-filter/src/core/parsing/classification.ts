@@ -193,9 +193,12 @@ export class Thresholds implements IThresholds
             let tag_group_well_formed:  boolean = (classification.group_root_start.tag.group.well_formed >
                                                     this.well_formedness_threshold);
             
+            // not enough information to go by
+            let too_few_tags:           boolean = classification.group_root_start.tag.group.n_tags < 3;
+
             let active_config: IThresholdSetting = (
                 well_formed == null ?
-                    ((tag_groups_match && tag_group_well_formed) ?  
+                    ((tag_groups_match && (tag_group_well_formed || too_few_tags)) ?  
                         this.well_formed : this.ill_formed) :
                     (well_formed ?  
                         this.well_formed : this.ill_formed)
