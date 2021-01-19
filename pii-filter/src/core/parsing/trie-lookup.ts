@@ -6,14 +6,14 @@ import { Trie } from '../structures/trie';
  * @param token a token (linked to its neighbors), with a string symbol
  * @param trie a trie to look the token symbol up in
  */
-export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>): [Array<IToken>, T]
+export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>, use_stem: boolean = false): [Array<IToken>, T]
 {
     const wildcard:     string =                '*';
     let token_iter:     IToken =                token;
     let matched_node:   Trie.Branch<T> =        null;
     let matches:        Array<IToken> =         new Array<IToken>();
     let last_symbol:    string =                null;
-    let symbol:         string =                token.symbol.toLowerCase();
+    let symbol:         string =                (use_stem ? token_iter.stem : token_iter.symbol).toLowerCase();
     let end_token:      IToken =                null;
     let end_value:      T =                     null;
     let final_matches:  Array<IToken> =         new Array<IToken>();
@@ -23,7 +23,7 @@ export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>): [Array<ITok
 
     // TODO: partial matches, currently only does full matches
     do {
-        matched_node =          trie.matched_node(symbol);
+        matched_node =      trie.matched_node(symbol);
         // check for wildcard
         if (matched_node == null && last_symbol != null)
         {
@@ -45,7 +45,7 @@ export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>): [Array<ITok
             {
                 last_symbol =       symbol;
                 token_iter =        token_iter.next;
-                symbol +=           token_iter.symbol.toLowerCase();
+                symbol +=           (use_stem ? token_iter.stem : token_iter.symbol).toLowerCase();
             }
             else
                 break;

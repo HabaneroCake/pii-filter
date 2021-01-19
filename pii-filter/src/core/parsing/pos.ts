@@ -4,7 +4,7 @@ export namespace POS
 {
     export class Tag implements ITag
     {
-        public group: Tag.Group = null;
+        public group:   Tag.Group = null;
         constructor(
             public tag_base: string,
             public tag_rest: Array<string>

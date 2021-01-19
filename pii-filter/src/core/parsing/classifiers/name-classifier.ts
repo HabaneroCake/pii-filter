@@ -16,7 +16,8 @@ export abstract class SimpleNameClassifier extends SimpleTextClassifier
         super(
             dataset,
             classification_score_base,
-            severity_score_base
+            severity_score_base,
+            true
         );
     }
     public classify_confidence(token: IToken): 

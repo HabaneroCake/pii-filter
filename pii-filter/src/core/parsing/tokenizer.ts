@@ -23,7 +23,6 @@ export class Tokenizer implements ITokenizer
             if (str.length > 0)
                 string_tokens.push(str);
 
-
         let tagged_tokens: Array<[string, ITag]> =   language_model.pos_tagger.tag(
             string_tokens,
             language_model
@@ -37,7 +36,8 @@ export class Tokenizer implements ITokenizer
             if (token.length == 0)
                 continue;
 
-            let c_tok = new Token(token, pos_tag, index);
+            let stem = language_model.stemmer.stem(token, pos_tag);
+            let c_tok = new Token(token, stem, pos_tag, index);
 
             if (l_tok != null)
                 l_tok.next = c_tok;

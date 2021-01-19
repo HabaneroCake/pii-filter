@@ -6,9 +6,11 @@ export interface IToken
     previous:    IToken;
     next:        IToken;
 
-    symbol:      string,
-    tag:         ITag,
-    index:       number
+    symbol:      string;
+    stem:        string;
+
+    tag:         ITag;
+    index:       number;
 
     // stores passes
     confidence_dictionary:       IClassificationScore;
@@ -23,5 +25,5 @@ export interface ITokenizer
 
 export interface IStemmer
 {
-    stem(token: string): string;
+    stem(token: string, tag: ITag): string;
 };

@@ -16,6 +16,7 @@ export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
         protected dataset: object,
         protected classification_score_base: number,
         protected severity_score_base: number,
+        protected use_stem: boolean
     )
     {
         super(dataset);
@@ -25,7 +26,7 @@ export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
     }
     public classify_confidence(token: IToken): [Array<IToken>, IClassificationScore]
     {
-        let [matches, value] = tokens_trie_lookup<boolean>(token, this.main_trie);
+        let [matches, value] = tokens_trie_lookup<boolean>(token, this.main_trie, this.use_stem);
 
         if (value)
         {

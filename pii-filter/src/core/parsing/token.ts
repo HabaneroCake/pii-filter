@@ -14,6 +14,7 @@ export class Token implements IToken
     public confidences_classification:  Array<IConfidences> =    new Array<IConfidences>();
     constructor(
         public symbol:      string,
+        public stem:        string,
         public tag:         ITag,
         public index:       number
     ) {}

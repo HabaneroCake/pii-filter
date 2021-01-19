@@ -360,7 +360,7 @@ export namespace PIIFilter
             let token = this.tokens[0][1];
             while(token != null)
             {
-                console.log(`[${token.index}] Token: \"${token.symbol}\"`);
+                console.log(`[${token.index}] Token: \"${token.symbol}\", Stem: \"${token.stem}\"`);
                 console.log(`-- POS[${token.tag.tag_base}], ${JSON.stringify(token.tag.tag_rest)}`);
                 console.log(`-- WellFormedNess[${token.tag.group.well_formed}]`);
                 if (token.confidence_dictionary)
