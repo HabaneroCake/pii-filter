@@ -86,11 +86,11 @@ export class EmailAddress extends Parsing.SimpleAssociativeClassifier
             }
 
             [score, severity_sum] = (valid_email) ? 
-                [score+0.30, severity_sum+0.05] : [score, severity_sum];
+                [score+0.30, severity_sum+0.10] : [score, severity_sum];
 
             // check front
             [score, severity_sum] = (name_length >= 3) ? 
-                [score+0.25, severity_sum+0.15] : [score+0.05, severity_sum+0.05];
+                [score+0.25, severity_sum+0.10] : [score+0.05, severity_sum+0.05];
 
             // check mid
             [score, severity_sum] = (domain_name_length >= 3) ?
