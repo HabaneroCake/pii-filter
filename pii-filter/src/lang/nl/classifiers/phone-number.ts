@@ -17,7 +17,8 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
     public classify_confidence(token: Parsing.Token): 
         [Array<Parsing.Token>, Parsing.ClassificationScore]
     {
-        const max_number_length:    number =                16;
+        const min_number_length:    number =                7;
+        const max_number_length:    number =                15;
 
         if (/(^(\+|\(|0|6))/.test(token.symbol))
         {
@@ -36,7 +37,10 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                     total_num_length += symbol_length;
                     final_matches.push(t);
                     
-                    return true;
+                    if (total_num_length > min_number_length)
+                        return !validate_phone_number(number_value);
+                    else
+                        return true;
                 }
                 else
                     return false;
@@ -64,19 +68,28 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                     {
                         if (has_numbers.test(t_it.next.next.symbol))
                         {
-                            length_ok = add_token(t_it.next);
-                            if ((length_ok = add_token(t_it.next.next)))
-                                t_it = t_it.next.next;
+                            if ((length_ok = add_token(t_it.next)))
+                            {
+                                t_it = t_it.next;
+                                if ((length_ok = add_token(t_it.next)))
+                                    t_it = t_it.next;
+                            }
                         }
                         else if (has_symbols.test(t_it.next.next.symbol) &&
                                  t_it.next.next.next != null &&
-                                 !has_letters.test(t_it.next.next.next.symbol),
-                                 has_numbers.test(t_it.next.next.next.symbol))
+                                 (!has_letters.test(t_it.next.next.next.symbol) &&
+                                  has_numbers.test(t_it.next.next.next.symbol)))
                         {
-                            length_ok = add_token(t_it.next);
-                            length_ok = add_token(t_it.next.next);
-                            if ((length_ok = add_token(t_it.next.next.next)))
-                                t_it = t_it.next.next.next;
+                            if ((length_ok = add_token(t_it.next)))
+                            {
+                                t_it = t_it.next;
+                                if ((length_ok = add_token(t_it.next)))
+                                {
+                                    t_it = t_it.next;
+                                    if ((length_ok = add_token(t_it.next)))
+                                        t_it = t_it.next;
+                                }
+                            }
                         }
                         else
                             break;
