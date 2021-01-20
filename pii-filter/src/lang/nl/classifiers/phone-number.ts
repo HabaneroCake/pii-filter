@@ -3,7 +3,7 @@ import ds_phone_number from '../dataset/ds_phone_number.json';
 
 function validate_phone_number(phone_number: string): boolean
 {
-    return /((^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?6\s?\)?[\-\s]?|6\s?)?|6))\s?([0-9](\s?|\s?\-\s?)){8,8}$)|(^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0\s?\)?[\-\s]?|0\s?)?|0))\s?([0-9](\s?|\s?\-\s?)){9,9}$)|(^((\(\s?\d+\s?\)\s?))\s?([0-9](\s?|\s?\-\s?)){7,7}$))/.test(phone_number);
+    return /((^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0?6\s?\)?[\-\s]?|0?6\s?)?|0?6))\s?([0-9](\s?|\s?\-\s?)){8,8}$)|(^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0\s?\)?[\-\s]?|0\s?)?|0))\s?([0-9](\s?|\s?\-\s?)){9,9}$)|(^((\(\s?\d+\s?\)\s?))\s?([0-9](\s?|\s?\-\s?)){7,8}$))/.test(phone_number);
 }
 
 function is_06(phone_number: string): boolean
@@ -77,8 +77,6 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                             length_ok = add_token(t_it.next.next);
                             if ((length_ok = add_token(t_it.next.next.next)))
                                 t_it = t_it.next.next.next;
-                            else
-                                break;
                         }
                         else
                             break;
