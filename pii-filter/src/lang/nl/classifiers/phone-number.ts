@@ -37,17 +37,20 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                     deferred_matches: Array<Parsing.Token>
                 ): Parsing.collect_tokens.Control =>
                 {
-                    let token_is_space:     boolean =   token.symbol == ' ';
-                    let token_has_symbol:   boolean =   has_symbols.test(token.symbol);
+                    let token_symbol:       string =    token.symbol;
+                    let token_is_space:     boolean =   token_symbol == ' ';
+                    // let token_is_plus:      boolean =   token_symbol == '+';
+                    // let token_is_l_paren:   boolean =   token_symbol == '(';
+                    let token_has_symbol:   boolean =   has_symbols.test(token_symbol);
 
-                    if (has_letters.test(token.symbol))
+                    if (has_letters.test(token_symbol))
                         return Parsing.collect_tokens.Control.INVALID;
-                    else if (has_numbers.test(token.symbol))
+                    else if (has_numbers.test(token_symbol))
                     {
-                        number_value +=     deferred_text + token.symbol;
+                        number_value +=     deferred_text + token_symbol;
                         deferred_text =     '';
 
-                        total_num_length += token.symbol.replace(/\D+/g, '').length;
+                        total_num_length += token_symbol.replace(/\D+/g, '').length;
                         if (total_num_length > min_number_length)
                         {
                             if (total_num_length > max_number_length)
@@ -65,20 +68,20 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
 
                         if (deferred_matches.length == 0)
                         {
-                            deferred_text += token.symbol;
+                            deferred_text += token_symbol;
                             return Parsing.collect_tokens.Control.DEFER_VALID;
                         }
-                        
-                        let last_deferred_token:            Parsing.Token = deferred_matches[deferred_matches.length-1];
-                        let last_deferred_token_has_symbol: boolean =       has_symbols.test(last_deferred_token.symbol);
-                        let last_deferred_token_is_space:   boolean =       last_deferred_token.symbol == ' ';
+                        // let last_deferred_token:            Parsing.Token = deferred_matches[deferred_matches.length-1];
+                        // let last_deferred_symbol:           string =        last_deferred_token.symbol;
+                        // let last_deferred_token_has_symbol: boolean =       has_symbols.test(last_deferred_symbol);
+                        // let last_deferred_token_is_space:   boolean =       last_deferred_symbol == ' ';
 
-                        if (last_deferred_token_is_space && token_has_symbol ||
-                            last_deferred_token_has_symbol && token_is_space)
-                        {
-                            deferred_text += token.symbol;
-                            return Parsing.collect_tokens.Control.DEFER_VALID;
-                        }
+                        // if ((last_deferred_token_is_space && token_has_symbol) ||
+                        //     (last_deferred_token_has_symbol && (token_is_space || token_is_plus || token_is_l_paren))
+                        // {
+                        deferred_text += token_symbol;
+                        return Parsing.collect_tokens.Control.DEFER_VALID;
+                        // }
                     }
                     return Parsing.collect_tokens.Control.INVALID;
                 }
