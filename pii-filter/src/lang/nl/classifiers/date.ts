@@ -77,7 +77,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                         {
                             if (total_num_length > max_number_length)
                                 return Parsing.collect_tokens.Control.INVALID;
-
+                            // TODO: collect_tokens needs a deferred_match? then keep going until .invalid
                             if (validate_date(date_value))
                                 return Parsing.collect_tokens.Control.MATCH;
                         }
@@ -99,12 +99,12 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                         let last_deferred_token_has_symbol: boolean =       has_symbols.test(last_deferred_token_symbol);
                         let last_deferred_token_is_space:   boolean =       last_deferred_token_symbol == ' ';
 
-                        if (last_deferred_token_is_space && token_has_symbol ||
-                            last_deferred_token_has_symbol && token_is_space)
-                        {
+                        // if (last_deferred_token_is_space && token_has_symbol ||
+                        //     last_deferred_token_has_symbol && token_is_space)
+                        // {
                             deferred_text += token_symbol;
                             return Parsing.collect_tokens.Control.DEFER_VALID;
-                        }
+                        // }
                     }
                     return Parsing.collect_tokens.Control.INVALID;
                 }
