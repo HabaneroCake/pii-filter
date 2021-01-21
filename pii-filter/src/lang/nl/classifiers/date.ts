@@ -5,69 +5,65 @@ import ds_date from '../dataset/ds_date.json';
 function validate_date(text: string)
 {
     // note: could also generate these more cleanly
-    return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))((1[0-2])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))?$/.test(text) || // dmy
-            /^((1[0-2])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))(([1-2][0-9])|(3[0-1])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))?$/.test(text) || // mdy
-            /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))(\s|(\s?(\-|\/|\\|\,)\s?))((1[0-2])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))(([1-2][0-9])|(3[0-1])|(0?[1-9]))$/.test(text) || // ymd
-            /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))(\s|(\s?(\-|\/|\\|\,)\s?))(([1-2][0-9])|(3[0-1])|(0?[1-9]))(\s|(\s?(\-|\/|\\|\,)\s?))((1[0-2])|(0?[1-9]))$/.test(text); // ydm
+    return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s)?)((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9])))?$/.test(text) || // dmy
+           /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s)?)((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9])))?$/.test(text) || // mdy
+           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
+           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text) || // ydm
+           /^((19[0-9][0-9])|(20[0-9][0-9]))?$/.test(text); // year only
 }
 
-// todo:
-// add day to associative
-// turn str_numbers into numbers
-// turn month into numbers
 // make sure longer token string (phone number with dashes or spaces) is chosen instead of smaller date format
 
 // TODO: clean up and calculate better confidences based on patterns
 export class Date extends Parsing.SimpleAssociativeClassifier
 {
-    protected match_trie:   Trie<Date.SegmentFormats> = new Trie();
+    protected number_match_trie:    Trie<string> = new Trie();
 
     constructor() 
     {
         super(ds_date);
-        this.match_trie.add_list(this.dataset['day'], Date.SegmentFormats.day);
-        this.match_trie.add_list(this.dataset['month'], Date.SegmentFormats.month);
-        this.match_trie.add_list(this.dataset['ordinal'], Date.SegmentFormats.ordinal);
-        this.match_trie.add_list(this.dataset['number'], Date.SegmentFormats.number);
-        this.match_trie.add_list(this.dataset['unit'], Date.SegmentFormats.unit);
+        for (let [word, value] of this.dataset['number'])
+            this.number_match_trie.insert(word, value);
     }
     public classify_confidence(token: Parsing.Token): 
         [Array<Parsing.Token>, Parsing.ClassificationScore]
     {
-        const min_number_length:    number =                2; // 1 - 1
-        const max_number_length:    number =                8; // 01 - 01 - 2000
-
-        let has_numbers:            RegExp =                /\d+/;
-        let has_letters:            RegExp =                /[a-zA-Z]+/;
-        let has_symbols:            RegExp =                /\-|\/|\\|\,/;
-
-        let deferred_text:          string =                '';
-        let date_value:             string =                '';
-        let total_num_length:       number =                0;
-
-        function parse_symbol(symbol: string): string
+        let parse_token = (token: Parsing.Token): string =>
         {
-            //TODO check if in month/number/ordinal name and get value
-            return symbol;
+            let [, value] =  Parsing.tokens_trie_lookup<string>(token, this.number_match_trie);
+            if (value != null)
+                return value;
+            else
+                return token.symbol;
         }
 
-        if (has_numbers.test(parse_symbol(token.symbol)))
+        let has_numbers:            RegExp =                /\d+/;
+        if (has_numbers.test(parse_token(token)))
         {
+            const min_number_length:    number =                1; // 1 - 1
+            const max_number_length:    number =                8; // 01 - 01 - 2000
+    
+            let has_letters:            RegExp =                /[a-zA-Z]+/;
+            let has_symbols:            RegExp =                /\-|\/|\\|\,/;
+    
+            let deferred_text:          string =                '';
+            let date_value:             string =                '';
+            let total_num_length:       number =                0;
+
+
+            let last_seen_number:       Parsing.Token =         null;
             let [matched, [start_token, end_token, matches]] = Parsing.collect_tokens(
                 token,
                 (token: Parsing.Token,
                     deferred_matches: Array<Parsing.Token>
                 ): Parsing.collect_tokens.Control =>
                 {
-                    let token_is_space:     boolean =   token.symbol == ' ';
-                    let token_has_symbol:   boolean =   has_symbols.test(token.symbol);
+                    let token_symbol:       string =    parse_token(token);
+                    let token_is_space:     boolean =   token_symbol == ' ';
+                    let token_has_symbol:   boolean =   has_symbols.test(token_symbol);
+                    let token_has_d_word:   boolean =   /(e$)|(^in$)|(^van$)|(^de$)|(^op$)/.test(token_symbol);
 
-                    let token_symbol:       string =    parse_symbol(token.symbol);
-                    if (has_letters.test(token_symbol))
-                    {
-                        return Parsing.collect_tokens.Control.INVALID;
-                    }
-                    else if (has_numbers.test(token_symbol))
+                    if (has_numbers.test(token_symbol))
                     {
                         date_value +=       deferred_text + token_symbol;
                         deferred_text =     '';
@@ -77,40 +73,31 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                         {
                             if (total_num_length > max_number_length)
                                 return Parsing.collect_tokens.Control.INVALID;
-                            // TODO: collect_tokens needs a deferred_match? then keep going until .invalid
+
+                            last_seen_number = token;
+
                             if (validate_date(date_value))
-                                return Parsing.collect_tokens.Control.MATCH;
+                                return Parsing.collect_tokens.Control.MATCH_AND_CONTINUE;
                         }
                         return Parsing.collect_tokens.Control.VALID;
                     }
-                    else if (token_has_symbol || token_is_space)
+                    else if (has_letters.test(token_symbol.toLowerCase()) && !token_has_d_word)
                     {
-                        if (deferred_matches.length == 3) //12 - >^12 - 2001
+                        return Parsing.collect_tokens.Control.INVALID;
+                    }
+                    else if (token_has_symbol || token_is_space || token_has_d_word)
+                    {
+                        if (deferred_matches.length == 6) //1950, op de >^22e
                             return Parsing.collect_tokens.Control.INVALID;
 
-                        if (deferred_matches.length == 0)
-                        {
-                            deferred_text += token_symbol;
-                            return Parsing.collect_tokens.Control.DEFER_VALID;
-                        }
-                        
-                        let last_deferred_token:            Parsing.Token = deferred_matches[deferred_matches.length-1];
-                        let last_deferred_token_symbol:     string =        parse_symbol(last_deferred_token.symbol);
-                        let last_deferred_token_has_symbol: boolean =       has_symbols.test(last_deferred_token_symbol);
-                        let last_deferred_token_is_space:   boolean =       last_deferred_token_symbol == ' ';
-
-                        // if (last_deferred_token_is_space && token_has_symbol ||
-                        //     last_deferred_token_has_symbol && token_is_space)
-                        // {
-                            deferred_text += token_symbol;
-                            return Parsing.collect_tokens.Control.DEFER_VALID;
-                        // }
+                        deferred_text += token_symbol;
+                        return Parsing.collect_tokens.Control.DEFER_VALID;
                     }
                     return Parsing.collect_tokens.Control.INVALID;
                 }
             );
-
-            if (!matched)
+            
+            if (!matched || (last_seen_number != end_token))
             {
                 return [[], new Parsing.ClassificationScore(
                     0.0, 0.0, this
@@ -118,8 +105,8 @@ export class Date extends Parsing.SimpleAssociativeClassifier
             }
             else
             {
-                let score:                  number =    0.75;
-                let severity_sum:           number =    (true ? 0.5 : 0.35); // TODO
+                let score:                  number =    (total_num_length > 4 ? 0.75 : 0.35);
+                let severity_sum:           number =    (total_num_length > 4 ? 0.20 : 0.05);
                 let assoc_sum:              number =    0.0;
     
                 let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
@@ -287,15 +274,4 @@ export class Date extends Parsing.SimpleAssociativeClassifier
         // )];
     }
     public name: string = 'date';
-};
-export namespace Date {
-    export enum SegmentFormats {
-        invalid = 0,
-        day,
-        month,
-        number,
-        ordinal,
-        unit,
-        separator,
-    };
 };

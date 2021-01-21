@@ -1,31 +1,54 @@
-een
-twee
-drie
-vier
-vijf
-zes
-zeven
-acht
-negen
-tien
-elf
-twaalf
-dertien
-veertien
-vijftien
-zestien
-zeventien
-achttien
-negentien
-twintig
-eenentwintig
-tweeëntwintig
-drieentwintig
-vierentwintig
-vijfentwintig
-zesentwintig
-zevenentwintig
-achtentwintig
-negenentwintig
-dertig
-eenendertig
+eerste 1
+tweede 2
+derde 3
+vierde 4
+vijfde 5
+zesde 6
+zevende 7
+achtste 8
+negende 9
+tiende 10
+elfde 11
+twaalfde 12
+dertiende 13
+veertiende 14
+vijftiende 15
+zestiende 16
+zeventiende 17
+achttiende 18
+negentiende 19
+twintigste 20
+eenentwintigste 21
+tweeëntwintigste 22
+drieentwintigste 23
+vierentwintigste 24
+vijfentwintigste 25
+zesentwintigste 26
+zevenentwintigste 27
+achtentwintigste 28
+negenentwintigste 29
+dertigste 30
+eenendertigste 31
+jan 1
+januari 1
+feb 2
+februari 2
+mrt 3
+maart 3
+apr 4
+april 4
+mei 5
+jun 6
+juni 6
+jul 7
+juli 7
+aug 8
+augustus 8
+sept 9
+september 9
+okt 10
+oktober 10
+nov 11
+november 11
+dec 12
+december 12
