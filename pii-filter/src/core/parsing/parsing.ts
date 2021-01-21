@@ -21,3 +21,4 @@ export { POS } from './pos'
 export { Token } from './token';
 export { Tokenizer } from './tokenizer';
 export { tokens_trie_lookup } from './trie-lookup';
+export { collect_tokens } from './collect-tokens';

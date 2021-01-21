@@ -3,12 +3,13 @@ import ds_phone_number from '../dataset/ds_phone_number.json';
 
 function validate_phone_number(phone_number: string): boolean
 {
-    return /((^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0?6\s?\)?[\-\s]?|0?6\s?)?|0?6))\s?([0-9](\s?|\s?\-\s?)){8,8}$)|(^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0\s?\)?[\-\s]?|0\s?)?|0))\s?([0-9](\s?|\s?\-\s?)){9,9}$)|(^((\(\s?\d+\s?\)\s?))\s?([0-9](\s?|\s?\-\s?)){7,8}$))/.test(phone_number);
+    //((^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0?6\s?\)?[\-\s]?|0?6\s?)?|0?6))\s?([0-9](\s?|\s?\-\s?)){8,8}$)|(^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0\s?\)?[\-\s]?|0\s?)?|0))\s?([0-9](\s?|\s?\-\s?)){9,9}$)|(^((\(\s?\d+\s?\)\s?))\s?([0-9](\s?|\s?\-\s?)){7,8}$))
+    return /^((00)?31)?((?!((00)?31))((0[1-9][0-9]{7,8})|([1-9][0-9]{7,8})))$/.test(phone_number.replace(/\D/g, ''));
 }
 
 function is_06(phone_number: string): boolean
 {
-    return /^((0?)6|31(0?)6|0031(0?)6)/.test(phone_number.replace(/\D/g, ''))
+    return /((00)?31)?0?6/.test(phone_number.replace(/\D/g, ''))
 }
 
 export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
@@ -20,88 +21,70 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
         const min_number_length:    number =                7;
         const max_number_length:    number =                15;
 
-        if (/(^(\+|\(|0|6))/.test(token.symbol))
+        if (/^(\+|\(|0|6)/.test(token.symbol))
         {
+            let has_numbers:            RegExp =                /\d+/;
+            let has_letters:            RegExp =                /[a-zA-Z]+/;
+            let has_symbols:            RegExp =                /\-|\+|\(|\)/;
+
+            let deferred_text:          string =                '';
             let number_value:           string =                '';
             let total_num_length:       number =                0;
-            let final_matches:          Array<Parsing.Token> =  new Array<Parsing.Token>();
 
-            let t_it: Parsing.Token = token;
-
-            function add_token(t: Parsing.Token): boolean
-            {
-                let symbol_length: number = t.symbol.replace(/\D+/g, '').length;
-                if ((total_num_length + symbol_length) < max_number_length)
+            let [matched, [start_token, end_token, matches]] = Parsing.collect_tokens(
+                token,
+                (token: Parsing.Token,
+                    deferred_matches: Array<Parsing.Token>
+                ): Parsing.collect_tokens.Control =>
                 {
-                    number_value +=     t.symbol;
-                    total_num_length += symbol_length;
-                    final_matches.push(t);
-                    
-                    if (total_num_length > min_number_length)
-                        return !validate_phone_number(number_value);
-                    else
-                        return true;
-                }
-                else
-                    return false;
-            }
+                    let token_is_space:     boolean =   token.symbol == ' ';
+                    let token_has_symbol:   boolean =   has_symbols.test(token.symbol);
 
-            let has_numbers: RegExp = /^(\d+(\s?))+$/;
-            let has_letters: RegExp = /[a-zA-Z]+/;
-            let has_symbols: RegExp = /\-|\(|\)|\ /;
-
-            let length_ok: boolean = add_token(t_it);
-            while (length_ok && t_it.next != null)
-            {
-                if (has_letters.test(t_it.next.symbol))
-                    break;
-
-                if (has_numbers.test(t_it.next.symbol))
-                { // has number
-                    if ((length_ok = add_token(t_it.next)))
-                        t_it = t_it.next;
-                }
-                else if (has_symbols.test(t_it.next.symbol))
-                { // has symbol or space
-                    if (t_it.next.next != null &&
-                        !has_letters.test(t_it.next.next.symbol))
+                    if (has_letters.test(token.symbol))
+                        return Parsing.collect_tokens.Control.INVALID;
+                    else if (has_numbers.test(token.symbol))
                     {
-                        if (has_numbers.test(t_it.next.next.symbol))
-                        {
-                            if ((length_ok = add_token(t_it.next)))
-                            {
-                                t_it = t_it.next;
-                                if ((length_ok = add_token(t_it.next)))
-                                    t_it = t_it.next;
-                            }
-                        }
-                        else if (has_symbols.test(t_it.next.next.symbol) &&
-                                 t_it.next.next.next != null &&
-                                 (!has_letters.test(t_it.next.next.next.symbol) &&
-                                  has_numbers.test(t_it.next.next.next.symbol)))
-                        {
-                            if ((length_ok = add_token(t_it.next)))
-                            {
-                                t_it = t_it.next;
-                                if ((length_ok = add_token(t_it.next)))
-                                {
-                                    t_it = t_it.next;
-                                    if ((length_ok = add_token(t_it.next)))
-                                        t_it = t_it.next;
-                                }
-                            }
-                        }
-                        else
-                            break;
-                    }
-                    else
-                        break;
-                }
-                else
-                    break;
-            }
+                        number_value +=     deferred_text + token.symbol;
+                        deferred_text =     '';
 
-            if (!validate_phone_number(number_value))
+                        total_num_length += token.symbol.replace(/\D+/g, '').length;
+                        if (total_num_length > min_number_length)
+                        {
+                            if (total_num_length > max_number_length)
+                                return Parsing.collect_tokens.Control.INVALID;
+
+                            if (validate_phone_number(number_value))
+                                return Parsing.collect_tokens.Control.MATCH;
+                        }
+                        return Parsing.collect_tokens.Control.VALID;
+                    }
+                    else if (token_has_symbol || token_is_space)
+                    {
+                        if (deferred_matches.length == 5) //+31 - ( >^06)
+                            return Parsing.collect_tokens.Control.INVALID;
+
+                        if (deferred_matches.length == 0)
+                        {
+                            deferred_text += token.symbol;
+                            return Parsing.collect_tokens.Control.DEFER_VALID;
+                        }
+                        
+                        let last_deferred_token:            Parsing.Token = deferred_matches[deferred_matches.length-1];
+                        let last_deferred_token_has_symbol: boolean =       has_symbols.test(last_deferred_token.symbol);
+                        let last_deferred_token_is_space:   boolean =       last_deferred_token.symbol == ' ';
+
+                        if (last_deferred_token_is_space && token_has_symbol ||
+                            last_deferred_token_has_symbol && token_is_space)
+                        {
+                            deferred_text += token.symbol;
+                            return Parsing.collect_tokens.Control.DEFER_VALID;
+                        }
+                    }
+                    return Parsing.collect_tokens.Control.INVALID;
+                }
+            );
+
+            if (!matched)
             {
                 return [[], new Parsing.ClassificationScore(
                     0.0, 0.0, this
@@ -110,12 +93,12 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             else
             {
                 let score:                  number =    0.75;
-                let severity_sum:           number =    (is_06(number_value) ? 0.5 : 0.35);;
+                let severity_sum:           number =    (is_06(number_value) ? 0.5 : 0.35);
                 let assoc_sum:              number =    0.0;
     
                 let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
-                    token,
-                    t_it,
+                    start_token,
+                    end_token,
                     this,
                     this.language_model,
                     this.language_model.max_assoc_distance
@@ -123,7 +106,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                 assoc_sum +=    assoc_sum_;
                 severity_sum += severity_sum_;
 
-                return [final_matches, new Parsing.ClassificationScore(
+                return [matches, new Parsing.ClassificationScore(
                     Math.min(score + assoc_sum, 1.0),
                     Math.min(severity_sum, 1.0),
                     this
