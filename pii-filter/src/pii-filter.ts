@@ -198,8 +198,13 @@ export class PIIFilter implements IMain
             (index: number, token: IToken): number => 
             {
                 let classification = token.confidences_classification[token.confidences_classification.length-1].max();
-                if (this.language_model.thresholds.validate(classification))
+                if (this.language_model.thresholds.validate(classification) &&
+                    classification.group_root_start == token)
                 {
+                    // check if any overlapping classifications exist with a higher confidence
+                    // check for classifications which start before the end of this group and end after the group_end
+                    // check for contained classifications and possibly deal with it through a disambiguation func?
+
                     if (!n_classifications.has(classification.classifier))
                         n_classifications.set(classification.classifier, 0);
                     n_classifications.set(classification.classifier,

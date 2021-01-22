@@ -2,14 +2,25 @@ import { Trie } from '../../../core/structures/trie';
 import { Parsing } from '../../../core/parsing';
 import ds_date from '../dataset/ds_date.json';
 
+function validate_full(text: string)
+{
+    // note: could also generate these more cleanly
+    return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // dmy
+           /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // mdy
+           /^((19[0-9][0-9])|(20[0-9][0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
+           /^((19[0-9][0-9])|(20[0-9][0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text) || // ydm
+           /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(text); // year only
+}
+
+
 function validate_date(text: string)
 {
     // note: could also generate these more cleanly
-    return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s)?)((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9])))?$/.test(text) || // dmy
-           /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s)?)((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9])))?$/.test(text) || // mdy
-           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
-           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9]?[0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text) || // ydm
-           /^((19[0-9][0-9])|(20[0-9][0-9]))?$/.test(text); // year only
+    return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s))((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9])))?$/.test(text) || // dmy
+           /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s))((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9])))?$/.test(text) || // mdy
+           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
+           /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text) || // ydm
+           /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(text); // year only
 }
 
 // make sure longer token string (phone number with dashes or spaces) is chosen instead of smaller date format
@@ -65,17 +76,18 @@ export class Date extends Parsing.SimpleAssociativeClassifier
 
                     if (has_numbers.test(token_symbol))
                     {
+                        total_num_length += token_symbol.replace(/\D+/g, '').length;
+                        if (total_num_length > max_number_length)
+                            return Parsing.collect_tokens.Control.INVALID;
+                            
                         date_value +=       deferred_text + token_symbol;
                         deferred_text =     '';
-
-                        total_num_length += token_symbol.replace(/\D+/g, '').length;
                         if (total_num_length > min_number_length)
                         {
-                            if (total_num_length > max_number_length)
-                                return Parsing.collect_tokens.Control.INVALID;
-
                             last_seen_number = token;
 
+                            if (validate_full(date_value))
+                                return Parsing.collect_tokens.Control.MATCH;
                             if (validate_date(date_value))
                                 return Parsing.collect_tokens.Control.MATCH_AND_CONTINUE;
                         }
@@ -96,6 +108,8 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                     return Parsing.collect_tokens.Control.INVALID;
                 }
             );
+
+            let is_year: boolean = /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(date_value);
             
             if (!matched || (last_seen_number != end_token))
             {
@@ -105,7 +119,8 @@ export class Date extends Parsing.SimpleAssociativeClassifier
             }
             else
             {
-                let score:                  number =    (total_num_length > 4 ? 0.75 : 0.35);
+                let score:                  number =    (total_num_length > 4 ? 0.75 :
+                                                        (total_num_length > 2 && !is_year ? 0.35 : 0.1));
                 let severity_sum:           number =    (total_num_length > 4 ? 0.20 : 0.05);
                 let assoc_sum:              number =    0.0;
     

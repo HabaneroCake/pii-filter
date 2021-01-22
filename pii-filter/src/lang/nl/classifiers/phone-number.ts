@@ -9,7 +9,7 @@ function validate_phone_number(phone_number: string): boolean
 
 function is_06(phone_number: string): boolean
 {
-    return /((00)?31)?0?6/.test(phone_number.replace(/\D/g, ''))
+    return /^((00)?31)?0?6/.test(phone_number.replace(/\D/g, ''))
 }
 
 export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
@@ -31,6 +31,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             let number_value:           string =                '';
             let total_num_length:       number =                0;
 
+            let last_seen_number:       Parsing.Token =         null;
             let [matched, [start_token, end_token, matches]] = Parsing.collect_tokens(
                 token,
                 (token: Parsing.Token,
@@ -45,14 +46,16 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                         return Parsing.collect_tokens.Control.INVALID;
                     else if (has_numbers.test(token_symbol))
                     {
+                        total_num_length += token_symbol.replace(/\D+/g, '').length;
+                        if (total_num_length > max_number_length)
+                            return Parsing.collect_tokens.Control.INVALID;
+
                         number_value +=     deferred_text + token_symbol;
                         deferred_text =     '';
 
-                        total_num_length += token_symbol.replace(/\D+/g, '').length;
                         if (total_num_length > min_number_length)
                         {
-                            if (total_num_length > max_number_length)
-                                return Parsing.collect_tokens.Control.INVALID;
+                            last_seen_number = token;
 
                             if (validate_phone_number(number_value))
                                 return Parsing.collect_tokens.Control.MATCH_AND_CONTINUE;
@@ -71,7 +74,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                 }
             );
 
-            if (!matched)
+            if (!matched || (last_seen_number != end_token && matches.length > 3)) // includes space
             {
                 return [[], new Parsing.ClassificationScore(
                     0.0, 0.0, this
@@ -79,8 +82,9 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             }
             else
             {
-                let score:                  number =    0.75;
-                let severity_sum:           number =    (is_06(number_value) ? 0.5 : 0.35);
+                let is_06_number:           boolean =   is_06(number_value);
+                let score:                  number =    (is_06_number ? 0.75 : 0.25);
+                let severity_sum:           number =    (is_06_number ? 0.5 : 0.35);
                 let assoc_sum:              number =    0.0;
     
                 let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
