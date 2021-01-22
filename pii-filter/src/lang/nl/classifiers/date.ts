@@ -8,8 +8,7 @@ function validate_full(text: string)
     return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // dmy
            /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // mdy
            /^((19[0-9][0-9])|(20[0-9][0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
-           /^((19[0-9][0-9])|(20[0-9][0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text) || // ydm
-           /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(text); // year only
+           /^((19[0-9][0-9])|(20[0-9][0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text);
 }
 
 
@@ -59,6 +58,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
     
             let deferred_text:          string =                '';
             let date_value:             string =                '';
+            let last_valid_date_value:  string =                '';
             let total_num_length:       number =                0;
 
 
@@ -84,12 +84,18 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                         deferred_text =     '';
                         if (total_num_length > min_number_length)
                         {
-                            last_seen_number = token;
+                            last_seen_number =      token;
 
                             if (validate_full(date_value))
+                            {
+                                last_valid_date_value = date_value.slice();
                                 return Parsing.collect_tokens.Control.MATCH;
+                            }
                             if (validate_date(date_value))
+                            {
+                                last_valid_date_value = date_value.slice();
                                 return Parsing.collect_tokens.Control.MATCH_AND_CONTINUE;
+                            }
                         }
                         return Parsing.collect_tokens.Control.VALID;
                     }
@@ -109,9 +115,9 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                 }
             );
 
-            let is_year: boolean = /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(date_value);
+            let is_year: boolean = /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(last_valid_date_value);
             
-            if (!matched || (last_seen_number != end_token))
+            if (!matched || (last_seen_number != end_token && !is_year))
             {
                 return [[], new Parsing.ClassificationScore(
                     0.0, 0.0, this
