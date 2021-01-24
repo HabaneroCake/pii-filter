@@ -1,6 +1,11 @@
 export { SimpleAssociativeClassifier } from './classifiers/associative-classifier';
 export { SimpleDictionary } from './classifiers/dictionary-classifier';
-export { SimpleNameClassifier } from './classifiers/name-classifier';
+
+export {
+    SimpleNameClassifier,
+    SimpleMultiNameClassifier
+} from './classifiers/name-classifier';
+
 export { SimpleTextClassifier } from './classifiers/text-classifier';
 
 export { calc_assoc_severity_sum } from './calc-assoc-severity';

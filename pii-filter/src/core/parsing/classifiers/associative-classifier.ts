@@ -22,24 +22,29 @@ export abstract class SimpleAssociativeClassifier extends Classifier
     protected assoc_pos_map:    Map<string, Array<[ITag, IAssociativeScore]>> = 
                                                             new Map<string, Array<[ITag, IAssociativeScore]>>();
     protected association_trie: Trie<IAssociativeScore> =   new Trie();
-    constructor(protected dataset: object)
+    constructor(
+        protected dataset: object,
+        protected associative_words_name: string = 'association_multipliers',
+        protected pos_associative_words_name: string = 'pos_association_multipliers',
+        protected pii_associative_words_name: string = 'pii_association_multipliers'
+    )
     {
         super();
 
         // add association multipliers to trie
-        if ('association_multipliers' in this.dataset && this.dataset['association_multipliers'].length > 0)
+        if (this.associative_words_name in this.dataset && this.dataset[this.associative_words_name].length > 0)
         {
-            for (const [word, [left_max, right_max, score, severity]] of this.dataset['association_multipliers'] as
+            for (const [word, [left_max, right_max, score, severity]] of this.dataset[this.associative_words_name] as
                     Array<[string, [number, number, number, number]]>)
                 this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score, severity));
         }
     }
     public bind_language_model(language_model: ILanguage): void
     {
-        if ('pos_association_multipliers' in this.dataset && this.dataset['pos_association_multipliers'].length > 0)
+        if (this.pos_associative_words_name in this.dataset && this.dataset[this.pos_associative_words_name].length > 0)
         {
             for (const [pos, [left_max, right_max, score, severity]] 
-                of this.dataset['pos_association_multipliers'] as
+                of this.dataset[this.pos_associative_words_name] as
                     Array<[string, [number, number, number, number]]>)
             {
                 let tag: ITag = POS.from_brill_pos_tag(pos);
@@ -51,10 +56,10 @@ export abstract class SimpleAssociativeClassifier extends Classifier
                 this.assoc_pos_map.get(tag.tag_base).push([tag, assoc_score])
             }
         }
-        if ('pii_association_multipliers' in this.dataset && this.dataset['pii_association_multipliers'].length > 0)
+        if (this.pii_associative_words_name in this.dataset && this.dataset[this.pii_associative_words_name].length > 0)
         {
             for (const [name, array_of_pii_scores]
-                    of this.dataset['pii_association_multipliers'] as
+                    of this.dataset[this.pii_associative_words_name] as
                         Array<[string, Array<[number, number, number, number]>]>)
             {
                 for (let classifier of language_model.classifiers)

@@ -16,13 +16,14 @@ export abstract class SimpleTextClassifier extends SimpleAssociativeClassifier
         protected dataset: object,
         protected classification_score_base: number,
         protected severity_score_base: number,
-        protected use_stem: boolean
+        protected use_stem: boolean,
+        protected main_name: string = 'main'
     )
     {
         super(dataset);
         // add main word list to trie
-        if ('main' in this.dataset && this.dataset['main'].length > 0)
-            this.main_trie.add_list(this.dataset['main'], true)
+        if (main_name in this.dataset && this.dataset[main_name].length > 0)
+            this.main_trie.add_list(this.dataset[main_name], true)
     }
     public classify_confidence(token: IToken): [Array<IToken>, IClassificationScore]
     {

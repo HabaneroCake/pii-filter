@@ -19,33 +19,61 @@ export class Dictionary extends Parsing.SimpleDictionary
     public name: string = 'dictionary';
 };
 
-export class FirstName extends Parsing.SimpleNameClassifier
+export class FirstName extends Parsing.SimpleMultiNameClassifier
 {
     constructor() 
     { 
         super(
             ds_first_name,
-            0.05,
-            0.15,
-            0.15,
-            0.05,
-            0.10,
+            [
+                {   // dutch names
+                    classification_score_base: 0.05,
+                    uppercase_classification_score_base: 0.15,
+                    pos_classification_score_base: 0.15,
+                    pos_possible_classification_score_base: 0.05,
+                    severity_score_base: 0.10,
+                    dataset_name: 'main',
+                },
+                {   // international names
+                    classification_score_base: 0.025,
+                    uppercase_classification_score_base: 0.075,
+                    pos_classification_score_base: 0.075,
+                    pos_possible_classification_score_base: 0.025,
+                    severity_score_base: 0.05,
+                    dataset_name: 'int',
+                }
+            ],
+            true
         );
     }
     public name: string = 'first_name';
 };
 
-export class FamilyName extends Parsing.SimpleNameClassifier
+export class FamilyName extends Parsing.SimpleMultiNameClassifier
 {
     constructor() 
     {
         super(
             ds_family_name,
-            0.05,
-            0.15,
-            0.15,
-            0.05,
-            0.20
+            [
+                {   // dutch family names
+                    classification_score_base: 0.05,
+                    uppercase_classification_score_base: 0.15,
+                    pos_classification_score_base: 0.15,
+                    pos_possible_classification_score_base: 0.05,
+                    severity_score_base: 0.20,
+                    dataset_name: 'main',
+                },
+                {   // international family names
+                    classification_score_base: 0.025,
+                    uppercase_classification_score_base: 0.075,
+                    pos_classification_score_base: 0.075,
+                    pos_possible_classification_score_base: 0.025,
+                    severity_score_base: 0.10,
+                    dataset_name: 'int',
+                }
+            ],
+            true
         );
     }
     public name: string = 'family_name';
@@ -58,8 +86,8 @@ export class PetName extends Parsing.SimpleNameClassifier
         super(
             ds_pet_name,
             0.05,
-            0.15,
-            0.15,
+            0.10,
+            0.10,
             0.05,
             0.15
         );
@@ -74,8 +102,8 @@ export class MedicineName extends Parsing.SimpleNameClassifier
     {
         super(
             ds_medicine_name,
+            0.10,
             0.15,
-            0.25,
             0.10,
             0.05,
             0.30
