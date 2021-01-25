@@ -67,7 +67,7 @@ describe('PII_Filter_NL', ()=>{
             family_name,
             'family_name',
             0.25,
-            0.2
+            0.1
         );
     });
     it('should_classify_pet_name', ()=>{
@@ -85,7 +85,7 @@ describe('PII_Filter_NL', ()=>{
             medicine_name,
             'medicine_name',
             0.25,
-            0.3
+            0.2
         );
     });
     it('should_classify_email_address', ()=>{
@@ -94,7 +94,7 @@ describe('PII_Filter_NL', ()=>{
             email_address,
             'email_address',
             0.25,
-            0.25
+            0.2
         );
     });
     it('should_ignore_not_email_address', ()=>{
@@ -164,7 +164,7 @@ describe('PII_Filter_NL', ()=>{
         expect(pii_match_1 && pii_all_1.length == 1).equals(true);
         expect(pii_match_1.classification.classifier.name).equals('first_name');
         expect(pii_match_1.classification.score).gte(0.25);
-        expect(pii_match_1.classification.severity).gte(0.1);
+        expect(pii_match_1.classification.severity).gte(0.05);
 
         let check_assoc = (
             result: PIIFilter.Result,

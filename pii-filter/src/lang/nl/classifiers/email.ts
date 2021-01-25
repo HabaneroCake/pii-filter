@@ -86,19 +86,19 @@ export class EmailAddress extends Parsing.SimpleAssociativeClassifier
             }
 
             [score, severity_sum] = (valid_email) ? 
-                [score+0.30, severity_sum+0.10] : [score, severity_sum];
+                [score+0.30, severity_sum+0.05] : [score, severity_sum];
 
             // check front
             [score, severity_sum] = (name_length >= 3) ? 
-                [score+0.25, severity_sum+0.10] : [score+0.05, severity_sum+0.05];
+                [score+0.25, severity_sum+0.05] : [score+0.05, severity_sum+0.05];
 
             // check mid
             [score, severity_sum] = (domain_name_length >= 3) ?
-                [score+0.25, severity_sum+0.10] : [score+0.05, severity_sum+0.05];
+                [score+0.25, severity_sum+0.05] : [score+0.05, severity_sum+0.05];
 
             // check back
             [score, severity_sum] = (final_extension_length >= 2) ?
-                [score+0.50, severity_sum+0.10] : [score+0.1, severity_sum+0.025];
+                [score+0.50, severity_sum+0.05] : [score+0.1, severity_sum+0.025];
 
             let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(
                 left_it,

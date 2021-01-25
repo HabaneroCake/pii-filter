@@ -84,7 +84,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             {
                 let is_06_number:           boolean =   is_06(number_value);
                 let score:                  number =    (is_06_number ? 0.75 : 0.25);
-                let severity_sum:           number =    (is_06_number ? 0.5 : 0.35);
+                let severity_sum:           number =    (is_06_number ? 0.35 : 0.25);
                 let assoc_sum:              number =    0.0;
     
                 let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(

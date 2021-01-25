@@ -127,7 +127,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
             {
                 let score:                  number =    (total_num_length > 4 ? 0.75 :
                                                         (total_num_length > 2 && !is_year ? 0.35 : 0.1));
-                let severity_sum:           number =    (total_num_length > 4 ? 0.20 : 0.05);
+                let severity_sum:           number =    (total_num_length > 4 ? 0.15 : 0.05);
                 let assoc_sum:              number =    0.0;
     
                 let [assoc_sum_, severity_sum_] = Parsing.calc_assoc_severity_sum(

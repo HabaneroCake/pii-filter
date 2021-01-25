@@ -31,7 +31,7 @@ export class FirstName extends Parsing.SimpleMultiNameClassifier
                     uppercase_classification_score_base: 0.15,
                     pos_classification_score_base: 0.15,
                     pos_possible_classification_score_base: 0.05,
-                    severity_score_base: 0.10,
+                    severity_score_base: 0.05,
                     dataset_name: 'main',
                 },
                 {   // international names
@@ -39,7 +39,7 @@ export class FirstName extends Parsing.SimpleMultiNameClassifier
                     uppercase_classification_score_base: 0.075,
                     pos_classification_score_base: 0.075,
                     pos_possible_classification_score_base: 0.025,
-                    severity_score_base: 0.05,
+                    severity_score_base: 0.025,
                     dataset_name: 'int',
                 }
             ],
@@ -61,7 +61,7 @@ export class FamilyName extends Parsing.SimpleMultiNameClassifier
                     uppercase_classification_score_base: 0.15,
                     pos_classification_score_base: 0.15,
                     pos_possible_classification_score_base: 0.05,
-                    severity_score_base: 0.20,
+                    severity_score_base: 0.10,
                     dataset_name: 'main',
                 },
                 {   // international family names
@@ -69,7 +69,7 @@ export class FamilyName extends Parsing.SimpleMultiNameClassifier
                     uppercase_classification_score_base: 0.075,
                     pos_classification_score_base: 0.075,
                     pos_possible_classification_score_base: 0.025,
-                    severity_score_base: 0.10,
+                    severity_score_base: 0.05,
                     dataset_name: 'int',
                 }
             ],
@@ -89,7 +89,7 @@ export class PetName extends Parsing.SimpleNameClassifier
             0.10,
             0.10,
             0.05,
-            0.15
+            0.10
         );
     }
     public name: string = 'pet_name';
@@ -106,7 +106,7 @@ export class MedicineName extends Parsing.SimpleNameClassifier
             0.15,
             0.10,
             0.05,
-            0.30
+            0.20
         );
     }
     public name: string = 'medicine_name';
