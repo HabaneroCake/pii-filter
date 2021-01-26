@@ -1,16 +1,14 @@
 import { exit } from 'process';
 import * as readline from 'readline';
-import { IClassificationScore } from '../core/interfaces/parsing/classification';
-import { ITokenizer } from '../core/interfaces/parsing/tokens';
-import { PIIFilter, NL } from '../pii-filter';
-import { BgGreen, BgRed, FgBlack, FgWhite, Reset } from './lazy-colors';
+import * as pii_filter from '../pii-filter';
+import * as col from './lazy-colors';
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-let pii_filter = new PIIFilter(new NL());
+const pf = pii_filter.make_filter('nl');
 
 function ask_classify()
 {
@@ -18,35 +16,18 @@ function ask_classify()
         if (answer.length == 0 || answer.toLowerCase() == 'exit')
             exit(0);
         console.log('');
-        let result = pii_filter.classify(answer);
-        
-        let str_res = result.render_replaced(
-            (classification: IClassificationScore, text: string): string =>
+        let res = pf.classify(answer);
+        let str_res = res.render_replaced(
+            (pii: pii_filter.PII): string =>
         {
-            let str: string = text;
-            // this func needs the full text instead?
-            if (classification.valid())
-            {
-                // classification.severity
-                str = `${BgRed}${FgWhite}${str}${Reset}`;
-            }
-
-            return str;
+            return `${col.BgRed}${col.FgWhite}${pii.value}${col.Reset}`;
         });
         console.log(str_res);
         console.log('');
-        let str_placeholders = result.render_replaced(
-            (classification: IClassificationScore, text: string): string =>
+        let str_placeholders = res.render_replaced(
+            (pii: pii_filter.PII): string =>
         {
-            let str: string = text;
-            // this func needs the full text instead?
-            if (classification.valid())
-            {
-                // classification.severity
-                str = `${BgGreen}${FgBlack}{${classification.classifier.name}}${Reset}`;
-            }
-
-            return str;
+            return `${col.BgGreen}${col.FgBlack}{${pii.type}}${col.Reset}`;
         });
         console.log(str_placeholders);
         console.log('');

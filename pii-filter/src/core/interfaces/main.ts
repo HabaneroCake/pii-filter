@@ -4,29 +4,34 @@ import { IToken } from './parsing/tokens';
 
 export interface IClassificationResult
 {
-    classification: IClassificationScore,
-    text:           string;
+    value:          string;
+    type:           string;
+    confidence:     number;
+    severity:       number;
+    start_pos:      number;
+    end_pos:        number;
 };
 
 export interface IResult
 {
-    total_num_pii:       number;
-    num_pii:             Map<IClassifier, number>;
-    severity_mapping:    number;
-    tokens:              Array<[IClassificationScore, IToken]>;
+    found_pii:      boolean;
+    severity:       number;
+    pii:            Array<IClassificationResult>;
 
-    render_replaced(fn: (classification: IClassificationScore, text: string) => string, 
-                    confidence_threshold?: number, severity_threshold?: number): string;
-    render_placeholders(confidence_threshold?: number, severity_threshold?: number): string;
-    render_removed(confidence_threshold?: number, severity_threshold?: number): string;
-    pii(confidence_threshold?: number, severity_threshold?: number): Array<IClassificationResult>;
+    render_replaced(fn: (classification: IClassificationResult) => string): string;
+    render_placeholders(): string;
+    render_removed(): string;
     print_debug();
 };
 
 export interface IMain
 {
     language_model: ILanguage;
-    classify(text: string) : IResult;
+    classify(
+        text: string,
+        confidence_threshold?: number,
+        severity_threshold?: number
+    ): IResult;
     sanitize_str(
         text: string,
         placeholders: boolean,

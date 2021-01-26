@@ -13,9 +13,11 @@ export class Token implements IToken
     public confidences_associative:     IAssociations =          new Associations();
     public confidences_classification:  Array<IConfidences> =    new Array<IConfidences>();
     constructor(
-        public symbol:      string,
-        public stem:        string,
-        public tag:         ITag,
-        public index:       number
+        public symbol:          string,
+        public stem:            string,
+        public tag:             ITag,
+        public index:           number,
+        public c_index_start:   number,
+        public c_index_end:     number
     ) {}
 };

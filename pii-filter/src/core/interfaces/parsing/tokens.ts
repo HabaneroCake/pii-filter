@@ -3,14 +3,17 @@ import { ITag } from './tagging';
 
 export interface IToken
 {
-    previous:    IToken;
-    next:        IToken;
+    previous:       IToken;
+    next:           IToken;
 
-    symbol:      string;
-    stem:        string;
+    symbol:         string;
+    stem:           string;
 
-    tag:         ITag;
-    index:       number;
+    tag:            ITag;
+    index:          number;
+
+    c_index_start:  number;
+    c_index_end:    number;
 
     // stores passes
     confidence_dictionary:       IClassificationScore;

@@ -20,8 +20,8 @@ import {
     IToken
 } from './core/interfaces/parsing/tokens';
 
-// Languages
-export { NL } from './lang/nl/nl';
+import * as Languages from './lang/languages';
+export { Languages };
 
 export class PIIFilter implements IMain
 {
@@ -32,7 +32,7 @@ export class PIIFilter implements IMain
      * @param verbosity verbosity level
      */
     constructor(public language_model: ILanguage) {}
-    public classify(text: string): IResult
+    public classify(text: string): Result
     {
         // Factory functions (TODO: put somewhere logical)
         // TODO these could be passed in somewhere
@@ -192,7 +192,7 @@ export class PIIFilter implements IMain
         let severity_max_pii:   number =                                0.0;
         let severity_sum_pii:   number =                                0.0;
         let total_n_pii:        number =                                0;
-        let n_classifications:  Map<IClassifier, number> =              new Map<IClassifier, number>();
+        let n_classifications:  Map<string, number> =                   new Map<string, number>();
         let tokens:             Array<[IClassificationScore, IToken]> = new Array<[IClassificationScore, IToken]>();
         iterate_tokens(
             (index: number, token: IToken): number => 
@@ -205,10 +205,11 @@ export class PIIFilter implements IMain
                     // check for classifications which start before the end of this group and end after the group_end
                     // check for contained classifications and possibly deal with it through a disambiguation func?
 
-                    if (!n_classifications.has(classification.classifier))
-                        n_classifications.set(classification.classifier, 0);
-                    n_classifications.set(classification.classifier,
-                        n_classifications.get(classification.classifier) + 1);
+                    let classifier_name: string = classification.classifier.name;
+                    if (!n_classifications.has(classifier_name))
+                        n_classifications.set(classifier_name, 0);
+                    n_classifications.set(classifier_name,
+                        n_classifications.get(classifier_name) + 1);
                     
                     severity_sum_pii += classification.severity;
                     severity_max_pii = Math.max(severity_max_pii, classification.severity);
@@ -223,6 +224,26 @@ export class PIIFilter implements IMain
                 return index;
             }
         );
+
+        /**
+         *  public pii(confidence_threshold?: number, severity_threshold?: number): Array<IClassificationResult>
+        {
+            let result: Array<IClassificationResult> = new Array<IClassificationResult>();
+
+            for (let [classification, token] of this.tokens)
+            {
+                let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
+                let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
+                if (classification.valid())
+                {
+                    if (above_confidence && above_severity)
+                        result.push(new PII(classification, Parsing.classification_group_string(classification)));
+                }
+            }
+            
+            return result;
+        }
+         */
 
         return new PIIFilter.Result(
             total_n_pii,
@@ -265,129 +286,130 @@ export class PIIFilter implements IMain
     }
 };
 
-export namespace PIIFilter
+export class PII implements IClassificationResult
 {
-    export class PII implements IClassificationResult
-    {
-        constructor(
-            public classification: IClassificationScore,
-            public text: string
-        ) {}
-    };
-    export class Result implements IResult
-    {
-        constructor(
-            public total_num_pii:       number,
-            public num_pii:             Map<IClassifier, number>,
-            public severity_mapping:    number,
-            public tokens:              Array<[IClassificationScore, IToken]>
-        ) {}
-
-        public render_replaced(fn: (classification: IClassificationScore, text: string) => string, 
-                                confidence_threshold?: number, severity_threshold?: number): string
-        {
-            let result: string = '';
-
-            for (let [classification, token] of this.tokens)
-            {
-                let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
-                let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
-                if (classification.valid())
-                {
-                    if (above_confidence && above_severity)
-                        result += fn(classification, Parsing.classification_group_string(classification));
-                    else
-                    {
-                        do {
-                            result += token.symbol;
-                            if (token.index == classification.group_root_end.index)
-                                break;
-                            token = token.next;
-                        } while(token != null)
-                    }
-                }
-                else
-                    result += token.symbol;
-            }
-
-            return result;
-        }
-
-        public render_placeholders(confidence_threshold?: number, severity_threshold?: number): string
-        {
-            return this.render_replaced((classification: IClassificationScore, text: string): string =>
-            {
-                return `{${classification.classifier.name}}`;
-            }, confidence_threshold, severity_threshold);
-        }
-
-        public render_removed(confidence_threshold?: number, severity_threshold?: number): string
-        {
-            return this.render_replaced((classification: IClassificationScore, text: string): string =>
-            {
-                return '';
-            }, confidence_threshold, severity_threshold);
-        }
-
-        public pii(confidence_threshold?: number, severity_threshold?: number): Array<IClassificationResult>
-        {
-            let result: Array<IClassificationResult> = new Array<IClassificationResult>();
-
-            for (let [classification, token] of this.tokens)
-            {
-                let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
-                let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
-                if (classification.valid())
-                {
-                    if (above_confidence && above_severity)
-                        result.push(new PII(classification, Parsing.classification_group_string(classification)));
-                }
-            }
-            
-            return result;
-        }
-
-        public print_debug()
-        {
-            if(this.tokens.length == 0)
-                return;
-                
-            let token = this.tokens[0][1];
-            while(token != null)
-            {
-                console.log(`[${token.index}] Token: \"${token.symbol}\", Stem: \"${token.stem}\"`);
-                console.log(`-- POS[${token.tag.tag_base}], ${JSON.stringify(token.tag.tag_rest)}`);
-                console.log(`-- WellFormedNess[${token.tag.group.well_formed}]`);
-                if (token.confidence_dictionary)
-                    console.log(
-                        `- dict score: ${token.confidence_dictionary.score}, ` +
-                        `root: [${token.confidence_dictionary.group_root_start.index}, ` + 
-                        `${token.confidence_dictionary.group_root_end.index}]`
-                    );
-                for (let assoc_arr of token.confidences_associative.values())
-                {
-                    for (let assoc of assoc_arr)
-                    {
-                        console.log(
-                            `  assoc: ${assoc.classifier.name}, ` +
-                            `score: ${assoc.score}, root: [${assoc.group_root_start.index}, ` + 
-                            `${assoc.group_root_end.index}]`
-                        );
-                    }
-                }
-                for (let conf of token.confidences_classification[token.confidences_classification.length-1].all())
-                {
-                    console.log(
-                        `   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, ` + 
-                        `root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`
-                    );
-                }
-                token = token.next;
-            }
-
-            console.log(`Overall severity: ${this.severity_mapping}`);
-            for (let [classifier, num] of this.num_pii)
-                console.log(`PII[${classifier.name}]: ${num}`);
-        }
-    };
+    constructor(
+        public value:          string,
+        public type:           string,
+        public confidence:     number,
+        public severity:       number,
+        public start_pos:      number,
+        public end_pos:        number
+    ) {}
 };
+
+export class Result implements IResult
+{
+    public found_pii:   boolean;
+    public pii:         Array<PII> =        new Array<PII>();
+    
+    constructor(
+        public      severity:           number,
+        protected   tokens:             Array<[IClassificationScore, IToken, IClassificationResult?]>
+    )
+    {
+        for (let i: number = 0; i < this.tokens.length; ++i)
+        {
+            let [classification, token,] = this.tokens[i];
+            if (classification.valid())
+            {
+                let single_pii: PII = new PII(
+                    Parsing.classification_group_string(classification),
+                    classification.classifier.name,
+                    classification.score,
+                    classification.severity,
+                    classification.group_root_start.c_index_start,
+                    classification.group_root_end.c_index_end,
+                );
+                this.pii.push(single_pii);
+                this.tokens[i] = [classification, token, single_pii];
+            }
+        }
+        this.found_pii = (this.pii.length > 0);
+    }
+
+    public render_replaced(fn: (classification: PII) => string): string
+    {
+        let result: string = '';
+
+        for (let [, token, pii] of this.tokens)
+        {
+            if (pii != null)
+                result += fn(pii);
+            else
+                result += token.symbol;
+        }
+
+        return result;
+    }
+
+    public render_placeholders(): string
+    {
+        return this.render_replaced((pii: PII): string =>
+        {
+            return `{${pii.type}}`;
+        });
+    }
+
+    public render_removed(): string
+    {
+        return this.render_replaced((pii: PII): string =>
+        {
+            return '';
+        });
+    }
+
+    public print_debug()
+    {
+        if(this.tokens.length == 0)
+            return;
+            
+        let token = this.tokens[0][1];
+        while(token != null)
+        {
+            console.log(`[${token.index}] Token: \"${token.symbol}\", Stem: \"${token.stem}\"`);
+            console.log(`-- POS[${token.tag.tag_base}], ${JSON.stringify(token.tag.tag_rest)}`);
+            console.log(`-- WellFormedNess[${token.tag.group.well_formed}]`);
+            if (token.confidence_dictionary)
+                console.log(
+                    `- dict score: ${token.confidence_dictionary.score}, ` +
+                    `root: [${token.confidence_dictionary.group_root_start.index}, ` + 
+                    `${token.confidence_dictionary.group_root_end.index}]`
+                );
+            for (let assoc_arr of token.confidences_associative.values())
+            {
+                for (let assoc of assoc_arr)
+                {
+                    console.log(
+                        `  assoc: ${assoc.classifier.name}, ` +
+                        `score: ${assoc.score}, root: [${assoc.group_root_start.index}, ` + 
+                        `${assoc.group_root_end.index}]`
+                    );
+                }
+            }
+            for (let conf of token.confidences_classification[token.confidences_classification.length-1].all())
+            {
+                console.log(
+                    `   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, ` + 
+                    `root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`
+                );
+            }
+            token = token.next;
+        }
+
+        console.log(`Overall severity: ${this.severity}`);
+
+
+        for (let pii of this.pii)
+            console.log(`PII[${pii.type}]: ${pii.value}`);
+    }
+};
+
+export function make_filter(country_code: string): PIIFilter
+{
+    let language: ILanguage = Languages.by_country_code(country_code);
+    if (language == null)
+        return null;
+
+    return new PIIFilter(language);
+}

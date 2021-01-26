@@ -28,8 +28,8 @@ export class Tokenizer implements ITokenizer
             language_model
         );
 
-        // TODO: eventually add character offset index?
         let index: number = 0;
+        let c_index: number = 0;
         let l_tok: Token =  null;
         for (let [token, pos_tag] of tagged_tokens)
         {
@@ -37,7 +37,14 @@ export class Tokenizer implements ITokenizer
                 continue;
 
             let stem = language_model.stemmer.stem(token, pos_tag);
-            let c_tok = new Token(token, stem, pos_tag, index);
+            let c_tok = new Token(
+                token,
+                stem,
+                pos_tag,
+                index,
+                c_index,
+                c_index + token.length
+            );
 
             if (l_tok != null)
                 l_tok.next = c_tok;
@@ -45,8 +52,9 @@ export class Tokenizer implements ITokenizer
             c_tok.previous = l_tok;
             this.tokens.push(c_tok);
 
-            l_tok = c_tok;
             index++;
+            c_index += token.length;
+            l_tok = c_tok;
         }
     }
 };
