@@ -27,3 +27,4 @@ export { Token } from './token';
 export { Tokenizer } from './tokenizer';
 export { tokens_trie_lookup } from './trie-lookup';
 export { collect_tokens } from './collect-tokens';
+export { classification_group_string } from './classification-group-string';

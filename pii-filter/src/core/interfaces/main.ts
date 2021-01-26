@@ -15,7 +15,7 @@ export interface IResult
     severity_mapping:    number;
     tokens:              Array<[IClassificationScore, IToken]>;
 
-    render_replaced(fn: (classification: IClassificationScore, token: IToken) => string, 
+    render_replaced(fn: (classification: IClassificationScore, text: string) => string, 
                     confidence_threshold?: number, severity_threshold?: number): string;
     render_placeholders(confidence_threshold?: number, severity_threshold?: number): string;
     render_removed(confidence_threshold?: number, severity_threshold?: number): string;

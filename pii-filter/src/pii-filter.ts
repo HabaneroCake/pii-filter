@@ -283,7 +283,7 @@ export namespace PIIFilter
             public tokens:              Array<[IClassificationScore, IToken]>
         ) {}
 
-        public render_replaced(fn: (classification: IClassificationScore, token: IToken) => string, 
+        public render_replaced(fn: (classification: IClassificationScore, text: string) => string, 
                                 confidence_threshold?: number, severity_threshold?: number): string
         {
             let result: string = '';
@@ -295,7 +295,7 @@ export namespace PIIFilter
                 if (classification.valid())
                 {
                     if (above_confidence && above_severity)
-                        result += fn(classification, token);
+                        result += fn(classification, Parsing.classification_group_string(classification));
                     else
                     {
                         do {
@@ -315,7 +315,7 @@ export namespace PIIFilter
 
         public render_placeholders(confidence_threshold?: number, severity_threshold?: number): string
         {
-            return this.render_replaced((classification: IClassificationScore, token: IToken): string =>
+            return this.render_replaced((classification: IClassificationScore, text: string): string =>
             {
                 return `{${classification.classifier.name}}`;
             }, confidence_threshold, severity_threshold);
@@ -323,7 +323,7 @@ export namespace PIIFilter
 
         public render_removed(confidence_threshold?: number, severity_threshold?: number): string
         {
-            return this.render_replaced((classification: IClassificationScore, token: IToken): string =>
+            return this.render_replaced((classification: IClassificationScore, text: string): string =>
             {
                 return '';
             }, confidence_threshold, severity_threshold);
@@ -340,17 +340,7 @@ export namespace PIIFilter
                 if (classification.valid())
                 {
                     if (above_confidence && above_severity)
-                    {
-                        let text: string = '';
-                        do {
-                            text += token.symbol;
-                            if (token.index == classification.group_root_end.index)
-                                break;
-                            token = token.next;
-                        } while(token != null)
-
-                        result.push(new PII(classification, text));
-                    }
+                        result.push(new PII(classification, Parsing.classification_group_string(classification)));
                 }
             }
             
