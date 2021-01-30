@@ -1,30 +1,29 @@
-import { PIIFilter } from '../../../src/pii-filter';
-import { NL } from '../../../src/lang/nl/nl';
+import { Languages, PIIFilter, PII } from '../../../src/pii-filter';
 import { expect } from 'chai';
-import { get_pii } from './utils';
+import { get_pii, print_debug } from './utils';
 
 import benchmark from './benchmark.json';
 
-let pii_filter = new PIIFilter(new NL());
+let pii_filter = new PIIFilter(new Languages.NL());
 
 describe('PII_Filter_NL_Benchmark', ()=>{
-    let severity_map_err_s: number = 0;
-    let correct:            number = 0;
-    let incorrect:          number = 0;
-    let missed:             number = 0;
-    let false_positive:     number = 0;
-    let total:              number = 0;
-    const debug:            boolean = true;
+    let severity_map_err_s: number =    0;
+    let correct:            number =    0;
+    let incorrect:          number =    0;
+    let missed:             number =    0;
+    let false_positive:     number =    0;
+    let total:              number =    0;
+    const debug:            boolean =   false;
 
     for (let item of benchmark as Array<{phrase: string, pii: Array<[string, string]>, severity: number}>)
     {
         let result = pii_filter.classify(item.phrase);
-        let result_pii = result.pii();
+        let result_pii = result.pii as Array<PII>; // in order to splice PII out for now
 
         if (debug)
         {
             console.log(`--- [Phrase]: ${item.phrase}`);
-            result.print_debug();
+            print_debug(result);
             console.log('\n');
         }
         
@@ -33,7 +32,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
             let pii_match = get_pii(result_pii, segment);
             if (pii_match)
             {
-                if (pii == pii_match.classification.classifier.name)
+                if (pii == pii_match.type)
                     correct++;
                 else
                 {
@@ -41,7 +40,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
                         console.log(
                             `    ` +
                             `Incorrectly classified \"${segment}\" ` +
-                            `as ${pii_match.classification.classifier.name}. ` +
+                            `as ${pii_match.type}. ` +
                             `Should be ${pii}.`
                         );
                     incorrect++;
@@ -59,9 +58,9 @@ describe('PII_Filter_NL_Benchmark', ()=>{
             total++;
         }
         
-        const severity_diff: number = item.severity - result.severity_mapping;
+        const severity_diff: number = item.severity - result.severity;
         if (debug && severity_diff != 0.0)
-            console.log(`    Severity was ${result.severity_mapping}, should have been ${item.severity}.`);
+            console.log(`    Severity was ${result.severity}, should have been ${item.severity}.`);
         
         severity_map_err_s += Math.pow(severity_diff, 2);
 
@@ -69,7 +68,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
         {
             if (debug)
                 console.log(
-                    `    False Positive: flagged \"${false_pii.text}\" as ${false_pii.classification.classifier.name}.`
+                    `    False Positive: flagged \"${false_pii.value}\" as ${false_pii.type}.`
                 );
             false_positive++;
         }

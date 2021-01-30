@@ -23,17 +23,25 @@ import {
 import * as Languages from './lang/languages';
 export { Languages };
 
+/**
+ * A class for filtering out or parsing personal information in strings.
+ */
 export class PIIFilter implements IMain
 {
-    //------------------------------------------------------------------------------------------------------------------
     /**
-     * 
-     * @param language_model the language model
-     * @param verbosity verbosity level
+     * Constructs a new PIIFilter.
+     * @param language_model the language model, found under *Languages*
      */
     constructor(public language_model: ILanguage) {}
-    public classify(text: string): Result
+    /**
+     * Classifies PII in a string, based on the language model which was passed at construction.
+     * @param text 
+     */
+    public classify(
+        text: string
+    ): Result
     {
+        //! TODO
         // Factory functions (TODO: put somewhere logical)
         // TODO these could be passed in somewhere
         let make_tokenizer = (text: string, language_model: ILanguage): ITokenizer => 
@@ -191,7 +199,6 @@ export class PIIFilter implements IMain
         // get all (highest scoring) pii tokens
         let severity_max_pii:   number =                                0.0;
         let severity_sum_pii:   number =                                0.0;
-        let total_n_pii:        number =                                0;
         let n_classifications:  Map<string, number> =                   new Map<string, number>();
         let tokens:             Array<[IClassificationScore, IToken]> = new Array<[IClassificationScore, IToken]>();
         iterate_tokens(
@@ -213,7 +220,6 @@ export class PIIFilter implements IMain
                     
                     severity_sum_pii += classification.severity;
                     severity_max_pii = Math.max(severity_max_pii, classification.severity);
-                    total_n_pii++;
                     
                     index = classification.group_root_end.index;
                 }
@@ -225,89 +231,100 @@ export class PIIFilter implements IMain
             }
         );
 
-        /**
-         *  public pii(confidence_threshold?: number, severity_threshold?: number): Array<IClassificationResult>
-        {
-            let result: Array<IClassificationResult> = new Array<IClassificationResult>();
-
-            for (let [classification, token] of this.tokens)
-            {
-                let above_confidence =  confidence_threshold ?  classification.score >= confidence_threshold : true;
-                let above_severity =    severity_threshold ?    classification.severity >= severity_threshold : true;
-                if (classification.valid())
-                {
-                    if (above_confidence && above_severity)
-                        result.push(new PII(classification, Parsing.classification_group_string(classification)));
-                }
-            }
-            
-            return result;
-        }
-         */
-
-        return new PIIFilter.Result(
-            total_n_pii,
-            n_classifications,
+        return new Result(
             Math.min(severity_sum_pii, 1.0),
             tokens
         );
     }
 
+    /**
+     * Replaces or removes personal information contained in a string
+     * @param text the input text
+     * @param placeholders wether to replace the personal information with placeholders, such as {first_name}
+     */
     public sanitize_str(
         text: string,
-        placeholders: boolean,
-        confidence_threshold?: number,
-        severity_threshold?: number
+        placeholders: boolean
     ): string
     {
         let result = this.classify(text);
         return placeholders ? 
-            result.render_placeholders(confidence_threshold, severity_threshold) : 
-            result.render_removed(confidence_threshold, severity_threshold);
+            result.render_placeholders() : 
+            result.render_removed();
     }
 
+    /**
+     * Replaces or removes personal information contained in an object
+     * @param obj the object to iterate over
+     * @param placeholders wether to replace the personal information with placeholders, such as {first_name}
+     * @param recursive wether this object should be sanitized recursively
+     * @param skip objects which should be skipped
+     */
     public sanitize_object(
         obj: object,
         placeholders: boolean,
-        confidence_threshold?: number,
-        severity_threshold?: number
+        recursive: boolean = false,
+        skip?: Array<object>
     ): object
     {
         let obj_result: object = {};
         for (let key in obj)
-            if (typeof obj[key] == 'string')
+            if (typeof obj[key] == 'string' && skip.indexOf(obj[key]) == -1)
                 obj_result[key] = this.sanitize_str(
                     obj[key],
-                    placeholders,
-                    confidence_threshold,
-                    severity_threshold
+                    placeholders
                 );
+            else if (typeof obj[key] == 'object' && recursive)
+                obj_result[key] = this.sanitize_object(obj[key], placeholders, recursive, skip);
         return obj_result;
     }
 };
 
+/**
+ * A class which contains the PII classification result.
+ */
 export class PII implements IClassificationResult
 {
+    /**
+     * Constructs a new PII object.
+     * @param value the text which is classified as PII
+     * @param type  the type of PII, this matches the name of the classifier
+     * @param confidence the confidence level between 0 and 1 that this string is this PII type
+     * @param severity the severity of this PII being used within this context
+     * @param start_pos the starting position in characters of this PII match
+     * @param end_pos the ending position in characters of this PII match
+     */
     constructor(
-        public value:          string,
-        public type:           string,
-        public confidence:     number,
-        public severity:       number,
-        public start_pos:      number,
-        public end_pos:        number
+        public readonly value:      string,
+        public readonly type:       string,
+        public readonly confidence: number,
+        public readonly severity:   number,
+        public readonly start_pos:  number,
+        public readonly end_pos:    number
     ) {}
 };
 
+/**
+ * The result of a PIIFilter classify call.
+ */
 export class Result implements IResult
 {
-    public found_pii:   boolean;
-    public pii:         Array<PII> =        new Array<PII>();
+    // wether PII was found
+    public readonly found_pii:  boolean;
+    // The list of PII classifications in the order that they occurred in the source text.
+    public readonly pii:        ReadonlyArray<PII>;
     
+    /**
+     * Constructs a new result object
+     * @param severity the overall severity level of the source text, from 0 to 1
+     * @param tokens the tokens which were used in classification
+     */
     constructor(
-        public      severity:           number,
-        protected   tokens:             Array<[IClassificationScore, IToken, IClassificationResult?]>
+        public readonly severity:   number,
+        protected       tokens:     Array<[IClassificationScore, IToken, IClassificationResult?]>
     )
     {
+        let pii: Array<PII> =   new Array<PII>();
         for (let i: number = 0; i < this.tokens.length; ++i)
         {
             let [classification, token,] = this.tokens[i];
@@ -321,13 +338,18 @@ export class Result implements IResult
                     classification.group_root_start.c_index_start,
                     classification.group_root_end.c_index_end,
                 );
-                this.pii.push(single_pii);
+                pii.push(single_pii);
                 this.tokens[i] = [classification, token, single_pii];
             }
         }
-        this.found_pii = (this.pii.length > 0);
+        this.pii =          pii;
+        this.found_pii =    (this.pii.length > 0);
     }
 
+    /**
+     * Renders the original text while replacing found PII with text returned from the specified callback.
+     * @param fn a callback which is called for each classification, from which the text to replace it with is returned.
+     */
     public render_replaced(fn: (classification: PII) => string): string
     {
         let result: string = '';
@@ -342,7 +364,9 @@ export class Result implements IResult
 
         return result;
     }
-
+    /**
+     * Renders the original text with placeholders such as {first_name} instead of the PII which was classified.
+     */
     public render_placeholders(): string
     {
         return this.render_replaced((pii: PII): string =>
@@ -350,7 +374,9 @@ export class Result implements IResult
             return `{${pii.type}}`;
         });
     }
-
+    /**
+     * Renders the original text without the PII which was classified.
+     */
     public render_removed(): string
     {
         return this.render_replaced((pii: PII): string =>
@@ -358,58 +384,4 @@ export class Result implements IResult
             return '';
         });
     }
-
-    public print_debug()
-    {
-        if(this.tokens.length == 0)
-            return;
-            
-        let token = this.tokens[0][1];
-        while(token != null)
-        {
-            console.log(`[${token.index}] Token: \"${token.symbol}\", Stem: \"${token.stem}\"`);
-            console.log(`-- POS[${token.tag.tag_base}], ${JSON.stringify(token.tag.tag_rest)}`);
-            console.log(`-- WellFormedNess[${token.tag.group.well_formed}]`);
-            if (token.confidence_dictionary)
-                console.log(
-                    `- dict score: ${token.confidence_dictionary.score}, ` +
-                    `root: [${token.confidence_dictionary.group_root_start.index}, ` + 
-                    `${token.confidence_dictionary.group_root_end.index}]`
-                );
-            for (let assoc_arr of token.confidences_associative.values())
-            {
-                for (let assoc of assoc_arr)
-                {
-                    console.log(
-                        `  assoc: ${assoc.classifier.name}, ` +
-                        `score: ${assoc.score}, root: [${assoc.group_root_start.index}, ` + 
-                        `${assoc.group_root_end.index}]`
-                    );
-                }
-            }
-            for (let conf of token.confidences_classification[token.confidences_classification.length-1].all())
-            {
-                console.log(
-                    `   ++conf: ${conf.classifier.name}, score: ${conf.score}, severity: ${conf.severity}, ` + 
-                    `root: [${conf.group_root_start.index}, ${conf.group_root_end.index}]`
-                );
-            }
-            token = token.next;
-        }
-
-        console.log(`Overall severity: ${this.severity}`);
-
-
-        for (let pii of this.pii)
-            console.log(`PII[${pii.type}]: ${pii.value}`);
-    }
 };
-
-export function make_filter(country_code: string): PIIFilter
-{
-    let language: ILanguage = Languages.by_country_code(country_code);
-    if (language == null)
-        return null;
-
-    return new PIIFilter(language);
-}

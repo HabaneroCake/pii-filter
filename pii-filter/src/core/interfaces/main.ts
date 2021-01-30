@@ -1,6 +1,4 @@
 import { ILanguage } from './language';
-import { IClassificationScore, IClassifier } from './parsing/classification';
-import { IToken } from './parsing/tokens';
 
 export interface IClassificationResult
 {
@@ -16,32 +14,27 @@ export interface IResult
 {
     found_pii:      boolean;
     severity:       number;
-    pii:            Array<IClassificationResult>;
+    pii:            ReadonlyArray<IClassificationResult>;
 
     render_replaced(fn: (classification: IClassificationResult) => string): string;
     render_placeholders(): string;
     render_removed(): string;
-    print_debug();
 };
 
 export interface IMain
 {
     language_model: ILanguage;
     classify(
-        text: string,
-        confidence_threshold?: number,
-        severity_threshold?: number
+        text: string
     ): IResult;
     sanitize_str(
         text: string,
-        placeholders: boolean,
-        confidence_threshold?: number,
-        severity_threshold?: number
+        placeholders: boolean
     ): string;
     sanitize_object(
         obj: object,
         placeholders: boolean,
-        confidence_threshold?: number,
-        severity_threshold?: number
+        recursive: boolean,
+        skip?: Array<object>
     ): object;
 };

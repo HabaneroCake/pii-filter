@@ -1,9 +1,8 @@
-import { PIIFilter } from '../../../src/pii-filter';
-import { NL } from '../../../src/lang/nl/nl';
+import { PIIFilter, PII, Result, Languages } from '../../../src/pii-filter';
 import { expect } from 'chai';
-import { get_pii } from './utils';
+import { get_pii, print_debug } from './utils';
 
-let pii_filter = new PIIFilter(new NL());
+let pii_filter = new PIIFilter(new Languages.NL());
 
 describe('PII_Filter_NL', ()=>{
     const first_name:       string = 'Katherina';
@@ -16,22 +15,23 @@ describe('PII_Filter_NL', ()=>{
     const phone_number:     string = '06 123456 78';
     const date:             string = '01 - 01 - 1970';
     
-    let test_pii = (result: PIIFilter.Result, text: string, name: string, score: number, severity: number) => {
-        let pii_all = result.pii();
+    let test_pii = (result: Result, text: string, name: string, score: number, severity: number) => {
+
+        let pii_all = result.pii;
         let pii_match = get_pii(pii_all, text);
         let pii_match_ok: boolean = pii_match && pii_all.length == 1;
         if (!pii_match_ok)
-            result.print_debug();
+            print_debug(result);
         expect(pii_match_ok).equals(true);
-        if (pii_match.classification.classifier.name != name)
-            result.print_debug();
-        expect(pii_match.classification.classifier.name).equals(name);
-        if (pii_match.classification.score < score)
-            result.print_debug();
-        expect(pii_match.classification.score).gte(score);
-        if (pii_match.classification.severity < severity)
-            result.print_debug();
-        expect(pii_match.classification.severity).gte(severity);
+        if (pii_match.type != name)
+            print_debug(result);
+        expect(pii_match.type).equals(name);
+        if (pii_match.confidence < score)
+            print_debug(result);
+        expect(pii_match.confidence).gte(score);
+        if (pii_match.severity < severity)
+            print_debug(result);
+        expect(pii_match.severity).gte(severity);
     };
 
     it('should_classify_first_name', ()=>{
@@ -99,7 +99,7 @@ describe('PII_Filter_NL', ()=>{
     });
     it('should_ignore_not_email_address', ()=>{
         let result = pii_filter.classify(`Mijn email adres is niet @.`);
-        let pii_all = result.pii();
+        let pii_all = result.pii;
         let pii_match = get_pii(pii_all, '@');
         expect(!pii_match && pii_all.length == 0).equals(true);
     });
@@ -131,7 +131,7 @@ describe('PII_Filter_NL', ()=>{
 
     it('should_classify_multiple', ()=>{
         let result = pii_filter.classify(text_multiple_pii);
-        let pii_all = result.pii();
+        let pii_all = result.pii;
         let pii_match_first_name = get_pii(pii_all, first_name);
         let pii_match_family_name = get_pii(pii_all, family_name);
         let pii_match_pet_name = get_pii(pii_all, pet_name);
@@ -140,9 +140,9 @@ describe('PII_Filter_NL', ()=>{
             pii_match_family_name != null &&
             pii_match_pet_name != null
         ).equals(true);
-        expect(pii_match_first_name.classification.classifier.name).equals('first_name');
-        expect(pii_match_family_name.classification.classifier.name).equals('family_name');
-        expect(pii_match_pet_name.classification.classifier.name).equals('pet_name');
+        expect(pii_match_first_name.type).equals('first_name');
+        expect(pii_match_family_name.type).equals('family_name');
+        expect(pii_match_pet_name.type).equals('pet_name');
     });
 
     it('should_replace_with_placeholders', ()=>{
@@ -159,41 +159,41 @@ describe('PII_Filter_NL', ()=>{
         // TODO: create unit tests as well as testing in integration
         // baseline
         let result_1 = pii_filter.classify(`Hier, ${first_name}.`);
-        let pii_all_1 = result_1.pii();
+        let pii_all_1 = result_1.pii;
         let pii_match_1 = get_pii(pii_all_1, first_name);
         expect(pii_match_1 && pii_all_1.length == 1).equals(true);
-        expect(pii_match_1.classification.classifier.name).equals('first_name');
-        expect(pii_match_1.classification.score).gte(0.25);
-        expect(pii_match_1.classification.severity).gte(0.05);
+        expect(pii_match_1.type).equals('first_name');
+        expect(pii_match_1.confidence).gte(0.25);
+        expect(pii_match_1.severity).gte(0.05);
 
         let check_assoc = (
-            result: PIIFilter.Result,
+            result: Result,
             names: Array<string>,
             comp_score: number,
             not: boolean = false
         ): void =>
         {
-            let all: Array<PIIFilter.PII> = result.pii();
+            let all: ReadonlyArray<PII> = result.pii;
             if (all.length != names.length)
-                result.print_debug();
+                print_debug(result);
                 
             expect(all.length).equals(names.length);
             let sum_score: number = 0;
             for (let name of names)
             {
-                let match: PIIFilter.PII = get_pii(all, name);
+                let match: PII = get_pii(all, name);
                 expect(match != null).equals(true);
                 
-                if (match.classification.classifier.name != 'first_name')
-                    result.print_debug();
+                if (match.type != 'first_name')
+                    print_debug(result);
 
-                expect(match.classification.classifier.name).equals('first_name');
-                sum_score += match.classification.score;
+                expect(match.type).equals('first_name');
+                sum_score += match.confidence;
             }
 
             if ((!not && sum_score <= comp_score) ||
                     (not && sum_score > comp_score))
-                result.print_debug();
+                print_debug(result);
 
             if (not)
                 expect(sum_score).lte(comp_score);
@@ -204,27 +204,27 @@ describe('PII_Filter_NL', ()=>{
         check_assoc(
             pii_filter.classify(`Mijn voornaam is ${first_name}.`),
             [first_name],
-            pii_match_1.classification.score
+            pii_match_1.confidence
         );
         // right
         check_assoc(
             pii_filter.classify(`Ja dat klopt, ${first_name} is mijn voornaam.`),
             [first_name],
-            pii_match_1.classification.score
+            pii_match_1.confidence
         );
         // wildcard
         check_assoc(
             pii_filter.classify(`De voornaam van mijn tante is ${first_name}.`),
             [first_name],
-            pii_match_1.classification.score
+            pii_match_1.confidence
         );
         // Whole phrase
         let w_phrase_res = pii_filter.classify(`Kaarten, ${first_name}, ${first_name2} en ${first_name3}.`);
         let w_phrase_score: number = 0;
-        for (let pii of w_phrase_res.pii())
+        for (let pii of w_phrase_res.pii)
         {
-            expect(pii.classification.classifier.name).equals('first_name');
-            w_phrase_score += pii.classification.score;
+            expect(pii.type).equals('first_name');
+            w_phrase_score += pii.confidence;
         }
         check_assoc(
             pii_filter.classify(`Onze voornamen zijn ${first_name}, ${first_name2} en ${first_name3}.`),
@@ -239,13 +239,13 @@ describe('PII_Filter_NL', ()=>{
     });
 
     it('should_associative_scoring_pii_stub', ()=>{
-        let score_1 = pii_filter.classify(`Hier, ${first_name}.`).pii()[0].classification.score;
-        let score_2 = pii_filter.classify(`Hier, ${family_name}.`).pii()[0].classification.score;
-        let res = pii_filter.classify(`Hier, ${first_name} ${family_name}.`).pii();
-        expect(res[0].classification.classifier.name).equals('first_name');
-        expect(res[1].classification.classifier.name).equals('family_name');
-        let score_3 = res[0].classification.score;
-        let score_4 = res[1].classification.score;
+        let score_1 = pii_filter.classify(`Hier, ${first_name}.`).pii[0].confidence;
+        let score_2 = pii_filter.classify(`Hier, ${family_name}.`).pii[0].confidence;
+        let res = pii_filter.classify(`Hier, ${first_name} ${family_name}.`).pii;
+        expect(res[0].type).equals('first_name');
+        expect(res[1].type).equals('family_name');
+        let score_3 = res[0].confidence;
+        let score_4 = res[1].confidence;
         
         expect(score_1 != null && score_2 != null && score_3 != null && score_4 != null).equals(true);
         expect(score_3 + score_4).gt(score_1 + score_2);
