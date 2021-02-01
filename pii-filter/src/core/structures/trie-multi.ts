@@ -1,4 +1,12 @@
 /**
+ * Defines parsing utilities for implementing a language model.
+ * 
+ * @remark This is not part of the public API and should not be depended upon, except when building a language model.
+ * 
+ * @packageDocumentation
+ */
+
+/**
  * Simple trie structure (with array storage).
  * @private
  */
