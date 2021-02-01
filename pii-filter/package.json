@@ -1,6 +1,6 @@
 {
   "name": "pii-filter",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "PII Filter",
   "main": "dist/pii-filter.js",
   "types": "dist/pii-filter.d.ts",
