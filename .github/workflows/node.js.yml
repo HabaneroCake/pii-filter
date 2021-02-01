@@ -24,7 +24,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: cd pii-filter
-    - run: npm install
-    - run: npm run build --if-present
-    - run: npm run test
+    - name: install
+      working-directory: './pii-filter'
+      run: npm install
+    - name: build_and_test
+      working-directory: './pii-filter'
+      run: npm run build --if-present && npm run test
