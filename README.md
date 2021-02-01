@@ -1,5 +1,5 @@
 # ![PII](https://raw.githubusercontent.com/prolody/piif_web_ext/master/assets/logos/a/PIIlogo.png) Filter
-![Node.js CI](https://github.com/prolody/piif/workflows/Node.js%20CI/badge.svg)
+![CI](https://github.com/prolody/piif/workflows/CI/badge.svg)
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
