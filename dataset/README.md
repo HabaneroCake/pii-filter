@@ -8,7 +8,7 @@ This folder contains raw datasets and processing scripts for each language/PII f
 The final datasets are processed and aggregated by [generate_dataset.py](generate_dataset.py). The result is stored in 
 `aggregate/{language-code}/ds_full.json` and exported to the npm package language models: 
 
-- Dutch [aggregate](./aggregate/nl/ds_full.json) and [npm language data](../pii-filter/src/lang/nl/datasets)
+- Dutch [aggregate](./aggregate/nl/ds_full.json) and [npm language data](../pii-filter/src/lang/nl/dataset)
 
 ## Features
 Features are implemented as Python modules, this allows features to depend on other features (e.g. when filtering out
