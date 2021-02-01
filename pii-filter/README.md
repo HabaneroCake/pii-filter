@@ -2,10 +2,6 @@
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
-## Installing
-You can add the pii-filter node-package to your project by running:
-> `npm install --save-dev pii-filter`
-
 ## Scenarios
 We hope that this software can be useful in at least some of the following scenarios:
 - privacy, security, fraud-detection, and data-auditing
@@ -24,6 +20,12 @@ We hope that this software can be useful in at least some of the following scena
     - Phone Numbers
     - Email Addresses
     - Dates
+
+## Installing
+You can add the pii-filter npm package to your project by running:
+> `npm install --save-dev pii-filter`
+
+[The docs can be read here](https://prolody.github.io/piif/modules/pii_filter.html).
 
 ## Examples
 Sanitizing strings:
