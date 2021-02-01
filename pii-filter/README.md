@@ -1,11 +1,11 @@
-# ![PII](https://raw.githubusercontent.com/prolody/piif_web_ext/master/assets/logos/a/PIIlogo.png) Filter Node Module
-![CI](https://github.com/prolody/piif/workflows/CI/badge.svg)
+# ![PII](https://raw.githubusercontent.com/prolody/pii-filter-web-ext/master/assets/logos/a/PIIlogo.png) Filter Node Module
+![CI](https://github.com/prolody/pii-filter/workflows/CI/badge.svg)
 [![npm version](https://badge.fury.io/js/pii-filter.svg)](https://badge.fury.io/js/pii-filter)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
-![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png)
+![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/pii-filter/master/res/highlight_placeholders.png)
 
 ## Scenarios
 We hope that this software can be useful in some of the following scenarios:
@@ -31,7 +31,7 @@ You can add the pii-filter npm package to your project by running:
 > `npm install --save-dev pii-filter`
 
 ## Documentation
-[The docs can be read here](https://prolody.github.io/piif/modules/pii_filter.html).
+[The docs can be read here](https://prolody.github.io/pii-filter/modules/pii_filter.html).
 
 ## Examples
 Sanitizing strings:
@@ -107,4 +107,4 @@ for (let pii of results.pii)
 ```
 
 ## Main repository
-For more information and access to used the datasets check out the [main repository](https://github.com/prolody/piif).
+For more information and access to used the datasets check out the [main repository](https://github.com/prolody/pii-filter).
