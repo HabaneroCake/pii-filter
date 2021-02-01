@@ -1,5 +1,7 @@
 # ![PII](https://raw.githubusercontent.com/prolody/piif_web_ext/master/assets/logos/a/PIIlogo.png) Filter
 ![CI](https://github.com/prolody/piif/workflows/CI/badge.svg)
+[![npm version](https://badge.fury.io/js/pii-filter.svg)](https://badge.fury.io/js/pii-filter)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
@@ -12,7 +14,7 @@ A showcase example of this library is the pii-filter [web-extension](https://git
 browsers.
 
 ## Scenarios
-We hope that this software can be useful in at least some of the following scenarios:
+We hope that this software can be useful in some of the following scenarios:
 - privacy, security, fraud-detection, and data-auditing
 - anonymizing data for research, marketing and machine learning
 - accessibility and online guidance

@@ -1,7 +1,21 @@
 {
   "name": "pii-filter",
-  "version": "1.0.19",
+  "version": "1.0.21",
   "description": "PII Filter",
+  "keywords": [
+    "pii",
+    "filter",
+    "personally",
+    "identifiable",
+    "information",
+    "anonymizing",
+    "tagging",
+    "names",
+    "dates",
+    "email",
+    "phone",
+    "Dutch"
+  ],
   "main": "dist/pii-filter.js",
   "types": "dist/pii-filter.d.ts",
   "dependencies": {
