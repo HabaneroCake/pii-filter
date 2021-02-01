@@ -1,14 +1,16 @@
-# <a name="title">Dataset</a>
-This folder contains raw datasets and processing scripts for each PII feature. Datasets are either:
+# Dataset
+This folder contains raw datasets and processing scripts for each language/PII feature. Datasets are either:
 
 - scraped from an open web interface
 - acquired through an API request / database copy
-- found in various open source repositories
+- sourced from various open source repositories with compatible licenses
 
-The final dataset is processed and aggregated by [generate_dataset.py](generate_dataset.py). The result is stored in
-[build/dataset.json](build/dataset.json)
+The final datasets are processed and aggregated by [generate_dataset.py](generate_dataset.py). The result is stored in 
+`aggregate/{language-code}/ds_full.json` and exported to the npm package language models: 
 
-## <a name="features">Features</a>
+- Dutch [aggregate](./aggregate/nl/ds_full.json) and [npm language data](../pii-filter/src/lang/nl/datasets)
+
+## Features
 Features are implemented as Python modules, this allows features to depend on other features (e.g. when filtering out
 brand-names from medicine names), this can be useful when preprocessing of one or more dataset(s) is necessary, but only
 storage of the original dataset is desirable. Each module has a `NAME` variable which will be used as the feature name,
@@ -16,19 +18,20 @@ as well as a `get_wordlists()` function, which returns the word lists for the fe
 The `main` word list contains text, which if matched, could indicate the presence of the feature. Other word lists can
 be added to provide more certainty or contextual hints which might indicate presence or absence of the feature.
 
-A dictionary is also provided.
 
-## <a name="structure">Structure</a>
+## Structure
 
-### <a name="structure_folder">Folder</a>
-- `generate_dataset.py` - aggregates all features / datasets and creates the main `dataset.json` file
-- feature_sets - folder containing all "feature modules"
-    - `__init__.py` - topmost module, contains all "feature modules" in a list
-    - `feature_name/` - folder containing feature module and raw datasets
-        - `__init__.py` - "feature module", containing feature dataset loading and preprocessing
-        - `raw/` - raw datasets (such as a scraped database / scripts for scraping, or selected files from a repository)
+### Folder
+- `generate_dataset.py` - aggregates all features / datasets and exports the files to the correct locations
+- `{language-code}` - sub folder for a language
+    - feature_sets - folder containing all "feature modules"
+        - `__init__.py` - topmost module, contains all "feature modules" in a list
+        - `feature_name/` - folder containing feature module and raw datasets
+            - `__init__.py` - "feature module", containing feature dataset loading and preprocessing
+            - `raw/` - raw datasets (such as a database / scripts for aggregation or hand-made lists)
+    - feature_templates - contains benchmark and mapping data
 
-### <a name="structure_dataset">`build/dataset.json format`</a>
+### `aggregate/{language-code}/ds_full.json format`
 ```
 {
     "name": "pii_dataset_nl",
@@ -49,7 +52,7 @@ A dictionary is also provided.
 }
 ```
 
-## <a name="datasets_raw">Included datasets, repositories, and their Licenses:</a>
+## Included datasets, repositories, and their Licenses:
 The names, URLs, and licenses of the various open source repositories contained in this folder are listed below. The
 selected contents of these repositories have been included as a copy, instead of as submodules. This removes the direct 
 dependency on the remote, which might change or be removed. Some datasets contained in these repositories have been 

@@ -2,6 +2,8 @@
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
+![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png.png)
+
 ## Scenarios
 We hope that this software can be useful in at least some of the following scenarios:
 - privacy, security, fraud-detection, and data-auditing
@@ -25,6 +27,7 @@ We hope that this software can be useful in at least some of the following scena
 You can add the pii-filter npm package to your project by running:
 > `npm install --save-dev pii-filter`
 
+## Documentation
 [The docs can be read here](https://prolody.github.io/piif/modules/pii_filter.html).
 
 ## Examples
