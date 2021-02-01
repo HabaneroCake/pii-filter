@@ -1,0 +1,351 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>CoreClassification | pii-filter</title>
+	<meta name="description" content="Documentation for pii-filter">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">pii-filter</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">pii-filter</a>
+				</li>
+				<li>
+					<a href="../modules/core_parsing.html">core/parsing</a>
+				</li>
+				<li>
+					<a href="core_parsing.coreclassification.html">CoreClassification</a>
+				</li>
+			</ul>
+			<h1>Class CoreClassification</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Raw classification of a token group.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">CoreClassification</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<a href="core_parsing.coreclassificationscore.html" class="tsd-signature-type" data-tsd-kind="Class">CoreClassificationScore</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implements</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../interfaces/core_interfaces.classification.html" class="tsd-signature-type" data-tsd-kind="Interface">Classification</a></li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="core_parsing.coreclassification.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="core_parsing.coreclassification.html#classifier" class="tsd-kind-icon">classifier</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="core_parsing.coreclassification.html#group_root_end" class="tsd-kind-icon">group_<wbr>root_<wbr>end</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="core_parsing.coreclassification.html#group_root_start" class="tsd-kind-icon">group_<wbr>root_<wbr>start</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="core_parsing.coreclassification.html#valid" class="tsd-kind-icon">valid</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Core<wbr>Classification<span class="tsd-signature-symbol">(</span>classifier<span class="tsd-signature-symbol">: </span><a href="../interfaces/core_interfaces.classifier.html" class="tsd-signature-type" data-tsd-kind="Interface">Classifier</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="core_parsing.coreclassification.html" class="tsd-signature-type" data-tsd-kind="Class">CoreClassification</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in core/parsing/classification.ts:44</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new CoreClassification.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>classifier: <a href="../interfaces/core_interfaces.classifier.html" class="tsd-signature-type" data-tsd-kind="Interface">Classifier</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the classifier which was used</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="core_parsing.coreclassification.html" class="tsd-signature-type" data-tsd-kind="Class">CoreClassification</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="classifier" class="tsd-anchor"></a>
+					<h3>classifier</h3>
+					<div class="tsd-signature tsd-kind-icon">classifier<span class="tsd-signature-symbol">:</span> <a href="../interfaces/core_interfaces.classifier.html" class="tsd-signature-type" data-tsd-kind="Interface">Classifier</a></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/core_interfaces.classification.html">Classification</a>.<a href="../interfaces/core_interfaces.classification.html#classifier">classifier</a></p>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="group_root_end" class="tsd-anchor"></a>
+					<h3>group_<wbr>root_<wbr>end</h3>
+					<div class="tsd-signature tsd-kind-icon">group_<wbr>root_<wbr>end<span class="tsd-signature-symbol">:</span> <a href="../interfaces/core_interfaces.token.html" class="tsd-signature-type" data-tsd-kind="Interface">Token</a><span class="tsd-signature-symbol"> = null</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/core_interfaces.classification.html">Classification</a>.<a href="../interfaces/core_interfaces.classification.html#group_root_end">group_root_end</a></p>
+						<ul>
+							<li>Defined in core/parsing/classification.ts:44</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="group_root_start" class="tsd-anchor"></a>
+					<h3>group_<wbr>root_<wbr>start</h3>
+					<div class="tsd-signature tsd-kind-icon">group_<wbr>root_<wbr>start<span class="tsd-signature-symbol">:</span> <a href="../interfaces/core_interfaces.token.html" class="tsd-signature-type" data-tsd-kind="Interface">Token</a><span class="tsd-signature-symbol"> = null</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/core_interfaces.classification.html">Classification</a>.<a href="../interfaces/core_interfaces.classification.html#group_root_start">group_root_start</a></p>
+						<ul>
+							<li>Defined in core/parsing/classification.ts:43</li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="valid" class="tsd-anchor"></a>
+					<h3>valid</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">valid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Implementation of <a href="../interfaces/core_interfaces.classification.html">Classification</a>.<a href="../interfaces/core_interfaces.classification.html#valid">valid</a></p>
+								<ul>
+									<li>Defined in core/parsing/classification.ts:53</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Whether this classification is valid (classifier is non null and tokens are valid).</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/core_interfaces.html">core/interfaces</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/core_parsing.html">core/parsing</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/core_structures_trie.html">core/structures/trie</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/pii_filter.html">pii-<wbr>filter</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreassociationscore.html" class="tsd-kind-icon">Core<wbr>Association<wbr>Score</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreassociations.html" class="tsd-kind-icon">Core<wbr>Associations</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreassociativeclassifier.html" class="tsd-kind-icon">Core<wbr>Associative<wbr>Classifier</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreassociativescore.html" class="tsd-kind-icon">Core<wbr>Associative<wbr>Score</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreclassification.html" class="tsd-kind-icon">Core<wbr>Classification</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="core_parsing.coreclassification.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="core_parsing.coreclassification.html#classifier" class="tsd-kind-icon">classifier</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="core_parsing.coreclassification.html#group_root_end" class="tsd-kind-icon">group_<wbr>root_<wbr>end</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="core_parsing.coreclassification.html#group_root_start" class="tsd-kind-icon">group_<wbr>root_<wbr>start</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="core_parsing.coreclassification.html#valid" class="tsd-kind-icon">valid</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreclassificationscore.html" class="tsd-kind-icon">Core<wbr>Classification<wbr>Score</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreclassifier.html" class="tsd-kind-icon">Core<wbr>Classifier</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coreconfidences.html" class="tsd-kind-icon">Core<wbr>Confidences</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coredictionary.html" class="tsd-kind-icon">Core<wbr>Dictionary</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coremultinameclassifier-1.html" class="tsd-kind-icon">Core<wbr>Multi<wbr>Name<wbr>Classifier</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.corenameclassifier.html" class="tsd-kind-icon">Core<wbr>Name<wbr>Classifier</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coretextclassifier.html" class="tsd-kind-icon">Core<wbr>Text<wbr>Classifier</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.corethresholds-1.html" class="tsd-kind-icon">Core<wbr>Thresholds</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coretoken.html" class="tsd-kind-icon">Core<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-is-private">
+						<a href="core_parsing.coretokenizer.html" class="tsd-kind-icon">Core<wbr>Tokenizer</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="../modules/core_parsing.html#calc_assoc_severity_sum" class="tsd-kind-icon">calc_<wbr>assoc_<wbr>severity_<wbr>sum</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="../modules/core_parsing.html#classification_group_string" class="tsd-kind-icon">classification_<wbr>group_<wbr>string</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="../modules/core_parsing.html#collect_tokens-1" class="tsd-kind-icon">collect_<wbr>tokens</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="../modules/core_parsing.html#count_str_tokens" class="tsd-kind-icon">count_<wbr>str_<wbr>tokens</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter tsd-is-private">
+						<a href="../modules/core_parsing.html#tokens_trie_lookup" class="tsd-kind-icon">tokens_<wbr>trie_<wbr>lookup</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

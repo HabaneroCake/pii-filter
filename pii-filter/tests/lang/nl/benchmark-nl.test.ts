@@ -1,10 +1,10 @@
-import { Languages, PIIFilter, PII } from '../../../src/pii-filter';
+import * as pf from '../../../src/pii-filter';
 import { expect } from 'chai';
 import { get_pii, print_debug } from './utils';
 
 import benchmark from './benchmark.json';
 
-let pii_filter = new PIIFilter(new Languages.NL());
+const pii_filter = pf.make_pii_classifier(pf.languages.nl.make_lm());
 
 describe('PII_Filter_NL_Benchmark', ()=>{
     let severity_map_err_s: number =    0;
@@ -18,7 +18,7 @@ describe('PII_Filter_NL_Benchmark', ()=>{
     for (let item of benchmark as Array<{phrase: string, pii: Array<[string, string]>, severity: number}>)
     {
         let result = pii_filter.classify(item.phrase);
-        let result_pii = result.pii as Array<PII>; // in order to splice PII out for now
+        let result_pii = result.pii as Array<pf.PIIClassification>; // in order to splice PII out for now
 
         if (debug)
         {

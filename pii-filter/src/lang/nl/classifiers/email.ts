@@ -1,23 +1,37 @@
-import { Parsing } from '../../../core/parsing';
+import * as Parsing from '../../../core/parsing';
 import ds_email_address from '../dataset/ds_email_address.json';
 
+/**
+ * Validate an email-address.
+ * @private
+ * @param str 
+ */
 function validate_email(str: string)
 {
     return /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(str);
 }
 
-export class EmailAddress extends Parsing.SimpleAssociativeClassifier
+/**
+ * A simple Dutch e-mail address classifier.
+ * @private
+ */
+export class EmailAddress extends Parsing.CoreAssociativeClassifier
 {
+    /**
+     * Creates a new Dutch e-mail address classifier.
+     */
     constructor() { super(ds_email_address); }
-    public classify_confidence(token: Parsing.Token): 
-        [Array<Parsing.Token>, Parsing.ClassificationScore]
+    
+    /** @inheritdoc */
+    public classify_confidence(token: Parsing.CoreToken): 
+        [Array<Parsing.CoreToken>, Parsing.CoreClassificationScore]
     {
-        const is_break_symbol = (token: Parsing.Token) =>
+        const is_break_symbol = (token: Parsing.CoreToken) =>
         {
             return this.language_model.punctuation_map.has(token.symbol);
         };
 
-        let final_matches: Array<Parsing.Token> = new Array<Parsing.Token>();
+        let final_matches: Array<Parsing.CoreToken> = new Array<Parsing.CoreToken>();
         let full_str: string = '';
         let at_index = token.symbol.indexOf('@');
         if (at_index > -1)
@@ -29,7 +43,7 @@ export class EmailAddress extends Parsing.SimpleAssociativeClassifier
                 full_str = left_it.symbol + full_str;
             }
             
-            let t_it: Parsing.Token = left_it;
+            let t_it: Parsing.CoreToken = left_it;
             while (t_it.index < token.index)
             {
                 final_matches.push(t_it);
@@ -80,7 +94,7 @@ export class EmailAddress extends Parsing.SimpleAssociativeClassifier
                 final_matches.length == 0 ||
                 (before_at.length + after_at.length) == 0)
             {
-                return [[], new Parsing.ClassificationScore(
+                return [[], new Parsing.CoreClassificationScore(
                     0.0, 0.0, this
                 )];
             }
@@ -110,14 +124,16 @@ export class EmailAddress extends Parsing.SimpleAssociativeClassifier
             assoc_sum +=    assoc_sum_;
             severity_sum += severity_sum_;
 
-            return [final_matches, new Parsing.ClassificationScore(
+            return [final_matches, new Parsing.CoreClassificationScore(
                 Math.min(score + assoc_sum, 1.0), Math.min(severity_sum, 1.0), this
             )];
         }
         else
-            return [final_matches, new Parsing.ClassificationScore(
+            return [final_matches, new Parsing.CoreClassificationScore(
                 0.0, 0.0, this
             )];
     }
+
+    /** @inheritdoc */
     public name: string = 'email_address';
 };

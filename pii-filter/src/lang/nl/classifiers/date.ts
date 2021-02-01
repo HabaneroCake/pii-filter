@@ -1,20 +1,28 @@
+import * as Parsing from '../../../core/parsing';
 import { Trie } from '../../../core/structures/trie';
-import { Parsing } from '../../../core/parsing';
 import ds_date from '../dataset/ds_date.json';
 
+// note: could also generate these regexes more cleanly
+/**
+ * Validate full match for a date.
+ * @private
+ * @param text the text to match
+ */
 function validate_full(text: string)
 {
-    // note: could also generate these more cleanly
     return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // dmy
            /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s))((19[0-9][0-9])|(20[0-9][0-9])))$/.test(text) || // mdy
            /^((19[0-9][0-9])|(20[0-9][0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
            /^((19[0-9][0-9])|(20[0-9][0-9]))((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sop(\sde)?\s))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\s|(\s?(\-|\/|\\|\,)\s?))|(\svan\s))((1[0-2])|(0?[1-9]))$/.test(text);
 }
 
-
-function validate_date(text: string)
+/**
+ * Validate partial match for a date.
+ * @private
+ * @param text the text to match
+ */
+function validate_partial(text: string)
 {
-    // note: could also generate these more cleanly
     return /^(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?((\svan\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))(((\s|(\s?(\-|\/|\\|\,)\s?))|(\,?\sin\s))((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9])))?$/.test(text) || // dmy
            /^((1[0-2])|(0?[1-9]))(((\,?\sop)?\sde\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?\,?(((\s|(\s?(\-|\/|\\|\,)\s?))|(\sin\s))((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9])))?$/.test(text) || // mdy
            /^((19[0-9][0-9])|(20[0-9][0-9])|([0-9][0-9]))((\,?\sin\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))((1[0-2])|(0?[1-9]))((\,?\sop(\sde)?\s)|(\s|(\s?(\-|\/|\\|\,)\s?)))(([1-2][0-9])|(3[0-1])|(0?[1-9]))e?$/.test(text) || // ymd
@@ -22,23 +30,29 @@ function validate_date(text: string)
            /^((19[0-9][0-9])|(20[0-9][0-9]))$/.test(text); // year only
 }
 
-// make sure longer token string (phone number with dashes or spaces) is chosen instead of smaller date format
-
-// TODO: clean up and calculate better confidences based on patterns
-export class Date extends Parsing.SimpleAssociativeClassifier
+/**
+ * A simple Dutch date classifier.
+ * @private
+ */
+export class Date extends Parsing.CoreAssociativeClassifier
 {
+    /** A word-list for matching ordinals, etc. */
     protected number_match_trie:    Trie<string> = new Trie();
 
+    /**
+     * Creates a new Dutch Date Classifier.
+     */
     constructor() 
     {
         super(ds_date);
         for (let [word, value] of this.dataset['number'])
             this.number_match_trie.insert(word, value);
     }
-    public classify_confidence(token: Parsing.Token): 
-        [Array<Parsing.Token>, Parsing.ClassificationScore]
+    /** @inheritdoc */
+    public classify_confidence(token: Parsing.CoreToken): 
+        [Array<Parsing.CoreToken>, Parsing.CoreClassificationScore]
     {
-        let parse_token = (token: Parsing.Token): string =>
+        let parse_token = (token: Parsing.CoreToken): string =>
         {
             let [, value] =  Parsing.tokens_trie_lookup<string>(token, this.number_match_trie);
             if (value != null)
@@ -62,11 +76,11 @@ export class Date extends Parsing.SimpleAssociativeClassifier
             let total_num_length:       number =                0;
 
 
-            let last_seen_number:       Parsing.Token =         null;
+            let last_seen_number:       Parsing.CoreToken =         null;
             let [matched, [start_token, end_token, matches]] = Parsing.collect_tokens(
                 token,
-                (token: Parsing.Token,
-                    deferred_matches: Array<Parsing.Token>
+                (token: Parsing.CoreToken,
+                    deferred_matches: Array<Parsing.CoreToken>
                 ): Parsing.collect_tokens.Control =>
                 {
                     let token_symbol:       string =    parse_token(token);
@@ -91,7 +105,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                                 last_valid_date_value = date_value.slice();
                                 return Parsing.collect_tokens.Control.MATCH;
                             }
-                            if (validate_date(date_value))
+                            if (validate_partial(date_value))
                             {
                                 last_valid_date_value = date_value.slice();
                                 return Parsing.collect_tokens.Control.MATCH_AND_CONTINUE;
@@ -119,7 +133,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
             
             if (!matched || (last_seen_number != end_token && !is_year))
             {
-                return [[], new Parsing.ClassificationScore(
+                return [[], new Parsing.CoreClassificationScore(
                     0.0, 0.0, this
                 )];
             }
@@ -140,7 +154,7 @@ export class Date extends Parsing.SimpleAssociativeClassifier
                 assoc_sum +=    assoc_sum_;
                 severity_sum += severity_sum_;
 
-                return [matches, new Parsing.ClassificationScore(
+                return [matches, new Parsing.CoreClassificationScore(
                     Math.min(score + assoc_sum, 1.0),
                     Math.min(severity_sum, 1.0),
                     this
@@ -149,10 +163,12 @@ export class Date extends Parsing.SimpleAssociativeClassifier
         }
         else
         {
-            return [[], new Parsing.ClassificationScore(
+            return [[], new Parsing.CoreClassificationScore(
                 0.0, 0.0, this
             )];
         }
     }
+    
+    /** @inheritdoc */
     public name: string = 'date';
 };

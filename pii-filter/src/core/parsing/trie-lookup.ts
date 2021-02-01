@@ -1,22 +1,23 @@
-import { IToken } from '../interfaces/parsing/tokens';
+import { Token } from '../interfaces/parsing/tokens';
 import { Trie } from '../structures/trie';
 
 /**
  * Attempts to (full-)match as many tokens to a trie as possible
+ * @private
  * @param token a token (linked to its neighbors), with a string symbol
  * @param trie a trie to look the token symbol up in
  */
-export function tokens_trie_lookup<T>(token: IToken, trie: Trie<T>, use_stem: boolean = false): [Array<IToken>, T]
+export function tokens_trie_lookup<T>(token: Token, trie: Trie<T>, use_stem: boolean = false): [Array<Token>, T]
 {
     const wildcard:     string =                '*';
-    let token_iter:     IToken =                token;
+    let token_iter:     Token =                token;
     let matched_node:   Trie.Branch<T> =        null;
-    let matches:        Array<IToken> =         new Array<IToken>();
+    let matches:        Array<Token> =         new Array<Token>();
     let last_symbol:    string =                null;
     let symbol:         string =                (use_stem ? token_iter.stem : token_iter.symbol).toLowerCase();
-    let end_token:      IToken =                null;
+    let end_token:      Token =                null;
     let end_value:      T =                     null;
-    let final_matches:  Array<IToken> =         new Array<IToken>();
+    let final_matches:  Array<Token> =         new Array<Token>();
 
     if (token.symbol == wildcard)
         return [final_matches, end_value];

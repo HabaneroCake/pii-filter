@@ -50,7 +50,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project pii-filter</h1>
+			<h1>pii-filter</h1>
 		</div>
 	</div>
 </header>
@@ -61,38 +61,140 @@
 				<a href="#-filter-node-module" id="-filter-node-module" style="color: inherit; text-decoration: none;">
 					<h1><img src="https://raw.githubusercontent.com/prolody/piif_web_ext/master/assets/logos/a/PIIlogo.png" alt="PII"> Filter Node Module</h1>
 				</a>
-				<p>The project aims to build a personally identifiable information (PII) filter for all users of the internet.
-				For example usage of this modules see <a href="https://github.com/prolody/piif_web_ext">this web extension repository</a>.</p>
-				<a href="#languages" id="languages" style="color: inherit; text-decoration: none;">
-					<h3>Languages:</h3>
+				<p>A library for detecting, parsing, and removing personally identifiable information from strings and objects.</p>
+				<a href="#installing" id="installing" style="color: inherit; text-decoration: none;">
+					<h2>Installing</h2>
 				</a>
+				<p>You can add the pii-filter node-package to your project by running:</p>
+				<blockquote>
+					<p><code>npm install --save-dev pii-filter</code></p>
+				</blockquote>
+				<a href="#scenarios" id="scenarios" style="color: inherit; text-decoration: none;">
+					<h2>Scenarios</h2>
+				</a>
+				<p>We hope that this software can be useful in at least some of the following scenarios:</p>
 				<ul>
-					<li>currently only has support for Dutch</li>
+					<li>privacy, security, fraud-detection, and data-auditing</li>
+					<li>anonymizing data for research, marketing and machine learning</li>
+					<li>accessibility and online guidance</li>
+					<li>word tagging and word spotting</li>
+					<li>designing chatbots</li>
 				</ul>
+				<a href="#languages" id="languages" style="color: inherit; text-decoration: none;">
+					<h2>Languages</h2>
+				</a>
+				<p><code>pii-filter</code> currently supports the following languages and PII:</p>
+				<ul>
+					<li>Dutch<ul>
+							<li>First Names</li>
+							<li>Family Names</li>
+							<li>Pet Names</li>
+							<li>Medicine Names</li>
+							<li>Phone Numbers</li>
+							<li>Email Addresses</li>
+							<li>Dates</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+					<h2>Examples</h2>
+				</a>
+				<p>Sanitizing strings:</p>
+				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> =         </span><span style="color: #A31515">&#039;Hallo Johan, mijn 06 is 0612345678, tot morgen.&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sanitized_str</span><span style="color: #000000"> =   </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">sanitize_str</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sanitized_str</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// output:</span>
+<span style="color: #A31515">&#039;Hallo {first_name}, mijn 06 is {phone_number}, tot morgen.&#039;</span>
+</code></pre>
+				<p>Sanitizing objects:</p>
+				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">obj</span><span style="color: #000000"> = </span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">    </span><span style="color: #001080">message:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Wilma de Vries, 20 november 1964&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">detail:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Werking Paracetamol bij gebruik medicatie&#039;</span>
+<span style="color: #000000">};</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sanitized_obj</span><span style="color: #000000"> =   </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">sanitize_obj</span><span style="color: #000000">(</span><span style="color: #001080">obj</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #0000FF">false</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">dir</span><span style="color: #000000">(</span><span style="color: #001080">sanitized_obj</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// output:</span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">    message: </span><span style="color: #A31515">&#039;{first_name} {family_name}, {date}&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    detail: </span><span style="color: #A31515">&#039;Werking {medicine_name} bij gebruik medicatie&#039;</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p>Parsing PII:</p>
+				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> =         </span><span style="color: #A31515">&#039;Hallo Johan, mijn e-mail is test@test.com &#039;</span>
+<span style="color: #000000">                        + </span><span style="color: #A31515">&#039;en mijn nummer is 0612345678, tot dan.&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">results</span><span style="color: #000000"> =         </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">classify</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">);</span>
+
+<span style="color: #AF00DB">for</span><span style="color: #000000"> (</span><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">pii</span><span style="color: #000000"> </span><span style="color: #0000FF">of</span><span style="color: #000000"> </span><span style="color: #001080">results</span><span style="color: #000000">.</span><span style="color: #001080">pii</span><span style="color: #000000">)</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">dir</span><span style="color: #000000">(</span><span style="color: #001080">pii</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// output:</span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">    value: </span><span style="color: #A31515">&#039;Johan&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    type: </span><span style="color: #A31515">&#039;first_name&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    confidence: </span><span style="color: #098658">0.755</span><span style="color: #000000">,</span>
+<span style="color: #000000">    severity: </span><span style="color: #098658">0.4539742200500001</span><span style="color: #000000">,</span>
+<span style="color: #000000">    start_pos: </span><span style="color: #098658">6</span><span style="color: #000000">,</span>
+<span style="color: #000000">    end_pos: </span><span style="color: #098658">11</span>
+<span style="color: #000000">}</span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">    value: </span><span style="color: #A31515">&#039;test@test.com&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    type: </span><span style="color: #A31515">&#039;email_address&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    confidence: </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
+<span style="color: #000000">    severity: </span><span style="color: #098658">0.2</span><span style="color: #000000">,</span>
+<span style="color: #000000">    start_pos: </span><span style="color: #098658">28</span><span style="color: #000000">,</span>
+<span style="color: #000000">    end_pos: </span><span style="color: #098658">41</span>
+<span style="color: #000000">}</span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">    value: </span><span style="color: #A31515">&#039;0612345678&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    type: </span><span style="color: #A31515">&#039;phone_number&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    confidence: </span><span style="color: #098658">0.8512500000000001</span><span style="color: #000000">,</span>
+<span style="color: #000000">    severity: </span><span style="color: #098658">0.35</span><span style="color: #000000">,</span>
+<span style="color: #000000">    start_pos: </span><span style="color: #098658">60</span><span style="color: #000000">,</span>
+<span style="color: #000000">    end_pos: </span><span style="color: #098658">70</span>
+<span style="color: #000000">}  </span>
+</code></pre>
+				<a href="#main-repository" id="main-repository" style="color: inherit; text-decoration: none;">
+					<h2>Main repository</h2>
+				</a>
+				<p>For more information and access to used the datasets check out the <a href="https://github.com/prolody/piif">main repository</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class=" ">
-						<a href="modules.html">Exports</a>
+						<a href="modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-namespace">
-						<a href="modules/languages.html">Languages</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/core_interfaces.html">core/interfaces</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/core_parsing.html">core/parsing</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/core_structures_trie.html">core/structures/trie</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/pii_filter.html">pii-<wbr>filter</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class">
-						<a href="classes/pii.html" class="tsd-kind-icon">PII</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/piifilter.html" class="tsd-kind-icon">PIIFilter</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/result.html" class="tsd-kind-icon">Result</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
@@ -103,12 +205,11 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 		</div>
 	</div>

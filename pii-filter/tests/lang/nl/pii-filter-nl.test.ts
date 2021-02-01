@@ -1,8 +1,8 @@
-import { PIIFilter, PII, Result, Languages } from '../../../src/pii-filter';
+import * as pf from '../../../src/pii-filter';
 import { expect } from 'chai';
 import { get_pii, print_debug } from './utils';
 
-let pii_filter = new PIIFilter(new Languages.NL());
+const pii_filter = pf.make_pii_classifier(pf.languages.nl.make_lm());
 
 describe('PII_Filter_NL', ()=>{
     const first_name:       string = 'Katherina';
@@ -15,7 +15,13 @@ describe('PII_Filter_NL', ()=>{
     const phone_number:     string = '06 123456 78';
     const date:             string = '01 - 01 - 1970';
     
-    let test_pii = (result: Result, text: string, name: string, score: number, severity: number) => {
+    let test_pii = (
+        result: pf.PIIClassifierResult,
+        text: string,
+        name: string,
+        score: number,
+        severity: number) => 
+    {
 
         let pii_all = result.pii;
         let pii_match = get_pii(pii_all, text);
@@ -167,13 +173,13 @@ describe('PII_Filter_NL', ()=>{
         expect(pii_match_1.severity).gte(0.05);
 
         let check_assoc = (
-            result: Result,
+            result: pf.PIIClassifierResult,
             names: Array<string>,
             comp_score: number,
             not: boolean = false
         ): void =>
         {
-            let all: ReadonlyArray<PII> = result.pii;
+            let all: ReadonlyArray<pf.PIIClassification> = result.pii;
             if (all.length != names.length)
                 print_debug(result);
                 
@@ -181,7 +187,7 @@ describe('PII_Filter_NL', ()=>{
             let sum_score: number = 0;
             for (let name of names)
             {
-                let match: PII = get_pii(all, name);
+                let match: pf.PIIClassification = get_pii(all, name);
                 expect(match != null).equals(true);
                 
                 if (match.type != 'first_name')

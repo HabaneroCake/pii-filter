@@ -1,11 +1,19 @@
 import Brill_POS_Tagger from './libs/Brill_POS_Tagger/lib/Brill_POS_Tagger';
 import Lexicon from './libs/Brill_POS_Tagger/lib/Lexicon';
 import RuleSet from './libs/Brill_POS_Tagger/lib/RuleSet';
-import { Parsing } from '../../core/parsing';
-import { ITagger } from '../../core/interfaces/parsing/tagging';
-import { ILanguage } from '../../core/interfaces/language';
 
-export class POS_Tagger implements ITagger
+import {
+    Language,
+    POSTagger
+} from '../../core/interfaces';
+
+import * as Parsing from '../../core/parsing';
+
+/**
+ * @inheritdoc POSTagger
+ * @private
+ */
+export class DutchPOSTagger implements POSTagger
 {
     public none_str:    string =            'x';
     private tagger:     Brill_POS_Tagger =   new Brill_POS_Tagger(
@@ -16,9 +24,10 @@ export class POS_Tagger implements ITagger
         ),
         new RuleSet('DU')
     );
+    /** @inheritdoc */
     public tag(
         tokens: Array<string>,
-        language_model: ILanguage
+        language_model: Language
     ): Array<[string, Parsing.POS.Tag]>
     {
         let res:                    Array<[string, Parsing.POS.Tag]> =      new Array<[string, Parsing.POS.Tag]>();

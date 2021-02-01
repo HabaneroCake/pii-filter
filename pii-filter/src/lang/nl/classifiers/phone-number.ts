@@ -1,22 +1,40 @@
-import { Parsing } from '../../../core/parsing';
+import * as Parsing from '../../../core/parsing';
 import ds_phone_number from '../dataset/ds_phone_number.json';
 
+/**
+ * Checks wether a string is a valid phone number.
+ * @private
+ * @param phone_number the phone number
+ */
 function validate_phone_number(phone_number: string): boolean
 {
-    //((^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0?6\s?\)?[\-\s]?|0?6\s?)?|0?6))\s?([0-9](\s?|\s?\-\s?)){8,8}$)|(^(((\(?\s?\+\s?|\+|00(\s|\s?\-\s?)?)31\s?\)?(\s|\s?\-\s?)?(\(?\s?0\s?\)?[\-\s]?|0\s?)?|0))\s?([0-9](\s?|\s?\-\s?)){9,9}$)|(^((\(\s?\d+\s?\)\s?))\s?([0-9](\s?|\s?\-\s?)){7,8}$))
     return /^((00)?31)?((?!((00)?31))((0[1-9][0-9]{7,8})|([1-9][0-9]{7,8})))$/.test(phone_number.replace(/\D/g, ''));
 }
 
+/**
+ * Checks whether a phone number is a mobile number.
+ * @private
+ * @param phone_number the phone number string
+ */
 function is_06(phone_number: string): boolean
 {
     return /^((00)?31)?0?6/.test(phone_number.replace(/\D/g, ''))
 }
 
-export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
+/**
+ * A simple phone number classifier.
+ * @private
+ */
+export class PhoneNumber extends Parsing.CoreAssociativeClassifier
 {
+    /**
+     * Creates a new Dutch phone number classifier.
+     */
     constructor() { super(ds_phone_number); }
-    public classify_confidence(token: Parsing.Token): 
-        [Array<Parsing.Token>, Parsing.ClassificationScore]
+
+    /** @inheritdoc */
+    public classify_confidence(token: Parsing.CoreToken): 
+        [Array<Parsing.CoreToken>, Parsing.CoreClassificationScore]
     {
         if (/^(\+|\(|0|6)/.test(token.symbol))
         {
@@ -31,11 +49,11 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
             let number_value:           string =                '';
             let total_num_length:       number =                0;
 
-            let last_seen_number:       Parsing.Token =         null;
+            let last_seen_number:       Parsing.CoreToken =         null;
             let [matched, [start_token, end_token, matches]] = Parsing.collect_tokens(
                 token,
-                (token: Parsing.Token,
-                    deferred_matches: Array<Parsing.Token>
+                (token: Parsing.CoreToken,
+                    deferred_matches: Array<Parsing.CoreToken>
                 ): Parsing.collect_tokens.Control =>
                 {
                     let token_symbol:       string =    token.symbol;
@@ -76,7 +94,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
 
             if (!matched || (last_seen_number != end_token && matches.length > 3)) // includes space
             {
-                return [[], new Parsing.ClassificationScore(
+                return [[], new Parsing.CoreClassificationScore(
                     0.0, 0.0, this
                 )];
             }
@@ -97,7 +115,7 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
                 assoc_sum +=    assoc_sum_;
                 severity_sum += severity_sum_;
 
-                return [matches, new Parsing.ClassificationScore(
+                return [matches, new Parsing.CoreClassificationScore(
                     Math.min(score + assoc_sum, 1.0),
                     Math.min(severity_sum, 1.0),
                     this
@@ -106,10 +124,12 @@ export class PhoneNumber extends Parsing.SimpleAssociativeClassifier
         }
         else
         {
-            return [[], new Parsing.ClassificationScore(
+            return [[], new Parsing.CoreClassificationScore(
                 0.0, 0.0, this
             )];
         }
     }
+
+    /** @inheritdoc */
     public name: string = 'phone_number';
 };

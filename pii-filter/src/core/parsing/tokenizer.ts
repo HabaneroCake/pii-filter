@@ -1,19 +1,24 @@
-import { IToken, ITokenizer } from '../interfaces/parsing/tokens';
-import { ILanguage } from '../interfaces/language';
-import { ITag } from '../interfaces/parsing/tagging';
-import { Token } from './token';
+import { Token, Tokenizer } from '../interfaces/parsing/tokens';
+import { Language } from '../interfaces/language';
+import { POSInfo } from '../interfaces/parsing/tagging';
+import { CoreToken } from './token';
 
-export class Tokenizer implements ITokenizer
+/**
+ * @inheritdoc Tokenizer
+ * @private
+ */
+export class CoreTokenizer implements Tokenizer
 {
-    public tokens:      Array<IToken> =  new Array<IToken>();
+    /** @inheritdoc */
+    public tokens:      Array<Token> =  new Array<Token>();
     /**
-     * creates a linked list of tokens from input text
+     * Creates a linked list of tokens from input text.
      * @param text input text
      * @param language_model the input language model
      */
     constructor(
         text: string,
-        language_model: ILanguage
+        language_model: Language
     )
     {
         let string_tokens_raw =                         text.split(language_model.punctuation);
@@ -23,21 +28,21 @@ export class Tokenizer implements ITokenizer
             if (str.length > 0)
                 string_tokens.push(str);
 
-        let tagged_tokens: Array<[string, ITag]> =   language_model.pos_tagger.tag(
+        let tagged_tokens: Array<[string, POSInfo]> =   language_model.pos_tagger.tag(
             string_tokens,
             language_model
         );
 
         let index: number = 0;
         let c_index: number = 0;
-        let l_tok: Token =  null;
+        let l_tok: CoreToken =  null;
         for (let [token, pos_tag] of tagged_tokens)
         {
             if (token.length == 0)
                 continue;
 
             let stem = language_model.stemmer.stem(token, pos_tag);
-            let c_tok = new Token(
+            let c_tok = new CoreToken(
                 token,
                 stem,
                 pos_tag,

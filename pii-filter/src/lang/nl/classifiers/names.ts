@@ -1,4 +1,4 @@
-import { Parsing } from '../../../core/parsing';
+import * as Parsing from '../../../core/parsing';
 
 
 import ds_dictionary from '../dataset/ds_dictionary.json';
@@ -7,20 +7,36 @@ import ds_family_name from '../dataset/ds_family_name.json';
 import ds_pet_name from '../dataset/ds_pet_name.json';
 import ds_medicine_name from '../dataset/ds_medicine_name.json';
 
-export class Dictionary extends Parsing.SimpleDictionary
+/**
+ * The Dutch dictionary.
+ * @private
+ */
+export class Dictionary extends Parsing.CoreDictionary
 {
-    constructor() 
+    /**
+     * Creates a new Dutch dictionary.
+     */
+    constructor()
     { 
         super(
             ds_dictionary,
             0.2,
             0.4
     ); }
+
+    /** @inheritdoc */
     public name: string = 'dictionary';
 };
 
-export class FirstName extends Parsing.SimpleMultiNameClassifier
+/**
+ * A Dutch first name classifier.
+ * @private
+ */
+export class FirstName extends Parsing.CoreMultiNameClassifier
 {
+    /**
+     * Creates a new first name classifier.
+     */
     constructor() 
     { 
         super(
@@ -46,11 +62,20 @@ export class FirstName extends Parsing.SimpleMultiNameClassifier
             true
         );
     }
+
+    /** @inheritdoc */
     public name: string = 'first_name';
 };
 
-export class FamilyName extends Parsing.SimpleMultiNameClassifier
+/**
+ * A Dutch family name classifier.
+ * @private
+ */
+export class FamilyName extends Parsing.CoreMultiNameClassifier
 {
+    /**
+     * Creates a new family name classifier.
+     */
     constructor() 
     {
         super(
@@ -76,11 +101,20 @@ export class FamilyName extends Parsing.SimpleMultiNameClassifier
             true
         );
     }
+
+    /** @inheritdoc */
     public name: string = 'family_name';
 };
 
-export class PetName extends Parsing.SimpleNameClassifier
+/**
+ * A Dutch pet name classifier.
+ * @private
+ */
+export class PetName extends Parsing.CoreNameClassifier
 {
+    /**
+     * Creates a new pet name classifier.
+     */
     constructor() 
     {
         super(
@@ -92,12 +126,20 @@ export class PetName extends Parsing.SimpleNameClassifier
             0.10
         );
     }
+
+    /** @inheritdoc */
     public name: string = 'pet_name';
 };
 
-// NOTE: still needs assoc list
-export class MedicineName extends Parsing.SimpleNameClassifier
+/**
+ * A Dutch medicine name classifier.
+ * @private
+ */
+export class MedicineName extends Parsing.CoreNameClassifier
 {
+    /**
+     * Creates a new medicine name classifier.
+     */
     constructor()
     {
         super(
@@ -109,5 +151,7 @@ export class MedicineName extends Parsing.SimpleNameClassifier
             0.20
         );
     }
+
+    /** @inheritdoc */
     public name: string = 'medicine_name';
 };

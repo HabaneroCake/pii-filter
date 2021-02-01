@@ -1,6 +1,6 @@
-import { Result, PII } from '../../../src/pii-filter';
+import * as pf from '../../../src/pii-filter';
 
-export function print_debug(result: Result)
+export function print_debug(result: pf.PIIClassifierResult)
 {
     if(result['tokens'].length == 0)
         return;
@@ -46,9 +46,9 @@ export function print_debug(result: Result)
 }
 
 export function get_pii(
-    pii_arr: ReadonlyArray<PII>,
+    pii_arr: ReadonlyArray<pf.PIIClassification>,
     pii_text: string,
-): PII
+): pf.PIIClassification
 {
     for (let pii of pii_arr)
     {

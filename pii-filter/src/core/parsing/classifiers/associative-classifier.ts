@@ -1,27 +1,46 @@
-import { ILanguage } from '../../interfaces/language';
-import { IToken } from '../../interfaces/parsing/tokens';
-import { ITag } from '../../interfaces/parsing/tagging';
+import { Language } from '../../interfaces/language';
+import { Token } from '../../interfaces/parsing/tokens';
+import { POSInfo } from '../../interfaces/parsing/tagging';
 
 import {
-    IAssociativeScore,
-    IAssociationScore
+    AssociativeScore,
+    AssociationScore
 } from '../../interfaces/parsing/classification';
 
 import {
-    Classifier,
-    AssociativeScore,
-    AssociationScore
+    CoreClassifier,
+    CoreAssociativeScore,
+    CoreAssociationScore
 } from '../classification';
 
 import { tokens_trie_lookup } from '../trie-lookup';
 import { Trie } from '../../structures/trie';
 import { POS } from '../pos';
 
-export abstract class SimpleAssociativeClassifier extends Classifier
+/**
+ * A basic abstract associative classifier, which classifies associative tokens based on a dataset.
+ * The confidence classifier is unimplemented.
+ * @private
+ */
+export abstract class CoreAssociativeClassifier extends CoreClassifier
 {
-    protected assoc_pos_map:    Map<string, Array<[ITag, IAssociativeScore]>> = 
-                                                            new Map<string, Array<[ITag, IAssociativeScore]>>();
-    protected association_trie: Trie<IAssociativeScore> =   new Trie();
+    /**
+     * A map storing the parts of speech mappings for this classifier.
+     */
+    protected assoc_pos_map:    Map<string, Array<[POSInfo, AssociativeScore]>> = 
+                                                            new Map<string, Array<[POSInfo, AssociativeScore]>>();
+    /**
+     * A trie storing associative words for this classifier.
+     */
+    protected association_trie: Trie<AssociativeScore> =   new Trie();
+    
+    /**
+     * Create a new CoreAssociativeClassifier
+     * @param dataset the dataset which the keys will be looked up in
+     * @param associative_words_name the key name of the associative mappings in the dataset
+     * @param pos_associative_words_name the key name of the parts of speech mappings in the dataset
+     * @param pii_associative_words_name the key name of the associative pii mappings in the dataset
+     */
     constructor(
         protected dataset: object,
         protected associative_words_name: string = 'association_multipliers',
@@ -36,22 +55,25 @@ export abstract class SimpleAssociativeClassifier extends Classifier
         {
             for (const [word, [left_max, right_max, score, severity]] of this.dataset[this.associative_words_name] as
                     Array<[string, [number, number, number, number]]>)
-                this.association_trie.insert(word, new AssociativeScore(left_max, right_max, score, severity));
+                this.association_trie.insert(word, new CoreAssociativeScore(left_max, right_max, score, severity));
         }
     }
-    public bind_language_model(language_model: ILanguage): void
+    /** @inheritdoc Classifier.init */
+    public init(language_model: Language): void
     {
+        super.init(language_model);
+
         if (this.pos_associative_words_name in this.dataset && this.dataset[this.pos_associative_words_name].length > 0)
         {
             for (const [pos, [left_max, right_max, score, severity]] 
                 of this.dataset[this.pos_associative_words_name] as
                     Array<[string, [number, number, number, number]]>)
             {
-                let tag: ITag = POS.from_brill_pos_tag(pos);
+                let tag: POSInfo = POS.from_brill_pos_tag(pos);
                 
-                let assoc_score: IAssociativeScore = new AssociativeScore(left_max, right_max, score, severity);
+                let assoc_score: AssociativeScore = new CoreAssociativeScore(left_max, right_max, score, severity);
                 if (!this.assoc_pos_map.has(tag.tag_base))
-                    this.assoc_pos_map.set(tag.tag_base, new Array<[ITag, IAssociativeScore]>());
+                    this.assoc_pos_map.set(tag.tag_base, new Array<[POSInfo, AssociativeScore]>());
 
                 this.assoc_pos_map.get(tag.tag_base).push([tag, assoc_score])
             }
@@ -70,7 +92,7 @@ export abstract class SimpleAssociativeClassifier extends Classifier
                         {
                             classifier.associative_references.push([
                                 this,
-                                new AssociativeScore(left_max, right_max, score, severity)
+                                new CoreAssociativeScore(left_max, right_max, score, severity)
                             ]);
                         }
                         break;
@@ -79,10 +101,10 @@ export abstract class SimpleAssociativeClassifier extends Classifier
             }
         }
     }
-
-    public classify_associative(token: IToken): [Array<IToken>, IAssociationScore]
+    /** @inheritdoc Classifier.classify_associative */
+    public classify_associative(token: Token): [Array<Token>, AssociationScore]
     {
-        let best_pos_score: IAssociativeScore = null;
+        let best_pos_score: AssociativeScore = null;
         
         let lower_tag_base: string = token.tag.tag_base.toLowerCase();
         if (this.assoc_pos_map.has(lower_tag_base))
@@ -119,26 +141,26 @@ export abstract class SimpleAssociativeClassifier extends Classifier
             // [tag, best_pos_score] = tags[0];
         }
 
-        let [matches, value] = tokens_trie_lookup<IAssociativeScore>(token, this.association_trie);
+        let [matches, value] = tokens_trie_lookup<AssociativeScore>(token, this.association_trie);
         if (value != null)
         {
             if (best_pos_score != null && best_pos_score.score > value.score)
-                return [matches, new AssociationScore(
+                return [matches, new CoreAssociationScore(
                     best_pos_score, best_pos_score.score, best_pos_score.severity, this
                 )];
             else
-                return [matches, new AssociationScore(
+                return [matches, new CoreAssociationScore(
                     value, value.score, value.severity, this
                 )];
         }
         else if (best_pos_score != null)
         {
-            return [[token], new AssociationScore(
+            return [[token], new CoreAssociationScore(
                 best_pos_score, best_pos_score.score, best_pos_score.severity, this
             )];
         }
         else
-            return [new Array<IToken>(), new AssociationScore(
+            return [new Array<Token>(), new CoreAssociationScore(
                 null, 0.0, 0.0, this
             )];
     }

@@ -1,1 +1,1 @@
-export { NL } from './nl/nl';
+export * as nl from './nl/nl';

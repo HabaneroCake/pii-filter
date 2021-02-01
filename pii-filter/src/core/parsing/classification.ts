@@ -1,60 +1,90 @@
 import { 
-    IClassifier,
-    IClassification,
-    IClassificationScore,
-    IAssociativeScore,
-    IAssociationScore 
+    Classifier,
+    Classification,
+    ClassificationScore,
+    AssociativeScore,
+    AssociationScore 
 } from '../interfaces/parsing/classification';
 
-import { ILanguage } from '../interfaces/language';
-import { IToken } from '../../core/interfaces/parsing/tokens';
-import { IAssociations, IConfidences, IThresholds, IThresholdSetting } from '../interfaces/parsing/classification';
+import { Language } from '../interfaces/language';
+import { Token } from '../../core/interfaces/parsing/tokens';
+import { Associations, Confidences, Thresholds, ThresholdSetting } from '../interfaces/parsing/classification';
 
-export abstract class Classifier implements IClassifier
+/** 
+ * @inheritdoc Classifier
+ * @private
+ */
+export abstract class CoreClassifier implements Classifier
 {
-    public associative_references: Array<[IClassifier, AssociativeScore]> = 
-                                            new Array<[IClassifier, AssociativeScore]>();
-
-    public language_model: ILanguage;
-    public init(language_model: ILanguage)
+    /** @inheritdoc */
+    language_model: Language;
+    /** @inheritdoc */
+    associative_references: Array<[Classifier, CoreAssociativeScore]> = 
+                                            new Array<[Classifier, CoreAssociativeScore]>();
+    /** @inheritdoc */
+    public init(language_model: Language)
     {
         this.language_model = language_model;
-        this.bind_language_model(this.language_model);
     }
-    
-    public abstract bind_language_model(language_model: ILanguage): void;
-    public abstract classify_associative(token: IToken): [Array<IToken>, IAssociationScore];
-    public abstract classify_confidence(token: IToken): [Array<IToken>, IClassificationScore];
+    /** @inheritdoc */
+    public abstract classify_associative(token: Token): [Array<Token>, AssociationScore];
+    /** @inheritdoc */
+    public abstract classify_confidence(token: Token): [Array<Token>, ClassificationScore];
+    /** @inheritdoc */
     public abstract name: string;
 };
 
-export class Classification implements IClassification
+/**
+ * @inheritdoc Classification
+ * @private
+ */
+export class CoreClassification implements Classification
 {
-    // in case of multi word matching
-    public group_root_start:    IToken = null;
-    public group_root_end:      IToken = null;
+    public group_root_start:    Token = null;
+    public group_root_end:      Token = null;
     /**
-     * 
+     * Creates a new CoreClassification.
      * @param classifier the classifier which was used
      */
     constructor(
-        public classifier:  IClassifier
+        public classifier:  Classifier
     ) {}
-
+    /** @inheritdoc Classification.valid */
     public valid(): boolean { return this.classifier != null; }
 };
 
-export class ClassificationScore extends Classification implements IClassificationScore
+/**
+ * @inheritdoc ClassificationScore
+ * @private
+ */
+export class CoreClassificationScore extends CoreClassification implements ClassificationScore
 {
+    /**
+     * Creates a new CoreClassificationScore.
+     * @param score the confidence score
+     * @param severity the severity score
+     * @param classifier the classifier which was used
+     */
     constructor(
         public score:       number,
         public severity:    number,
-        classifier:         IClassifier
+        classifier:         Classifier
     ) { super(classifier); }
 };
 
-export class AssociativeScore implements IAssociativeScore
+/**
+ * @inheritdoc AssociativeScore
+ * @private
+ */
+export class CoreAssociativeScore implements AssociativeScore
 {
+    /**
+     * Creates a new CoreAssociativeScore.
+     * @param left_max the maximum distance from the left that a classification may use this association
+     * @param right_max the maximum distance from the right that a classification may use this association
+     * @param score the amount of confidence it adds
+     * @param severity the amount of severity it adds 
+     */
     constructor(
         public left_max:    number,
         public right_max:   number,
@@ -63,20 +93,32 @@ export class AssociativeScore implements IAssociativeScore
     ){}
 };
 
-export class AssociationScore extends ClassificationScore implements IAssociationScore
+/**
+ * @inheritdoc AssociationScore
+ * @private
+ */
+export class CoreAssociationScore extends CoreClassificationScore implements AssociationScore
 {
+    /**
+     * Creates a new CoreAssociationScore.
+     * @param associative_score the associative score
+     * @param score the amount of confidence it adds
+     * @param severity the amount of severity it adds 
+     * @param classifier the classifier which provided this match
+     */
     constructor(
-        public associative_score:   IAssociativeScore, // global
+        public associative_score:   AssociativeScore, // global
         score:                      number, // can be adjusted
         severity:                   number, // can be adjusted
-        classifier:                 IClassifier
+        classifier:                 Classifier
     ) { super(score, severity, classifier); }
-
+    /** @inheritdoc */
     public valid_from_left(distance_from_left: number, n_phrase_endings: number): boolean
     {
         return this.valid() && (this.associative_score.left_max == -1 && n_phrase_endings == 0) || 
                 (this.associative_score.left_max > 0 && distance_from_left <= this.associative_score.left_max);
     }
+    /** @inheritdoc */
     public valid_from_right(distance_from_right: number, n_phrase_endings: number): boolean
     {
         return this.valid() && (this.associative_score.right_max == -1 && n_phrase_endings == 0) || 
@@ -84,13 +126,19 @@ export class AssociationScore extends ClassificationScore implements IAssociatio
     }
 };
 
-export class Associations implements IAssociations
+/**
+ * @inheritdoc Associations
+ * @private
+ */
+export class CoreAssociations implements Associations
 {
-    protected assoc_map: Map<IClassifier, Array<IAssociationScore>> = new Map<IClassifier, Array<IAssociationScore>>();
-    public add(classifier: IClassifier, association_score: IAssociationScore)
+    /** the raw associations */
+    protected assoc_map: Map<Classifier, Array<AssociationScore>> = new Map<Classifier, Array<AssociationScore>>();
+    /** @inheritdoc */
+    public add(classifier: Classifier, association_score: AssociationScore)
     {
         if (!this.assoc_map.has(classifier))
-            this.assoc_map.set(classifier, new Array<IAssociationScore>());
+            this.assoc_map.set(classifier, new Array<AssociationScore>());
         
         let arr = this.assoc_map.get(classifier);
         
@@ -108,29 +156,39 @@ export class Associations implements IAssociations
             this.assoc_map.set(classifier, arr.sort((i1, i2) => i2.score - i1.score));
         }
     }
-    public has(classifier: IClassifier): boolean { return this.assoc_map.has(classifier); }
-    public get(classifier: IClassifier): Array<IAssociationScore>
+    /** @inheritdoc */
+    public has(classifier: Classifier): boolean { return this.assoc_map.has(classifier); }
+    /** @inheritdoc */
+    public get(classifier: Classifier): Array<AssociationScore>
     {
         return this.assoc_map.get(classifier);
     }
-    public max(classifier: IClassifier): IAssociationScore
+    /** @inheritdoc */
+    public max(classifier: Classifier): AssociationScore
     {
         if (this.has(classifier))
             return this.assoc_map.get(classifier)[0];
-        return new AssociationScore(null, 0, 0, null);
+        return new CoreAssociationScore(null, 0, 0, null);
     }
-    public values(): IterableIterator<Array<IAssociationScore>>
+    /** @inheritdoc */
+    public values(): IterableIterator<Array<AssociationScore>>
     {
         return this.assoc_map.values();
     }
 };
 
-export class Confidences implements IConfidences
+/**
+ * @inheritdoc Confidences
+ * @private
+ */
+export class CoreConfidences implements Confidences
 {
-    private confidences: Array<IClassificationScore> = new Array<IClassificationScore>();
-    public add(classification_score: IClassificationScore)
+    /** the raw confidences */
+    private confidences: Array<ClassificationScore> = new Array<ClassificationScore>();
+    /** @inheritdoc */
+    public add(classification_score: ClassificationScore)
     {
-        let confidence_with_same_classifier: IClassificationScore = null;
+        let confidence_with_same_classifier: ClassificationScore = null;
         for (let conf of this.confidences)
         {
             if (conf.classifier == classification_score.classifier)
@@ -156,27 +214,40 @@ export class Confidences implements IConfidences
             return (i2.score - i1.score);
         });
     }
-    public max(): IClassificationScore
+    /** @inheritdoc */
+    public max(): ClassificationScore
     {
         if (this.confidences.length)
             return this.confidences[0];
-        return new ClassificationScore(0, 0, null);
+        return new CoreClassificationScore(0, 0, null);
     }
-    public all(): ReadonlyArray<IClassificationScore>
+    /** @inheritdoc */
+    public all(): ReadonlyArray<ClassificationScore>
     {
         return this.confidences;
     }
 };
 
-export class Thresholds implements IThresholds
+/**
+ * @inheritdoc Thresholds
+ * @private
+ */
+export class CoreThresholds implements Thresholds
 {
+    /**
+     * Creates a new CoreThresholds.
+     * @param well_formedness_threshold the threshold for text to be 'well-formed'
+     * @param well_formed the settings for 'well-formed' text
+     * @param ill_formed the settings for 'ill-formed' text
+     */
     constructor(
         public well_formedness_threshold:   number,
-        public well_formed:                 IThresholdSetting,
-        public ill_formed:                  IThresholdSetting
+        public well_formed:                 ThresholdSetting,
+        public ill_formed:                  ThresholdSetting
     ) {};
 
-    public validate(classification: IClassificationScore, well_formed?: boolean): boolean
+    /** @inheritdoc */
+    public validate(classification: ClassificationScore, well_formed?: boolean): boolean
     {
         if (classification.valid())
         {
@@ -196,7 +267,7 @@ export class Thresholds implements IThresholds
             // not enough information to go by
             let too_few_tags:           boolean = classification.group_root_start.tag.group.n_tags < 3;
 
-            let active_config: IThresholdSetting = (
+            let active_config: ThresholdSetting = (
                 well_formed == null ?
                     ((tag_groups_match && (tag_group_well_formed || too_few_tags)) ?  
                         this.well_formed : this.ill_formed) :
@@ -213,10 +284,23 @@ export class Thresholds implements IThresholds
     }
 };
 
-export namespace Thresholds
+/**
+ * @private
+ */
+export namespace CoreThresholds
 {
-    export class Group implements IThresholdSetting
+    /**
+     * @inheritdoc ThresholdSetting
+     * @private
+     */
+    export class Group implements ThresholdSetting
     {
+        /**
+         * Creates a new CoreThresholds.Group.
+         * @param min_classification_score the minimum confidence score a classifier must have before being accepted
+         * @param min_severity_score the minimum severity score a classifier must have before being accepted
+         * @param compare_against_dict_score if confidence score must exceed the dictionary score before being accepted
+         */
         constructor(
             public min_classification_score: number =       0,
             public min_severity_score: number =             0,

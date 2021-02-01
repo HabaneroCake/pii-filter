@@ -1,9 +1,10 @@
-import { ILanguage } from '../interfaces/language';
-import { IAssociationScore, IClassifier } from '../interfaces/parsing/classification';
+import { Language } from '../interfaces/language';
+import { AssociationScore, Classifier } from '../interfaces/parsing/classification';
 import { count_str_tokens } from './count-str-tokens';
-import { IToken } from '../interfaces/parsing/tokens';
+import { Token } from '../interfaces/parsing/tokens';
 /**
  * sums the associative / severity scores for a classifier, taking into account punctuation distance
+ * @private
  * @param left_it left iterator token for the midpoint
  * @param right_it right iterator token for the midpoint
  * @param classifier classifier to match
@@ -11,28 +12,54 @@ import { IToken } from '../interfaces/parsing/tokens';
  * @param max_steps number of steps to stop after
  */
 export function calc_assoc_severity_sum(
-    left_it: IToken,
-    right_it: IToken,
-    classifier: IClassifier,
-    language_model: ILanguage,
+    left_it: Token,
+    right_it: Token,
+    classifier: Classifier,
+    language_model: Language,
     max_steps: number
 ): [number, number]
 {
-    // TODO should this have a not recognizer?
+    /** 
+     * Associative token distance iterator.
+     * @private 
+     */
     class DistanceIterator 
     {
+        /**
+         * the sum of associative scores encountered 
+         */
         public associative_sum: number =    0.0;
+        /**
+         * the sum of severity scores encountered
+         */
         public severity_sum:    number =    0.0;
+        /**
+         * the distance traversed
+         */
         public distance:        number =    0;
+        /**
+         * the number of phrase endings encountered
+         */
         public phrase_ends:     number =    0;
+        /**
+         * the scalar which is applied before adding scores
+         */
         public scalar:          number =    1.0;
 
+        /**
+         * Creates a new DistanceIterator
+         * @param it the current token
+         * @param language_model the language model
+         * @param iterate callback that should move the iterator in a direction
+         * @param group_root_getter callback that should move the iterator to the edge of a group in it's direction
+         * @param check_valid callback that should return wether the associative token is valid
+         */
         constructor(
-            public it: IToken,
-            public language_model: ILanguage,
-            public iterate: (iterator: IToken) => IToken,
-            public group_root_getter: (score: IAssociationScore) => IToken,
-            public check_valid: (score: IAssociationScore, self: DistanceIterator) => boolean
+            public it: Token,
+            public language_model: Language,
+            public iterate: (iterator: Token) => Token,
+            public group_root_getter: (score: AssociationScore) => Token,
+            public check_valid: (score: AssociationScore, self: DistanceIterator) => boolean
             
         )
         {
@@ -41,8 +68,8 @@ export function calc_assoc_severity_sum(
                 // move iterator past current associative marker if it exists
                 if (this.it.confidences_associative.has(classifier) && this.it.next)
                 {
-                    let score:          IAssociationScore =  this.it.confidences_associative.max(classifier);
-                    let group_root:     IToken =            this.group_root_getter(score);
+                    let score:          AssociationScore =  this.it.confidences_associative.max(classifier);
+                    let group_root:     Token =            this.group_root_getter(score);
                     
                     let [l_it, r_it] = (this.it.index < group_root.index) ? 
                                     [this.it, group_root] : [group_root, this.it];
@@ -58,7 +85,9 @@ export function calc_assoc_severity_sum(
                     this.it = this.iterate(this.it);
             }
         }
-
+        /**
+         * get the 'next' token
+         */
         public next(): boolean
         {
             if (this.it)
@@ -84,8 +113,8 @@ export function calc_assoc_severity_sum(
                     if (is_punctuation)
                         this.distance++;
                         
-                    let assoc_arr: Array<IAssociationScore> = this.it.confidences_associative.get(classifier);
-                    let assoc: IAssociationScore;
+                    let assoc_arr: Array<AssociationScore> = this.it.confidences_associative.get(classifier);
+                    let assoc: AssociationScore;
                     for (assoc of assoc_arr)
                     {
                         if (this.check_valid(assoc, this))
@@ -116,18 +145,18 @@ export function calc_assoc_severity_sum(
     let left_distance_iterator =    new DistanceIterator(
         left_it,
         language_model,
-        (it: IToken): IToken => { return it.previous; },
-        (score: IAssociationScore): IToken => { return score.group_root_start; },
-        (score: IAssociationScore, self: DistanceIterator) => { 
+        (it: Token): Token => { return it.previous; },
+        (score: AssociationScore): Token => { return score.group_root_start; },
+        (score: AssociationScore, self: DistanceIterator) => { 
             return score.valid_from_right(self.distance, self.phrase_ends);
         }
     );
     let right_distance_iterator =   new DistanceIterator(
         right_it,
         language_model,
-        (it: IToken): IToken => { return it.next; },
-        (score: IAssociationScore): IToken => { return score.group_root_end; },
-        (score: IAssociationScore, self: DistanceIterator) => { 
+        (it: Token): Token => { return it.next; },
+        (score: AssociationScore): Token => { return score.group_root_end; },
+        (score: AssociationScore, self: DistanceIterator) => { 
             return score.valid_from_left(self.distance, self.phrase_ends);
         }
     );

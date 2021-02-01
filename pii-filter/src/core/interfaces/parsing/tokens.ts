@@ -1,32 +1,61 @@
-import { IClassificationScore, IAssociations, IConfidences } from './classification';
-import { ITag } from './tagging';
+import { Language } from '../language';
+import { ClassificationScore, Associations, Confidences } from './classification';
+import { POSInfo } from './tagging';
 
-export interface IToken
+/**
+ * A token which is part of a string.
+ * @private
+ */
+export interface Token
 {
-    previous:       IToken;
-    next:           IToken;
+    /** The previous token. */
+    previous:       Token;
+    /** The next token. */
+    next:           Token;
 
+    /** The original symbol of this token. */
     symbol:         string;
+    /** The stem of this token. */
     stem:           string;
 
-    tag:            ITag;
+    /** The Parts of Speech information for this token. */
+    tag:            POSInfo;
+    /** The index of this token. */
     index:          number;
 
+    /** The character start index of this token in the original string. */
     c_index_start:  number;
+    /** The character end index of this token in the original string. */
     c_index_end:    number;
 
-    // stores passes
-    confidence_dictionary:       IClassificationScore;
-    confidences_associative:     IAssociations;
-    confidences_classification:  Array<IConfidences>;
+    /** The classification confidences of this token in the dictionary. */
+    confidence_dictionary:       ClassificationScore;
+    /** The associative confidences which classifiers have applied to this token. */
+    confidences_associative:     Associations;
+    /** The classification confidences which classifiers have applied to this token in multiple passes. */
+    confidences_classification:  Array<Confidences>;
 };
 
-export interface ITokenizer
+/**
+ * A tokenizer, which upon construction, splits a string into tokens and stores the result as public list.
+ * @private
+ */
+export interface Tokenizer
 {
-    tokens:      Array<IToken>;
+    /** The tokens which were created. */
+    tokens:      Array<Token>;
 };
 
-export interface IStemmer
+/**
+ * A stemmer for POS tagged tokens.
+ * @private
+ */
+export interface Stemmer
 {
-    stem(token: string, tag: ITag): string;
+    /**
+     * Stems a token
+     * @param token the token to stem
+     * @param tag the Parts of Speech tag for the token
+     */
+    stem(token: string, tag: POSInfo): string;
 };

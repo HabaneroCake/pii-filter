@@ -1,10 +1,14 @@
-import { IStemmer } from '../../core/interfaces/parsing/tokens';
-import { ITag } from '../../core/interfaces/parsing/tagging';
-// import { PorterStemmerNl } from 'natural';
+import { Stemmer } from '../../core/interfaces/parsing/tokens';
+import { POSInfo } from '../../core/interfaces/parsing/tagging';
 
-export class Stemmer implements IStemmer
+/**
+ * @inheritdoc Stemmer
+ * @private
+ */
+export class DutchStemmer implements Stemmer
 {
-    stem(token: string, tag: ITag): string 
+    /** @inheritdoc */
+    stem(token: string, tag: POSInfo): string 
     {
         token = token.replace('\'s', '').toLowerCase();
         if (tag.tag_rest.indexOf('verl_dw') > -1)
@@ -20,15 +24,6 @@ export class Stemmer implements IStemmer
                 }
             }
         }
-        // else if (tag.tag_rest.indexOf('mv') > -1)
-        // {
-        //     let en_regex: RegExp = /(en)\b/;
-        //     if (en_regex.test(token))
-        //     {
-        //         token = token.replace(en_regex, '');
-        //     }
-        // }
-        // NOTE: this stemmer is quite crude
         // return PorterStemmerNl.stem(token);
         return token;
     }
