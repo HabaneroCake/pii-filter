@@ -2,7 +2,7 @@
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
-![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png.png)
+![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png)
 
 ## Scenarios
 We hope that this software can be useful in at least some of the following scenarios:

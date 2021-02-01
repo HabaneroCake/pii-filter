@@ -2,7 +2,7 @@
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
-[![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png.png)](./pii-filter)
+[![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/piif/master/res/highlight_placeholders.png)](./pii-filter)
 
 ---
 This repository contains the [datasets](./dataset) and the [npm module for `pii-filter`](./pii-filter).
