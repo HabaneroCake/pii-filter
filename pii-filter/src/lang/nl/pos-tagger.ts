@@ -1,6 +1,6 @@
-import Brill_POS_Tagger from './libs/Brill_POS_Tagger/lib/Brill_POS_Tagger';
-import Lexicon from './libs/Brill_POS_Tagger/lib/Lexicon';
-import RuleSet from './libs/Brill_POS_Tagger/lib/RuleSet';
+import Brill_POS_Tagger from './libs/brill_pos_tagger/lib/Brill_POS_Tagger';
+import Lexicon from './libs/brill_pos_tagger/lib/Lexicon';
+import RuleSet from './libs/brill_pos_tagger/lib/RuleSet';
 
 import {
     Language,
