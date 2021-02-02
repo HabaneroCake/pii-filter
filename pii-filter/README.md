@@ -38,9 +38,9 @@ Sanitizing strings:
 ```TypeScript
 import * as pf from 'pii-filter';
 
-const pii_filter =      pf.make_pii_classifier(pf.languages.nl.make_lm());
-const raw_str =         'Hallo Johan, mijn 06 is 0612345678, tot morgen.';
-const sanitized_str =   pii_filter.sanitize_str(raw_str, true);
+const pii_filter = pf.make_pii_classifier(pf.languages.nl.make_lm());
+const raw_str = 'Hallo Johan, mijn 06 is 0612345678, tot morgen.';
+const sanitized_str = pii_filter.sanitize_str(raw_str, true);
 
 console.log(sanitized_str);
 
@@ -51,8 +51,8 @@ Sanitizing objects:
 ```TypeScript
 import * as pf from 'pii-filter';
 
-const pii_filter =      pf.make_pii_classifier(pf.languages.nl.make_lm());
-const obj = 
+const pii_filter = pf.make_pii_classifier(pf.languages.nl.make_lm());
+const obj =
 {
     message: 'Wilma de Vries, 20 november 1964',
     detail: 'Werking Paracetamol bij gebruik medicatie'
@@ -71,10 +71,9 @@ Parsing PII:
 ```TypeScript
 import * as pf from 'pii-filter';
 
-const pii_filter =      pf.make_pii_classifier(pf.languages.nl.make_lm());
-const raw_str =         'Hallo Johan, mijn e-mail is test@test.com '
-                        + 'en mijn nummer is 0612345678, tot dan.';
-const results =         pii_filter.classify(raw_str);
+const pii_filter = pf.make_pii_classifier(pf.languages.nl.make_lm());
+const raw_str = 'Hallo Johan, mijn e-mail is test@test.com en mijn nummer is 0612345678, tot dan.';
+const results = pii_filter.classify(raw_str);
 
 for (let pii of results.pii)
     console.dir(pii);

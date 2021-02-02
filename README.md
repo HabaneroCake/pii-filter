@@ -37,7 +37,7 @@ More information can be found in [dataset/README.md](dataset/README.md).
 ## Future work
 - adding support for english and other languages
 - detecting more PII
-    - bank numbers
+    - bank numbers and credit card numbers
     - passport / id numbers
     - social security numbers
 - detecting PII in images
