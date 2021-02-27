@@ -1,5 +1,5 @@
 import * as Parsing from '../../../core/parsing';
-import ds_email_address from '../dataset/ds_email_address.json';
+import ds_email_address from '../dataset/ds_email_address_0.json';
 
 /**
  * Validate an email-address.

@@ -7,7 +7,7 @@ import {
 import { DutchPOSTagger } from './pos-tagger';
 import { DutchStemmer } from './stemmer';
 
-import ds_severity_mapping from './dataset/ds_severity.json';
+import ds_severity_mapping from './dataset/ds_severity_0.json';
 
 import * as DutchClassifiers from './classifiers';
 import * as Parsing from '../../core/parsing';

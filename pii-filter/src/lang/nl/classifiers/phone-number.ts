@@ -1,5 +1,5 @@
 import * as Parsing from '../../../core/parsing';
-import ds_phone_number from '../dataset/ds_phone_number.json';
+import ds_phone_number from '../dataset/ds_phone_number_0.json';
 
 /**
  * Checks wether a string is a valid phone number.

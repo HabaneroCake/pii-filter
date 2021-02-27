@@ -1,6 +1,6 @@
 import * as Parsing from '../../../core/parsing';
 import { Trie } from '../../../core/structures/trie';
-import ds_date from '../dataset/ds_date.json';
+import ds_date from '../dataset/ds_date_0.json';
 
 // note: could also generate these regexes more cleanly
 /**

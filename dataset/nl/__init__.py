@@ -12,7 +12,7 @@ from . import feature_sets
 
 LANG = 'nl'
 
-def generate_dataset(build_path, benchmark_path, aggregate_path, print_cb):
+def generate_dataset(build_path, benchmark_path, aggregate_path, json_dump_cb, print_cb):
     def print_line(line=''):
         print_cb(line)
         print_cb(None)
@@ -21,15 +21,14 @@ def generate_dataset(build_path, benchmark_path, aggregate_path, print_cb):
         aggregate_path,
         'ds_full.json'
     )
-    ds_severity_output_path = os.path.join(
-        build_path,
-        'ds_severity.json'
-    )
     benchmark_output_path = os.path.join(
         benchmark_path,
         'benchmark.json'
     )
-
+    ds_severity_output_path = os.path.join(
+        build_path,
+        'ds_severity'
+    )
     if not os.path.exists(build_path):
         os.mkdir(build_path)
 
@@ -43,17 +42,13 @@ def generate_dataset(build_path, benchmark_path, aggregate_path, print_cb):
         print_line()
         ds_partial_output_path = os.path.join(
             build_path,
-            'ds_{}.json'.format(feature_set.NAME)
+            'ds_{}'.format(feature_set.NAME)
         )
-        with open(ds_partial_output_path, 'w') as f:
-            print_line('saving to {}'.format(ds_partial_output_path))
-            json.dump(wordlist, f)
+        json_dump_cb(ds_partial_output_path, wordlist)
 
     # store severity mapping
     print_line('Storing severity mapping.')
-    with open(ds_severity_output_path, 'w') as f:
-        print_line('saving to {}'.format(ds_severity_output_path))
-        json.dump(feature_templates.severity_mapping, f)
+    json_dump_cb(ds_severity_output_path, feature_templates.severity_mapping)
 
     # store aggregated ds
     all_data = {

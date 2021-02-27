@@ -1,11 +1,38 @@
 import * as Parsing from '../../../core/parsing';
 
 
-import ds_dictionary from '../dataset/ds_dictionary.json';
-import ds_first_name from '../dataset/ds_first_name.json';
-import ds_family_name from '../dataset/ds_family_name.json';
-import ds_pet_name from '../dataset/ds_pet_name.json';
-import ds_medicine_name from '../dataset/ds_medicine_name.json';
+import ds_dictionary_0 from '../dataset/ds_dictionary_0.json';
+import ds_dictionary_1 from '../dataset/ds_dictionary_1.json';
+
+import ds_first_name from '../dataset/ds_first_name_0.json';
+
+import ds_family_name_0 from '../dataset/ds_family_name_0.json';
+import ds_family_name_1 from '../dataset/ds_family_name_1.json';
+import ds_family_name_2 from '../dataset/ds_family_name_2.json';
+
+import ds_pet_name from '../dataset/ds_pet_name_0.json';
+import ds_medicine_name from '../dataset/ds_medicine_name_0.json';
+
+
+function merge_json(json_objects: Array<object>): object
+{   // flat (array) merge
+    let compiled_object = {};
+    for (const object of json_objects)
+    {
+        for (const key of Object.keys(object))
+        {
+            if (Object.keys(compiled_object).includes(key))
+            {
+                if (Array.isArray(object[key]))
+                    for (const element of object[key])
+                        compiled_object[key].push(element);
+            } else {
+                compiled_object[key] = object[key];
+            }
+        }
+    }
+    return compiled_object;
+}
 
 /**
  * The Dutch dictionary.
@@ -19,7 +46,7 @@ export class Dictionary extends Parsing.CoreDictionary
     constructor()
     { 
         super(
-            ds_dictionary,
+            merge_json([ds_dictionary_0, ds_dictionary_1]),
             0.2,
             0.4
     ); }
@@ -79,7 +106,7 @@ export class FamilyName extends Parsing.CoreMultiNameClassifier
     constructor() 
     {
         super(
-            ds_family_name,
+            merge_json([ds_family_name_0, ds_family_name_1, ds_family_name_2]),
             [
                 {   // dutch family names
                     classification_score_base: 0.05,

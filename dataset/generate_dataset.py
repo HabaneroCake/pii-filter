@@ -5,6 +5,7 @@ Script to build the PII database
 """
 
 import os
+import json
 import nl
 
 languages = [nl]
@@ -19,6 +20,58 @@ def print_cb(msg):
         print('---- ' + msg, end="\r", flush=True)
     else:
         print()
+
+MAX_CHUNK_SIZE = 2000000
+# callback for saving files
+def json_dump_cb(file_path, obj):
+    # TODO: configure above for max size and split chunks
+    chunk = 0
+    objects = []
+    s = json.dumps(obj)
+    if len(s) >= MAX_CHUNK_SIZE:
+        OBJ_BASE_SIZE = len('{}\r\n')
+        KEY_BASE_SIZE = len('"": []')
+        current_object = {}
+        current_size = OBJ_BASE_SIZE
+
+        # iterate over keys (flat)
+        for key in obj.keys():
+            # calc size of key including "":\r\n\s\s, use as base
+            empty_key_size = KEY_BASE_SIZE + len(key)
+            if current_size + empty_key_size >= MAX_CHUNK_SIZE:
+                objects.append(current_object)
+                current_object = {}
+                current_size = OBJ_BASE_SIZE
+            
+            current_object[key] = type(obj[key])()
+            current_size += KEY_BASE_SIZE
+
+            values = obj[key]
+            if isinstance(values, list):
+                for value in values:
+                    value_str_len = len(str(value)) + len(' "", ')
+                    if current_size + value_str_len >= MAX_CHUNK_SIZE:
+                        objects.append(current_object)
+                        current_object = {}
+                        current_object[key] = type(obj[key])()
+                        current_size = OBJ_BASE_SIZE + KEY_BASE_SIZE
+
+                    current_object[key].append(value)
+                    current_size += value_str_len
+            else: # TODO:
+                raise ValueError(f'{key} is not a list')
+
+        objects.append(current_object)
+    else:
+        objects = [obj]
+    
+    for index, o in enumerate(objects):
+        new_file_path = f'{file_path}_{index}.json'
+        with open(new_file_path, 'w') as f:
+            print_cb('saving to {}'.format(new_file_path))
+            print()
+            print()
+            json.dump(o, f)
 
 print("Generating PII database.")
 for lang in languages:
@@ -38,5 +91,6 @@ for lang in languages:
         build_path,
         benchmark_path,
         aggregate_path,
+        json_dump_cb,
         print_cb
     )
