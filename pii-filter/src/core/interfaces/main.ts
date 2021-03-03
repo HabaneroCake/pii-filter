@@ -51,18 +51,22 @@ export interface PIIClassifier
     /**
      * Classifies an input string for PII.
      * @param text the input string
+     * @param well_formed overrides the well-formedness classification
      */
     classify(
-        text: string
+        text: string,
+        well_formed?: boolean
     ): PIIClassifierResult;
     /**
      * Removes/replaces PII in a string.
      * @param text the input string
      * @param placeholders whether to use placeholders
+     * @param well_formed overrides the well-formedness classification
      */
     sanitize_str(
         text: string,
-        placeholders: boolean
+        placeholders: boolean,
+        well_formed?: boolean
     ): string;
     /**
      * Removes/replaces PII in an object.
@@ -70,11 +74,13 @@ export interface PIIClassifier
      * @param placeholders whether to use placeholders
      * @param recursive whether to parse the object recursively
      * @param skip which objects to skip
+     * @param well_formed overrides the well-formedness classification
      */
     sanitize_obj(
         obj: object,
         placeholders: boolean,
         recursive: boolean,
-        skip?: Array<object>
+        skip?: Array<object>,
+        well_formed?: boolean
     ): object;
 };

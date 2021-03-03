@@ -42,12 +42,13 @@ class PIIFilter implements PIIClassifier
     
     /** @inheritdoc */
     public classify(
-        text: string
+        text: string,
+        well_formed?: boolean
     ): PIIClassifierResult
     {
         //! TODO
-        // Factory functions (TODO: put somewhere logical)
-        // TODO these could be passed in somewhere
+        // - Factory functions
+        // - these should be passed in somewhere
         let make_tokenizer = (text: string, language_model: Language): Tokenizer => 
         { return new Parsing.CoreTokenizer(text, language_model); }
         let make_confidences = (): Confidences => { return new Parsing.CoreConfidences();} 
@@ -209,7 +210,7 @@ class PIIFilter implements PIIClassifier
             (index: number, token: Token): number => 
             {
                 let classification = token.confidences_classification[token.confidences_classification.length-1].max();
-                if (this.language_model.thresholds.validate(classification) &&
+                if (this.language_model.thresholds.validate(classification, well_formed) &&
                     classification.group_root_start == token)
                 {
                     // check if any overlapping classifications exist with a higher confidence
@@ -244,10 +245,11 @@ class PIIFilter implements PIIClassifier
     /** @inheritdoc */
     public sanitize_str(
         text: string,
-        placeholders: boolean
+        placeholders: boolean,
+        well_formed?: boolean
     ): string
     {
-        let result = this.classify(text);
+        let result = this.classify(text, well_formed);
         return placeholders ? 
             result.render_placeholders() : 
             result.render_removed();
@@ -258,7 +260,8 @@ class PIIFilter implements PIIClassifier
         obj: object,
         placeholders: boolean,
         recursive: boolean = false,
-        skip: Array<object> = []
+        skip: Array<object> = [],
+        well_formed?: boolean
     ): object
     {
         let obj_result: object = {};
@@ -266,7 +269,8 @@ class PIIFilter implements PIIClassifier
             if (typeof obj[key] == 'string' && skip.indexOf(obj[key]) == -1)
                 obj_result[key] = this.sanitize_str(
                     obj[key],
-                    placeholders
+                    placeholders,
+                    well_formed
                 );
             else if (typeof obj[key] == 'object' && recursive)
                 obj_result[key] = this.sanitize_obj(obj[key], placeholders, recursive, skip);

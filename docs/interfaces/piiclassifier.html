@@ -55,10 +55,7 @@
 					<a href="../modules.html">pii-filter</a>
 				</li>
 				<li>
-					<a href="../modules/pii_filter.html">pii-filter</a>
-				</li>
-				<li>
-					<a href="pii_filter.piiclassifier.html">PIIClassifier</a>
+					<a href="piiclassifier.html">PIIClassifier</a>
 				</li>
 			</ul>
 			<h1>Interface PIIClassifier</h1>
@@ -90,9 +87,9 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="pii_filter.piiclassifier.html#classify" class="tsd-kind-icon">classify</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="pii_filter.piiclassifier.html#sanitize_obj" class="tsd-kind-icon">sanitize_<wbr>obj</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="pii_filter.piiclassifier.html#sanitize_str" class="tsd-kind-icon">sanitize_<wbr>str</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="piiclassifier.html#classify" class="tsd-kind-icon">classify</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="piiclassifier.html#sanitize_obj" class="tsd-kind-icon">sanitize_<wbr>obj</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="piiclassifier.html#sanitize_str" class="tsd-kind-icon">sanitize_<wbr>str</a></li>
 							</ul>
 						</section>
 					</div>
@@ -104,13 +101,13 @@
 					<a name="classify" class="tsd-anchor"></a>
 					<h3>classify</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">classify<span class="tsd-signature-symbol">(</span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="pii_filter.piiclassifierresult.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifierResult</a></li>
+						<li class="tsd-signature tsd-kind-icon">classify<span class="tsd-signature-symbol">(</span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, well_formed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="piiclassifierresult.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifierResult</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/interfaces/main.ts:55</li>
+									<li>Defined in <a href="https://github.com/prolody/pii-filter/blob/6f42b26/pii-filter/src/core/interfaces/main.ts#L56">core/interfaces/main.ts:56</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -126,8 +123,14 @@
 										<p>the input string</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> well_formed: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>overrides the well-formedness classification</p>
+									</div>
+								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="pii_filter.piiclassifierresult.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifierResult</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="piiclassifierresult.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifierResult</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -135,13 +138,13 @@
 					<a name="sanitize_obj" class="tsd-anchor"></a>
 					<h3>sanitize_<wbr>obj</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">sanitize_<wbr>obj<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, placeholders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, recursive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, skip<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">sanitize_<wbr>obj<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, placeholders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, recursive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, skip<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span>, well_formed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/interfaces/main.ts:74</li>
+									<li>Defined in <a href="https://github.com/prolody/pii-filter/blob/6f42b26/pii-filter/src/core/interfaces/main.ts#L79">core/interfaces/main.ts:79</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -175,6 +178,12 @@
 										<p>which objects to skip</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> well_formed: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>overrides the well-formedness classification</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 						</li>
@@ -184,13 +193,13 @@
 					<a name="sanitize_str" class="tsd-anchor"></a>
 					<h3>sanitize_<wbr>str</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">sanitize_<wbr>str<span class="tsd-signature-symbol">(</span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, placeholders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">sanitize_<wbr>str<span class="tsd-signature-symbol">(</span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, placeholders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, well_formed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/interfaces/main.ts:63</li>
+									<li>Defined in <a href="https://github.com/prolody/pii-filter/blob/6f42b26/pii-filter/src/core/interfaces/main.ts#L66">core/interfaces/main.ts:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -212,6 +221,12 @@
 										<p>whether to use placeholders</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> well_formed: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>overrides the well-formedness classification</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
@@ -223,50 +238,38 @@
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class=" ">
-						<a href="../modules.html">Modules</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/core_interfaces.html">core/interfaces</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/core_parsing.html">core/parsing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/core_structures_trie.html">core/structures/trie</a>
-					</li>
-					<li class="current tsd-kind-module">
-						<a href="../modules/pii_filter.html">pii-<wbr>filter</a>
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="pii_filter.piiclassification.html" class="tsd-kind-icon">PIIClassification</a>
+					<li class=" tsd-kind-interface">
+						<a href="piiclassification.html" class="tsd-kind-icon">PIIClassification</a>
 					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="pii_filter.piiclassifier.html" class="tsd-kind-icon">PIIClassifier</a>
+					<li class="current tsd-kind-interface">
+						<a href="piiclassifier.html" class="tsd-kind-icon">PIIClassifier</a>
 						<ul>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="pii_filter.piiclassifier.html#classify" class="tsd-kind-icon">classify</a>
+								<a href="piiclassifier.html#classify" class="tsd-kind-icon">classify</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="pii_filter.piiclassifier.html#sanitize_obj" class="tsd-kind-icon">sanitize_<wbr>obj</a>
+								<a href="piiclassifier.html#sanitize_obj" class="tsd-kind-icon">sanitize_<wbr>obj</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="pii_filter.piiclassifier.html#sanitize_str" class="tsd-kind-icon">sanitize_<wbr>str</a>
+								<a href="piiclassifier.html#sanitize_str" class="tsd-kind-icon">sanitize_<wbr>str</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="pii_filter.piiclassifierresult.html" class="tsd-kind-icon">PIIClassifier<wbr>Result</a>
+					<li class=" tsd-kind-interface">
+						<a href="piiclassifierresult.html" class="tsd-kind-icon">PIIClassifier<wbr>Result</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/pii_filter.html#make_pii_classifier" class="tsd-kind-icon">make_<wbr>pii_<wbr>classifier</a>
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#make_pii_classifier" class="tsd-kind-icon">make_<wbr>pii_<wbr>classifier</a>
 					</li>
 				</ul>
 			</nav>
@@ -278,11 +281,7 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 		</div>

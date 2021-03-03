@@ -1,6 +1,6 @@
 {
   "name": "pii-filter",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "PII Filter",
   "keywords": [
     "pii",
@@ -18,9 +18,6 @@
   ],
   "main": "dist/pii-filter.js",
   "types": "dist/pii-filter.d.ts",
-  "dependencies": {
-    "natural": "^2.4.5"
-  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
@@ -42,6 +39,7 @@
     "compile": "tsc;",
     "build": "npm run compile;",
     "test": "mocha -r ts-node/register tests/**/*.test.ts;",
+    "docs": "npx typedoc src/pii-filter.ts && rm -rf ../docs && mv docs ../",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test;"
   },
   "author": "HabaneroCake",

@@ -110,9 +110,9 @@
 				<p>Sanitizing strings:</p>
 				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> =         </span><span style="color: #A31515">&#039;Hallo Johan, mijn 06 is 0612345678, tot morgen.&#039;</span><span style="color: #000000">;</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sanitized_str</span><span style="color: #000000"> =   </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">sanitize_str</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> = </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> = </span><span style="color: #A31515">&#039;Hallo Johan, mijn 06 is 0612345678, tot morgen.&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sanitized_str</span><span style="color: #000000"> = </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">sanitize_str</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
 
 <span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sanitized_str</span><span style="color: #000000">);</span>
 
@@ -122,8 +122,8 @@
 				<p>Sanitizing objects:</p>
 				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">obj</span><span style="color: #000000"> = </span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> = </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">obj</span><span style="color: #000000"> =</span>
 <span style="color: #000000">{</span>
 <span style="color: #000000">    </span><span style="color: #001080">message:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Wilma de Vries, 20 november 1964&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">detail:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Werking Paracetamol bij gebruik medicatie&#039;</span>
@@ -141,10 +141,9 @@
 				<p>Parsing PII:</p>
 				<pre><code class="language-TypeScript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">pf</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;pii-filter&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> =      </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> =         </span><span style="color: #A31515">&#039;Hallo Johan, mijn e-mail is test@test.com &#039;</span>
-<span style="color: #000000">                        + </span><span style="color: #A31515">&#039;en mijn nummer is 0612345678, tot dan.&#039;</span><span style="color: #000000">;</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">results</span><span style="color: #000000"> =         </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">classify</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">pii_filter</span><span style="color: #000000"> = </span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #795E26">make_pii_classifier</span><span style="color: #000000">(</span><span style="color: #001080">pf</span><span style="color: #000000">.</span><span style="color: #001080">languages</span><span style="color: #000000">.</span><span style="color: #001080">nl</span><span style="color: #000000">.</span><span style="color: #795E26">make_lm</span><span style="color: #000000">());</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">raw_str</span><span style="color: #000000"> = </span><span style="color: #A31515">&#039;Hallo Johan, mijn e-mail is test@test.com en mijn nummer is 0612345678, tot dan.&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">results</span><span style="color: #000000"> = </span><span style="color: #001080">pii_filter</span><span style="color: #000000">.</span><span style="color: #795E26">classify</span><span style="color: #000000">(</span><span style="color: #001080">raw_str</span><span style="color: #000000">);</span>
 
 <span style="color: #AF00DB">for</span><span style="color: #000000"> (</span><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">pii</span><span style="color: #000000"> </span><span style="color: #0000FF">of</span><span style="color: #000000"> </span><span style="color: #001080">results</span><span style="color: #000000">.</span><span style="color: #001080">pii</span><span style="color: #000000">)</span>
 <span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">dir</span><span style="color: #000000">(</span><span style="color: #001080">pii</span><span style="color: #000000">);</span>
@@ -185,24 +184,30 @@
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class=" ">
-						<a href="modules.html">Modules</a>
+						<a href="modules.html">Exports</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_interfaces.html">core/interfaces</a>
+					<li class=" tsd-kind-namespace">
+						<a href="modules/languages.html">languages</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_parsing.html">core/parsing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_structures_trie.html">core/structures/trie</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/pii_filter.html">pii-<wbr>filter</a>
+					<li class=" tsd-kind-namespace tsd-parent-kind-namespace">
+						<a href="modules/languages.nl.html">languages.nl</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassification.html" class="tsd-kind-icon">PIIClassification</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassifier.html" class="tsd-kind-icon">PIIClassifier</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassifierresult.html" class="tsd-kind-icon">PIIClassifier<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#make_pii_classifier" class="tsd-kind-icon">make_<wbr>pii_<wbr>classifier</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -213,11 +218,8 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 		</div>
 	</div>

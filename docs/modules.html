@@ -57,20 +57,99 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A library for detecting, parsing, and removing personally identifiable information from strings and objects.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>remarks</dt>
+						<dd><p><code>pii-filter</code> declares:</p>
+							<ul>
+								<li><a href="interfaces/piiclassifier.html">PIIClassifier</a></li>
+								<li><a href="interfaces/piiclassifierresult.html">PIIClassifierResult</a></li>
+								<li><a href="interfaces/piiclassification.html">PIIClassification</a></li>
+							</ul>
+							<p>A <a href="interfaces/piiclassifier.html">PIIClassifier</a> is created through <a href="modules.html#make_pii_classifier">make_pii_classifier</a> with a language model declared in
+								<a href="modules/languages.html">languages</a>. Note that construction of a <a href="interfaces/piiclassifier.html">PIIClassifier</a> can take a little while because of the resources
+								which need to be loaded, therefore it is best to keep an instance alive instead of recreating it for each
+							classification.</p>
+							<a href="#languages" id="languages" style="color: inherit; text-decoration: none;">
+								<h3>Languages</h3>
+							</a>
+						</dd>
+						<dt>remarks</dt>
+						<dd><p><code>pii-filter</code> currently supports the following languages:</p>
+							<ul>
+								<li>Dutch, found in <a href="modules/languages.nl.html">languages.nl</a></li>
+							</ul>
+							<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+								<h3>Examples</h3>
+							</a>
+							<p>Examples can be found under <code>./lang/{iso-code}/examples/</code>.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Modules</h3>
+							<h3>Namespaces</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-module"><a href="modules/core_interfaces.html" class="tsd-kind-icon">core/interfaces</a></li>
-								<li class="tsd-kind-module"><a href="modules/core_parsing.html" class="tsd-kind-icon">core/parsing</a></li>
-								<li class="tsd-kind-module"><a href="modules/core_structures_trie.html" class="tsd-kind-icon">core/structures/trie</a></li>
-								<li class="tsd-kind-module"><a href="modules/pii_filter.html" class="tsd-kind-icon">pii-<wbr>filter</a></li>
+								<li class="tsd-kind-namespace"><a href="modules/languages.html" class="tsd-kind-icon">languages</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface"><a href="interfaces/piiclassification.html" class="tsd-kind-icon">PIIClassification</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/piiclassifier.html" class="tsd-kind-icon">PIIClassifier</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/piiclassifierresult.html" class="tsd-kind-icon">PIIClassifier<wbr>Result</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function"><a href="modules.html#make_pii_classifier" class="tsd-kind-icon">make_<wbr>pii_<wbr>classifier</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="make_pii_classifier" class="tsd-anchor"></a>
+					<h3>make_<wbr>pii_<wbr>classifier</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">make_<wbr>pii_<wbr>classifier<span class="tsd-signature-symbol">(</span>language_model<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Language</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/piiclassifier.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifier</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/prolody/pii-filter/blob/6f42b26/pii-filter/src/core/pii-filter.ts#L26">core/pii-filter.ts:26</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Make a new personally identifiable information filter.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>language_model: <span class="tsd-signature-type">Language</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the language model to use, found under <a href="modules/languages.html">languages</a>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/piiclassifier.html" class="tsd-signature-type" data-tsd-kind="Interface">PIIClassifier</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -78,24 +157,30 @@
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class="current ">
-						<a href="modules.html">Modules</a>
+						<a href="modules.html">Exports</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_interfaces.html">core/interfaces</a>
+					<li class=" tsd-kind-namespace">
+						<a href="modules/languages.html">languages</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_parsing.html">core/parsing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/core_structures_trie.html">core/structures/trie</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/pii_filter.html">pii-<wbr>filter</a>
+					<li class=" tsd-kind-namespace tsd-parent-kind-namespace">
+						<a href="modules/languages.nl.html">languages.nl</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassification.html" class="tsd-kind-icon">PIIClassification</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassifier.html" class="tsd-kind-icon">PIIClassifier</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/piiclassifierresult.html" class="tsd-kind-icon">PIIClassifier<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#make_pii_classifier" class="tsd-kind-icon">make_<wbr>pii_<wbr>classifier</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -106,11 +191,8 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 		</div>
 	</div>
