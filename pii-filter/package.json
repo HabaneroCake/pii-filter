@@ -39,7 +39,7 @@
     "compile": "tsc;",
     "build": "npm run compile;",
     "test": "mocha -r ts-node/register tests/**/*.test.ts;",
-    "docs": "npx typedoc src/pii-filter.ts && rm -rf ../docs && mv docs ../",
+    "docs": "npx typedoc src/pii-filter.ts src/core/parsing.ts src/core/interfaces.ts && rm -rf ../docs && mv docs ../",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test;"
   },
   "author": "HabaneroCake",
