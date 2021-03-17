@@ -3,6 +3,8 @@
 [![npm version](https://badge.fury.io/js/pii-filter.svg)](https://badge.fury.io/js/pii-filter)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
+> **Please note:** this project is still experimental
+
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
 [![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/pii-filter/master/res/highlight_placeholders.png)](./pii-filter)
