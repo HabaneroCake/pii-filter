@@ -1,5 +1,5 @@
 # ![PII](https://raw.githubusercontent.com/prolody/pii-filter-web-ext/master/assets/logos/a/PIIlogo.png) Filter
-![CI](https://github.com/prolody/pii-filter/workflows/CI/badge.svg)
+![CI](https://github.com/HabaneroCake/pii-filter/workflows/CI/badge.svg)
 [![npm version](https://badge.fury.io/js/pii-filter.svg)](https://badge.fury.io/js/pii-filter)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
@@ -7,12 +7,12 @@
 
 A library for detecting, parsing, and removing personally identifiable information from strings and objects.
 
-[![PII replaced with placeholders](https://raw.githubusercontent.com/prolody/pii-filter/master/res/highlight_placeholders.png)](./pii-filter)
+[![PII replaced with placeholders](https://raw.githubusercontent.com/HabaneroCake/pii-filter/master/res/highlight_placeholders.png)](./pii-filter)
 
 ---
 This repository contains the [datasets](./dataset) and the [npm module for `pii-filter`](./pii-filter).
 
-A showcase example of this library is the pii-filter [web-extension](https://github.com/prolody/pii-filter-web-ext) for 
+A showcase example of this library is the pii-filter [web-extension](https://github.com/HabaneroCake/pii-filter-web-ext) for 
 browsers.
 
 ## Scenarios
